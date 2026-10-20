@@ -4,6 +4,7 @@ import mekanism.api.IConfigurable;
 import mekanism.common.base.IWholeEnergyTransfer;
 import mekanism.api.IContentsListener;
 import mekanism.api.Coord4D;
+import mekanism.api.energy.IStrictEnergyStorage;
 import mekanism.api.TileNetworkList;
 import mekanism.api.EnumColor;
 import mekanism.api.transmitters.TransmissionType;
@@ -91,9 +92,37 @@ public class TileEntityExtraInductionPort extends TileEntityExtraInductionCasing
     public void onUpdateServer() {
         super.onUpdateServer();
         if (structure != null && structure.isFormed() && mode && getEnergy() > 0) {
-            CableUtils.emit(this);
+            emitStoredEnergy();
         }
         updateSharedComparatorSignal();
+    }
+
+    private void emitStoredEnergy() {
+        double remaining = getEnergy();
+        if (remaining <= 0) {
+            return;
+        }
+        for (EnumFacing side : EnumFacing.VALUES) {
+            if (!sideIsOutput(side)) {
+                continue;
+            }
+            IStrictEnergyStorage target = CapabilityUtils.getCapability(
+                  MekanismUtils.getTileEntity(world, getPos().offset(side)),
+                  Capabilities.ENERGY_STORAGE_CAPABILITY, side.getOpposite());
+            if (target == null) {
+                continue;
+            }
+            double accepted = Math.min(remaining, target.getMaxEnergy() - target.getEnergy());
+            if (accepted <= 0) {
+                continue;
+            }
+            target.setEnergy(target.getEnergy() + accepted);
+            setEnergy(getEnergy() - accepted);
+            remaining = getEnergy();
+            if (remaining <= 0) {
+                return;
+            }
+        }
     }
 
     @Override
@@ -137,7 +166,9 @@ public class TileEntityExtraInductionPort extends TileEntityExtraInductionCasing
             boolean prevMode = mode;
             mode = dataStream.readBoolean();
             if (prevMode != mode) {
+                clearCapabilityCache();
                 MekanismUtils.updateBlock(world, getPos());
+                world.markBlockRangeForRenderUpdate(getPos(), getPos());
             }
         }
     }
@@ -345,6 +376,8 @@ public class TileEntityExtraInductionPort extends TileEntityExtraInductionCasing
             String modeText = " " + (mode ? EnumColor.DARK_RED : EnumColor.DARK_GREEN) + LangUtils.transOutputInput(mode) + ".";
             player.sendMessage(new TextComponentString(EnumColor.DARK_BLUE + Mekanism.LOG_TAG + " " + EnumColor.GREY +
                     LangUtils.localize("tooltip.configurator.inductionPortMode") + modeText));
+            clearCapabilityCache();
+            MekanismUtils.updateBlock(world, getPos());
             Mekanism.packetHandler.sendUpdatePacket(this);
             markNoUpdateSync();
         }

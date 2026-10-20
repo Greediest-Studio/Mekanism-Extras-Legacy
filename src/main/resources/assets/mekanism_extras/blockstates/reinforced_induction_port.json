@@ -27,7 +27,12 @@
       }
     },
     "active": {
-      "true": {},
+      "true": {
+        "textures": {
+          "all": "mekanism_extras:blocks/induction_port_output",
+          "particle": "mekanism_extras:blocks/induction_port_output"
+        }
+      },
       "false": {}
     },
     "inventory": [

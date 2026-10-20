@@ -45,6 +45,15 @@ public class BlockExtraInductionCasing extends BlockExtraMachine {
         return true;
     }
     @Override
+    public IBlockState getActualState(IBlockState state, net.minecraft.world.IBlockAccess world, BlockPos pos) {
+        TileEntity tile = world.getTileEntity(pos);
+        if (port && tile instanceof com.jerry.mekextras.common.tile.multiblock.TileEntityExtraInductionPort portTile) {
+            state = state.withProperty(com.jerry.mekextras.common.block.states.BlockStateExtraMachine.activeProperty, portTile.mode);
+        }
+        return super.getActualState(state, world, pos);
+    }
+
+    @Override
     public TileEntity createNewTileEntity(World world, int meta) {
         return port ? new com.jerry.mekextras.common.tile.multiblock.TileEntityExtraInductionPort()
               : new TileEntityExtraInductionCasing();
