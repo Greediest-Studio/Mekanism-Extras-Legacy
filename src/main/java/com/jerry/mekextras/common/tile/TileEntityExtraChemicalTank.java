@@ -1,239 +1,408 @@
 package com.jerry.mekextras.common.tile;
 
-import com.jerry.mekextras.common.block.attribute.ExtraAttribute;
-import com.jerry.mekextras.common.capabilities.chemical.ExtraChemicalTankChemicalTank;
+import mekanism.common.network.PacketTileEntity;
+import mekanism.common.base.IRedstoneControl;
+import mekanism.common.base.ISideConfiguration;
+import mekanism.common.base.IUpgradeableTile;
+import mekanism.common.base.IBaseTierProvider;
+import mekanism.common.base.IComparatorSupport;
+import mekanism.common.base.ITankManager;
+import mekanism.api.gas.GasTank;
+import mekanism.api.gas.Gas;
+import mekanism.api.RelativeSide;
+import mekanism.api.IContentsListener;
+import mekanism.api.AutomationType;
+import mekanism.api.TileNetworkList;
+import com.jerry.mekextras.api.IExtraTierMachine;
+import com.jerry.mekextras.api.tier.AdvancedTier;
+import com.jerry.mekextras.common.capabilities.ExtraTankGasTank;
+import mekanism.common.tile.TileEntityGasTank.GasMode;
+import com.jerry.mekextras.common.registries.ExtraBlocks;
 import com.jerry.mekextras.common.tier.CTTier;
-import com.jerry.mekextras.common.upgrade.ExtraChemicalTankUpgradeData;
+import net.minecraft.block.Block;
+
+import io.netty.buffer.ByteBuf;
 import mekanism.api.*;
-import mekanism.api.chemical.IChemicalTank;
+import mekanism.api.gas.Gas;
+import mekanism.api.gas.GasStack;
 import mekanism.api.math.MathUtils;
-import mekanism.common.attachments.containers.ContainerType;
-import mekanism.common.capabilities.holder.chemical.ChemicalTankHelper;
-import mekanism.common.capabilities.holder.chemical.IChemicalTankHolder;
+import mekanism.api.transmitters.TransmissionType;
+import mekanism.common.Mekanism;
+import mekanism.common.base.*;
+import mekanism.common.capabilities.holder.gas.GasTankHelper;
+import mekanism.common.capabilities.holder.gas.IGasTankHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.config.MekanismConfig;
-import mekanism.common.integration.computer.ComputerException;
-import mekanism.common.integration.computer.SpecialComputerMethodWrapper;
-import mekanism.common.integration.computer.annotation.ComputerMethod;
-import mekanism.common.integration.computer.annotation.SyntheticComputerMethod;
-import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
-import mekanism.common.inventory.container.MekanismContainer;
+import mekanism.common.integration.computer.IComputerIntegration;
 import mekanism.common.inventory.container.slot.ContainerSlotType;
 import mekanism.common.inventory.container.slot.SlotOverlay;
-import mekanism.common.inventory.container.sync.SyncableEnum;
-import mekanism.common.inventory.slot.chemical.ChemicalInventorySlot;
-import mekanism.common.lib.transmitter.TransmissionType;
-import mekanism.common.registries.MekanismDataComponents;
-import mekanism.common.tile.TileEntityChemicalTank.GasMode;
-import mekanism.common.tile.component.ITileComponent;
+import mekanism.common.inventory.slot.gas.GasInventorySlot;
+import mekanism.common.network.PacketTileEntity.TileEntityMessage;
+import mekanism.common.security.ISecurityTile;
+import mekanism.common.tier.BaseTier;
+import mekanism.common.tile.component.TileComponentConfig;
 import mekanism.common.tile.component.TileComponentEjector;
-import mekanism.common.tile.interfaces.IHasGasMode;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
-import mekanism.common.upgrade.ChemicalTankUpgradeData;
+import mekanism.common.tile.component.TileComponentSecurity;
+import mekanism.common.tile.component.config.DataType;
+import mekanism.common.tile.prefab.TileEntityContainerBlock;
+import mekanism.common.upgrade.GasTankUpgradeData;
 import mekanism.common.upgrade.IUpgradeData;
+import mekanism.common.util.LangUtils;
 import mekanism.common.util.MekanismUtils;
-import mekanism.common.util.NBTUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.util.TileUtils;
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public class TileEntityExtraChemicalTank extends TileEntityConfigurableMachine implements IHasGasMode {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-    @SyntheticComputerMethod(getter = "getDumpingMode", getterDescription = "Get the current Dumping configuration")
-    public GasMode dumping = GasMode.IDLE;
+public class TileEntityExtraChemicalTank extends TileEntityContainerBlock implements IExtraTierMachine, IRedstoneControl, ISideConfiguration, ISecurityTile, IUpgradeableTile, IBaseTierProvider,
+        IComputerIntegration, IComparatorSupport, ITankManager {
 
-    private IChemicalTank chemicalTank;
-    private CTTier tier;
+    private static final String[] methods = new String[]{"getMaxGas", "getStoredGas", "getGas"};
+    /**
+     * The type of gas stored in this tank.
+     */
+    public ExtraTankGasTank gasTank;
 
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getDrainItem", docPlaceholder = "drain slot")
-    ChemicalInventorySlot drainSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getFillItem", docPlaceholder = "fill slot")
-    ChemicalInventorySlot fillSlot;
+    public CTTier tier = CTTier.ABSOLUTE;
 
-    public TileEntityExtraChemicalTank(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
-        super(blockProvider, pos, state);
-        configComponent.setupIOConfig(TransmissionType.ITEM, drainSlot, fillSlot, RelativeSide.FRONT, true).setCanEject(false);
-        configComponent.setupIOConfig(TransmissionType.CHEMICAL, getChemicalTank(), RelativeSide.FRONT);
-        ejectorComponent = new TileComponentEjector(this, () -> tier.getOutput());
-        ejectorComponent.setOutputData(configComponent, TransmissionType.CHEMICAL)
-                .setCanEject(type -> canFunction() && (dumping != GasMode.DUMPING));
+    public GasMode dumping;
+
+    public int currentGasAmount;
+
+    public int currentRedstoneLevel;
+
+    /**
+     * This machine's current RedstoneControl type.
+     */
+    public RedstoneControl controlType;
+
+    public TileComponentEjector ejectorComponent;
+    public TileComponentConfig configComponent;
+    public TileComponentSecurity securityComponent;
+    private GasInventorySlot drainSlot;
+    private GasInventorySlot fillSlot;
+
+    public TileEntityExtraChemicalTank() {
+        super("GasTank");
+        configComponent = new TileComponentConfig(this, TransmissionType.GAS, TransmissionType.ITEM);
+        gasTank = ExtraTankGasTank.create(() -> (int) Math.min(Integer.MAX_VALUE, tier.getStorage()), () -> (int) Math.min(Integer.MAX_VALUE, tier.getOutput()), this::isValidGas, this);
+        initializeInventorySlots();
+        configComponent.setupItemIOConfig(fillSlot, drainSlot);
+        configComponent.setConfig(TransmissionType.ITEM, DataType.INPUT, DataType.INPUT, DataType.OUTPUT, DataType.INPUT, DataType.INPUT, DataType.INPUT);
+        configComponent.setCanEject(TransmissionType.ITEM, false);
+
+        configComponent.setupIOConfig(TransmissionType.GAS, gasTank, RelativeSide.FRONT);
+        configComponent.setEjecting(TransmissionType.GAS, true);
+
+        dumping = GasMode.IDLE;
+        controlType = RedstoneControl.DISABLED;
+
+        ejectorComponent = new TileComponentEjector(this);
+        ejectorComponent.setOutputData(configComponent, TransmissionType.GAS)
+                .setCanEject(type -> MekanismUtils.canFunction(this) && (false || dumping != GasMode.DUMPING));
+
+        securityComponent = new TileComponentSecurity(this);
     }
 
-    @Override
-    protected void presetVariables() {
-        super.presetVariables();
-        tier = ExtraAttribute.getAdvancedTier(getBlockHolder(), CTTier.class);
+    public TileEntityExtraChemicalTank(CTTier tier) {
+        this();
+        this.tier = tier;
     }
 
-    @Override
-    public @Nullable IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
-        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(chemicalTank = ExtraChemicalTankChemicalTank.create(tier, listener));
-        return builder.build();
-    }
-
-    @NotNull
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
-        builder.addSlot(drainSlot = ChemicalInventorySlot.drain(chemicalTank, listener, 16, 16));
-        builder.addSlot(fillSlot = ChemicalInventorySlot.fill(chemicalTank, listener, 16, 48));
+        InventorySlotHelper builder = createInventorySlotHelper();
+        drainSlot = builder.addSlot(GasInventorySlot.drain(gasTank, listener, 16, 16));
         drainSlot.setSlotType(ContainerSlotType.OUTPUT);
         drainSlot.setSlotOverlay(SlotOverlay.PLUS);
+        fillSlot = builder.addSlot(GasInventorySlot.fill(gasTank, listener, 16, 48));
         fillSlot.setSlotType(ContainerSlotType.INPUT);
         fillSlot.setSlotOverlay(SlotOverlay.MINUS);
         return builder.build();
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected IGasTankHolder getInitialGasTanks(IContentsListener listener) {
+        GasTankHelper builder = createGasTankHelper();
+        builder.addTank(gasTank);
+        return builder.build();
+    }
+
+    @Override
+    public void onAsyncUpdateServer() {
+        super.onAsyncUpdateServer();
         drainSlot.drainTank();
         fillSlot.fillTank();
-        if (dumping != GasMode.IDLE) {
+        Mekanism.EXECUTE_MANAGER.addSyncTask(() -> {
+            handTank();
+            int newGasAmount = gasTank.getStored();
+            if (newGasAmount != currentGasAmount) {
+                MekanismUtils.saveChunk(this);
+            }
+            currentGasAmount = newGasAmount;
+            int newRedstoneLevel = getRedstoneLevel();
+            if (newRedstoneLevel != currentRedstoneLevel) {
+                markNoUpdateSync();
+                currentRedstoneLevel = newRedstoneLevel;
+            }
+        });
+    }
+
+    public void handTank() {
+        if (true) {
             if (dumping == GasMode.DUMPING) {
-                chemicalTank.shrinkStack(tier.getStorage() / 400, Action.EXECUTE);
-            } else {//dumping == GasMode.DUMPING_EXCESS
-                long target = MathUtils.clampToLong(chemicalTank.getCapacity() * MekanismConfig.general.dumpExcessKeepRatio.get());
-                long stored = chemicalTank.getStored();
+                gasTank.extract((int) Math.min(Integer.MAX_VALUE, tier.getStorage() / 400), Action.EXECUTE, AutomationType.INTERNAL);
+            } else if (dumping == GasMode.DUMPING_EXCESS) {
+                int target = MathUtils.clampToInt(gasTank.getMaxGas() * MekanismConfig.current().general.dumpExcessKeepRatio.val());
+                int stored = gasTank.getStored();
                 if (target < stored) {
-                    //Dump excess that we need to get to the target (capping at our eject rate for how much we can dump at once)
-                    chemicalTank.shrinkStack(Math.min(stored - target, tier.getOutput()), Action.EXECUTE);
+                    gasTank.extract((int) Math.min(Integer.MAX_VALUE, Math.min(stored - target, tier.getOutput())), Action.EXECUTE, AutomationType.INTERNAL);
                 }
             }
         }
-        return sendUpdatePacket;
+    }
+
+    public boolean isValidGas(Gas gas) {
+        return gas != null && (false || !gas.isRadiation());
+    }
+
+
+    @Override
+    public boolean canInstallUpgrade(BaseTier upgradeTier) {
+        //Mekanism's own tier installers are not used for our tiers, the extra tier installers replace the block instead.
+        return false;
     }
 
     @Override
-    public void nextMode(int tank) {
-        if (tank == 0) {
-            dumping = dumping.getNext();
-            markForSave();
+    public BaseTier getBaseTier() {
+        return tier.getBaseTier();
+    }
+
+    @Nullable
+    @Override
+    public IUpgradeData getUpgradeData(BaseTier upgradeTier) {
+        if (!canInstallUpgrade(upgradeTier)) {
+            return null;
+        }
+        return new GasTankUpgradeData(upgradeTier, facing, clientFacing, ticker, redstone, redstoneLastTick, doAutoSync, getControlType(),
+                dumping, gasTank.getGas(), currentGasAmount, currentRedstoneLevel, writeUpgradeComponentData(), drainSlot.serializeNBT(),
+                fillSlot.serializeNBT());
+    }
+
+    @Nonnull
+    private NBTTagCompound writeUpgradeComponentData() {
+        NBTTagCompound componentData = new NBTTagCompound();
+        configComponent.write(componentData);
+        ejectorComponent.write(componentData);
+        securityComponent.write(componentData);
+        return componentData;
+    }
+
+    @Override
+    public boolean parseUpgradeData(IUpgradeData upgradeData) {
+        if (upgradeData instanceof GasTankUpgradeData data && data.getUpgradeTier().ordinal() == tier.ordinal() + 1) {
+            facing = data.facing;
+            clientFacing = data.clientFacing;
+            ticker = data.ticker;
+            redstone = data.redstone;
+            redstoneLastTick = data.redstoneLastTick;
+            doAutoSync = data.doAutoSync;
+            tier = CTTier.values()[data.getUpgradeTier().ordinal()];
+            setControlType(data.controlType);
+            dumping = data.dumping;
+            currentGasAmount = data.currentGasAmount;
+            currentRedstoneLevel = data.currentRedstoneLevel;
+            configComponent.read(data.componentData);
+            ejectorComponent.read(data.componentData);
+            securityComponent.read(data.componentData);
+            ejectorComponent.setOutputData(configComponent, TransmissionType.GAS);
+            drainSlot.deserializeNBT(data.drainSlot);
+            fillSlot.deserializeNBT(data.fillSlot);
+            gasTank.setGas(data.stored);
+            sanitizeAndClampTank();
+            MekanismUtils.updateBlock(world, getPos());
+            Mekanism.packetHandler.sendUpdatePacket(this);
+            markNoUpdateSync();
+            return true;
+        }
+        return false;
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return getBlockType().getLocalizedName();
+    }
+
+    @Override
+    public Object[] getManagedTanks() {
+        return new Object[]{gasTank};
+    }
+
+    @Override
+    public void handlePacketData(ByteBuf dataStream) {
+        if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
+            int type = dataStream.readInt();
+            if (type == 0) {
+                int index = (dumping.ordinal() + 1) % GasMode.values().length;
+                dumping = GasMode.values()[index];
+            }
+            if (type == 1) {
+                gasTank.setEmpty();
+            }
+            playersUsing.forEach(player -> Mekanism.packetHandler.sendTo(new TileEntityMessage(this), (EntityPlayerMP) player));
+
+            return;
+        }
+        super.handlePacketData(dataStream);
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            CTTier prevTier = tier;
+            tier = MekanismUtils.getByIndex(CTTier.values(), dataStream.readInt(), tier);
+            TileUtils.readTankData(dataStream, gasTank);
+            dumping = MekanismUtils.getByIndex(GasMode.values(), dataStream.readInt(), dumping);
+            controlType = MekanismUtils.getByIndex(RedstoneControl.values(), dataStream.readInt(), controlType);
+            if (prevTier != tier) {
+                MekanismUtils.updateBlock(world, getPos());
+            }
         }
     }
 
     @Override
-    public boolean shouldDumpRadiation() {
-        return true;
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        super.readCustomNBT(nbtTags);
+        tier = MekanismUtils.getByIndex(CTTier.values(), nbtTags.getInteger("tier"), tier);
+        if (!hasStoredGasTanks(nbtTags) && nbtTags.hasKey("gasTank")) {
+            gasTank.read(nbtTags.getCompoundTag("gasTank"));
+        }
+        sanitizeAndClampTank();
+        dumping = MekanismUtils.getByIndex(GasMode.values(), nbtTags.getInteger("dumping"), dumping);
+        controlType = MekanismUtils.getByIndex(RedstoneControl.values(), nbtTags.getInteger("controlType"), controlType);
+    }
+
+    private void sanitizeAndClampTank() {
+        GasStack stored = gasTank.getGas();
+        if (stored == null || stored.getGas() == null || stored.amount <= 0 || !isValidGas(stored.getGas())) {
+            gasTank.setEmpty();
+        } else {
+            gasTank.setStackSize(stored.amount, Action.EXECUTE);
+        }
+    }
+
+    @Override
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        super.writeCustomNBT(nbtTags);
+        nbtTags.setInteger("tier", tier.ordinal());
+        nbtTags.setInteger("dumping", dumping.ordinal());
+        nbtTags.setInteger("controlType", controlType.ordinal());
+    }
+
+    @Override
+    public TileNetworkList getNetworkedData(TileNetworkList data) {
+        super.getNetworkedData(data);
+        data.add(tier.ordinal());
+        TileUtils.addTankData(data, gasTank);
+        data.add(dumping.ordinal());
+        data.add(controlType.ordinal());
+        return data;
+    }
+
+    @Override
+    public boolean canSetFacing(@Nonnull EnumFacing facing) {
+        return facing != EnumFacing.DOWN && facing != EnumFacing.UP;
+    }
+
+    @Override
+    public boolean isComparatorInput(mekanism.api.transmitters.TransmissionType type) {
+        return type == mekanism.api.transmitters.TransmissionType.GAS;
     }
 
     @Override
     public int getRedstoneLevel() {
-        IChemicalTank currentTank = getCurrentTank();
-        return MekanismUtils.redstoneLevelFromContents(currentTank.getStored(), currentTank.getCapacity());
+        return MekanismUtils.redstoneLevelFromContents(gasTank.getStored(), gasTank.getMaxGas());
     }
 
     @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.CHEMICAL;
-    }
-
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerChemicalTankWrapper.class, methodNames = {"getStored", "getCapacity", "getNeeded", "getFilledPercentage"}, docPlaceholder = "tank")
-    IChemicalTank getCurrentTank() {
-        return chemicalTank;
-    }
-
-    public CTTier getTier() {
-        return tier;
-    }
-
-    public IChemicalTank getChemicalTank() {
-        return chemicalTank;
+    public RedstoneControl getControlType() {
+        return controlType;
     }
 
     @Override
-    public void parseUpgradeData(HolderLookup.Provider provider, @NotNull IUpgradeData upgradeData) {
-        if (upgradeData instanceof ExtraChemicalTankUpgradeData data) {
-            redstone = data.redstone;
-            setControlType(data.controlType);
-            drainSlot.setStack(data.drainSlot.getStack());
-            fillSlot.setStack(data.fillSlot.getStack());
-            dumping = data.dumping;
-            getChemicalTank().setStack(data.storedChemical);
-            for (ITileComponent component : getComponents()) {
-                component.read(data.components, provider);
-            }
-        } else if (upgradeData instanceof ChemicalTankUpgradeData data) {
-            redstone = data.redstone;
-            setControlType(data.controlType);
-            drainSlot.setStack(data.drainSlot.getStack());
-            fillSlot.setStack(data.fillSlot.getStack());
-            dumping = MathUtils.getByIndexMod(GasMode.values(), data.dumping.ordinal());
-            getChemicalTank().setStack(data.storedChemical);
-            for (ITileComponent component : getComponents()) {
-                component.read(data.components, provider);
-            }
-        } else {
-            super.parseUpgradeData(provider, upgradeData);
-        }
-    }
-
-    @NotNull
-    @Override
-    public ExtraChemicalTankUpgradeData getUpgradeData(HolderLookup.Provider provider) {
-        return new ExtraChemicalTankUpgradeData(provider, redstone, getControlType(), drainSlot, fillSlot, dumping, getChemicalTank().getStack(), getComponents());
+    public void setControlType(RedstoneControl type) {
+        controlType = type;
     }
 
     @Override
-    public void writeSustainedData(HolderLookup.Provider provider, CompoundTag dataMap) {
-        super.writeSustainedData(provider, dataMap);
-        NBTUtils.writeEnum(dataMap, SerializationConstants.DUMP_MODE, dumping);
+    public boolean canPulse() {
+        return false;
     }
 
     @Override
-    public void readSustainedData(HolderLookup.Provider provider, CompoundTag dataMap) {
-        super.readSustainedData(provider, dataMap);
-        NBTUtils.setEnumIfPresent(dataMap, SerializationConstants.DUMP_MODE, GasMode.BY_ID, mode -> dumping = mode);
+    public TileComponentEjector getEjector() {
+        return ejectorComponent;
     }
 
     @Override
-    protected void collectImplicitComponents(@NotNull DataComponentMap.Builder builder) {
-        super.collectImplicitComponents(builder);
-        builder.set(MekanismDataComponents.DUMP_MODE, dumping);
+    public TileComponentConfig getConfig() {
+        return configComponent;
     }
 
     @Override
-    protected void applyImplicitComponents(@NotNull BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        dumping = input.getOrDefault(MekanismDataComponents.DUMP_MODE, dumping);
+    public EnumFacing getOrientation() {
+        return facing;
     }
 
     @Override
-    public void addContainerTrackers(MekanismContainer container) {
-        super.addContainerTrackers(container);
-        container.track(SyncableEnum.create(GasMode.BY_ID, GasMode.IDLE, () -> dumping, value -> dumping = value));
+    public TileComponentSecurity getSecurity() {
+        return securityComponent;
     }
 
-    //Methods relating to IComputerTile
-    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set the Dumping mode of the tank")
-    void setDumpingMode(GasMode mode) throws ComputerException {
-        validateSecurityIsPublic();
-        if (dumping != mode) {
-            dumping = mode;
-            markForSave();
-        }
+    @Override
+    public String[] getMethods() {
+        return methods;
     }
 
-    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Advance the Dumping mode to the next configuration in the list")
-    void incrementDumpingMode() throws ComputerException {
-        validateSecurityIsPublic();
-        nextMode(0);
+    @Override
+    public Object[] invoke(int method, Object[] arguments) throws NoSuchMethodException {
+        return switch (method) {
+            case 0 -> new Object[]{gasTank.getMaxGas()};
+            case 1 -> new Object[]{gasTank.getStored()};
+            case 2 -> new Object[]{gasTank.getGas()};
+            default -> throw new NoSuchMethodException();
+        };
     }
 
-    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Descend the Dumping mode to the previous configuration in the list")
-    void decrementDumpingMode() throws ComputerException {
-        validateSecurityIsPublic();
-        dumping = dumping.getPrevious();
-        markForSave();
+
+
+    @Override
+    protected boolean shouldDumpRadiation() {
+        return true;
     }
-    //End methods IComputerTile
+
+    @Override
+    public int getBlockGuiID(Block block, int metadata) {
+        return 10;
+    }
+
+    @Override
+    public AdvancedTier getExtraTier() {
+        return tier.getAdvanceTier();
+    }
+
+    @Override
+    public void setExtraTier(AdvancedTier newTier) {
+        //The tier is defined by the block, the machine is replaced when it is upgraded.
+    }
+
+    @Override
+    public Block getBlockForTier(AdvancedTier newTier) {
+        return ExtraBlocks.getChemicalTankBlock(newTier);
+    }
 }
+
+

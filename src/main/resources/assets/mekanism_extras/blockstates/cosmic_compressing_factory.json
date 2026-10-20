@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryback",
+      "west": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryright",
+      "front": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_cosmic",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/compressing/cosmic"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/compressing/cosmic",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/cosmic/compressing/cosmiccompressingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/compressing/cosmic",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/compressing/cosmic",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/compressing/active/cosmic"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/compressing/active/cosmic",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/compressing/active/cosmic",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/compressing/active/cosmic",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

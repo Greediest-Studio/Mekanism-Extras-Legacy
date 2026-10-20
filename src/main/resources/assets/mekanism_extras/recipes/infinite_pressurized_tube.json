@@ -1,0 +1,21 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "TTT",
+    "TAT",
+    "TTT"
+  ],
+  "key": {
+    "T": {
+      "item": "mekanism_extras:cosmic_pressurized_tube",
+      "data": 0
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_spectrum"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:infinite_pressurized_tube",
+    "count": 8
+  }
+}

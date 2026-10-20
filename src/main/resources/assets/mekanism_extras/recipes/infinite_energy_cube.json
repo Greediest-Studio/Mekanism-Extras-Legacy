@@ -1,0 +1,29 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "AEA",
+    "IPJ",
+    "AEA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_spectrum"
+    },
+    "E": {
+      "item": "mekanism:energytablet"
+    },
+    "I": {
+      "item": "mekanism:PlutoniumPellet"
+    },
+    "P": {
+      "item": "mekanism_extras:cosmic_energy_cube"
+    },
+    "J": {
+      "item": "mekanism:PoloniumPellet"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:infinite_energy_cube",
+    "count": 1
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_shining"
+    },
+    "C": {
+      "item": "mekanism_extras:cosmic_control_circuit"
+    },
+    "I": {
+      "ore": "ingotRefinedObsidian",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "item": "mekanism_extras:supreme_recycler_factory"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:cosmic_recycler_factory",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    " # ",
+    "#C#",
+    " # "
+  ],
+  "key": {
+    "#": {
+      "item": "mekanism_extras:reinforced_induction_casing"
+    },
+    "C": {
+      "ore": "circuitElite",
+      "type": "forge:ore_dict"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:reinforced_induction_port",
+    "count": 2
+  }
+}

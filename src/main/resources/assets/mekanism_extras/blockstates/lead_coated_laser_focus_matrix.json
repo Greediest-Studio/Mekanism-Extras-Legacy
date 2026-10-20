@@ -1,7 +1,37 @@
 {
-  "variants": {
-    "": {
-      "model": "mekanism_extras:block/reactor/lead_coated_laser_focus_matrix"
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism:basic_cube",
+    "textures": {
+      "all": "mekanism_extras:blocks/lead_coated_laser_focus_matrix",
+      "particle": "mekanism_extras:blocks/lead_coated_laser_focus_matrix"
     }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {},
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
   }
 }

@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactoryside",
+      "south": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactoryback",
+      "west": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactoryside",
+      "sides": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactoryside",
+      "front": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_supreme",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/supreme"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/supreme",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactorysideon",
+          "south": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactorysideon",
+          "front": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/supreme/sawing/supremesawingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/supreme",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/supreme",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/supreme"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/supreme",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/supreme",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/supreme",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

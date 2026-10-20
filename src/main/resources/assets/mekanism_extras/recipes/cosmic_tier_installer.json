@@ -1,0 +1,28 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_shining"
+    },
+    "C": {
+      "item": "mekanism_extras:cosmic_control_circuit"
+    },
+    "I": {
+      "ore": "ingotRefinedObsidian",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "ore": "plankWood",
+      "type": "forge:ore_dict"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:cosmic_tier_installer",
+    "count": 1
+  }
+}

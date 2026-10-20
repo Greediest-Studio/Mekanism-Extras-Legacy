@@ -1,0 +1,23 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "EPE",
+    "P#P",
+    "EPE"
+  ],
+  "key": {
+    "E": {
+      "item": "mekanism:energytablet"
+    },
+    "P": {
+      "item": "mekanism_extras:absolute_induction_cell"
+    },
+    "#": {
+      "item": "mekanism_extras:supreme_energy_cube"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:supreme_induction_cell",
+    "count": 1
+  }
+}

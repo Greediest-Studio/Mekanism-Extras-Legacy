@@ -1,41 +1,31 @@
 package com.jerry.mekextras.api.tier;
 
-import io.netty.buffer.ByteBuf;
-import mekanism.api.SupportsColorMap;
-import mekanism.api.math.MathUtils;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.ByIdMap;
-import net.minecraft.util.FastColor;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.material.MapColor;
-import org.jetbrains.annotations.NotNull;
+import mekanism.api.EnumColor;
+import mekanism.common.tier.BaseTier;
 
 import java.util.Locale;
-import java.util.function.IntFunction;
 
-public enum AdvancedTier implements StringRepresentable, SupportsColorMap {
-    ABSOLUTE("Absolute", new int[]{237, 238, 70}, MapColor.COLOR_LIGHT_GREEN),
-    SUPREME("Supreme", new int[]{166, 0, 2}, MapColor.TERRACOTTA_PINK),
-    COSMIC("Cosmic", new int[]{75, 248, 255}, MapColor.DIAMOND),
-    INFINITE("Infinite", new int[]{247, 135, 255}, MapColor.COLOR_MAGENTA);
+public enum AdvancedTier implements IAdvancedTier {
 
-    public static final IntFunction<AdvancedTier> BY_ID = ByIdMap.continuous(AdvancedTier::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
-    public static final StreamCodec<ByteBuf, AdvancedTier> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, AdvancedTier::ordinal);
+    ABSOLUTE("Absolute", 0xE8E983, EnumColor.BRIGHT_GREEN),
+    SUPREME("Supreme", 0xE65249, EnumColor.DARK_RED),
+    COSMIC("Cosmic", 0xFACEF7, EnumColor.AQUA),
+    INFINITE("Infinite", 0xDFD9AB, EnumColor.PURPLE);
 
+    private static final int[] COSMIC_COLORS = {0xF516EF, 0xF761F2, 0xF99DF5, 0xFAC0F6, 0xFACEF7};
+    private static final int[] COSMIC_ORDER = {0, 1, 2, 3, 4, 3, 2, 1};
+    private static final int[] INFINITE_COLORS = {0xDCC0AB, 0xD6A1B8, 0xCF9FD5, 0xA9B0DC, 0xA9D5C7, 0xDFD9AB};
+    private static final int[] INFINITE_ORDER = {0, 1, 2, 3, 4, 5};
     private static final AdvancedTier[] TIERS = values();
 
     private final String name;
-    private final MapColor mapColor;
-    private TextColor textColor;
-    private int[] rgbCode;
-    private int argb;
+    private final int rgb;
+    private final EnumColor color;
 
-    AdvancedTier(String name, int[] rgbCode, MapColor mapColor) {
+    AdvancedTier(String name, int rgb, EnumColor color) {
         this.name = name;
-        this.mapColor = mapColor;
-        setColorFromAtlas(rgbCode);
+        this.rgb = rgb;
+        this.color = color;
     }
 
     public String getSimpleName() {
@@ -43,41 +33,71 @@ public enum AdvancedTier implements StringRepresentable, SupportsColorMap {
     }
 
     public String getLowerName() {
-        return getSimpleName().toLowerCase(Locale.ROOT);
+        return name.toLowerCase(Locale.ROOT);
     }
 
-    public MapColor getMapColor() {
-        return mapColor;
+    /**
+     * @return the RGB tint used for this tier's blocks, items and textures
+     */
+    public int getRgb() {
+        return rgb;
+    }
+
+    /** Client display colour, including the configured animated Cosmic and Infinite gradients. */
+    public int getDisplayColor(float ticks) {
+        if (this == COSMIC) {
+            return animate(ticks, COSMIC_COLORS, COSMIC_ORDER, 6.0F);
+        }
+        if (this == INFINITE) {
+            return animate(ticks, INFINITE_COLORS, INFINITE_ORDER, 7.0F);
+        }
+        return rgb;
+    }
+
+    private static int animate(float ticks, int[] palette, int[] order, float frameTicks) {
+        float position = Math.max(0, ticks) / frameTicks;
+        int frame = (int) Math.floor(position) % order.length;
+        int nextFrame = (frame + 1) % order.length;
+        float progress = position - (float) Math.floor(position);
+        return lerpColor(palette[order[frame]], palette[order[nextFrame]], progress);
+    }
+
+    private static int lerpColor(int from, int to, float progress) {
+        int red = Math.round(((from >> 16) & 0xFF) + ((((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * progress));
+        int green = Math.round(((from >> 8) & 0xFF) + ((((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * progress));
+        int blue = Math.round((from & 0xFF) + (((to & 0xFF) - (from & 0xFF)) * progress));
+        return red << 16 | green << 8 | blue;
+    }
+
+    public EnumColor getColor() {
+        return color;
+    }
+
+    public boolean isObtainable() {
+        return true;
     }
 
     @Override
-    public int getPackedColor() {
-        return argb;
+    public AdvancedTier getAdvanceTier() {
+        return this;
     }
 
     @Override
-    public int[] getRgbCode() {
-        return rgbCode;
+    public BaseTier getBaseTier() {
+        return BaseTier.values()[ordinal()];
     }
 
-    @Override
-    public void setColorFromAtlas(int[] color) {
-        this.rgbCode = color;
-        this.argb = FastColor.ARGB32.color(rgbCode[0], rgbCode[1], rgbCode[2]);
-        this.textColor = TextColor.fromRgb(argb);
+    public static AdvancedTier byIndex(int index) {
+        return index >= 0 && index < TIERS.length ? TIERS[index] : ABSOLUTE;
     }
 
-    public TextColor getColor() {
-        return this.textColor;
-    }
-
-    @NotNull
-    @Override
-    public String getSerializedName() {
-        return name().toLowerCase(Locale.ROOT);
-    }
-
-    public static AdvancedTier byIndexStatic(int index) {
-        return MathUtils.getByIndexMod(TIERS, index);
+    public static AdvancedTier byName(String name) {
+        for (AdvancedTier tier : TIERS) {
+            if (tier.getSimpleName().equalsIgnoreCase(name)) {
+                return tier;
+            }
+        }
+        return ABSOLUTE;
     }
 }
+

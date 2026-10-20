@@ -1,0 +1,10 @@
+{
+  "parent": "mekanism:block/machine",
+  "textures": {
+    "sides": "mekanism_extras:blocks/naquadah_reactor_casing",
+    "front": "mekanism_extras:blocks/naquadah_reactor_casing",
+    "up": "mekanism_extras:blocks/naquadah_reactor_controller",
+    "down": "mekanism_extras:blocks/naquadah_reactor_casing",
+    "particle": "mekanism_extras:blocks/naquadah_reactor_casing"
+  }
+}

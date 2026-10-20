@@ -1,15 +1,14 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "1": "mekanism_extras:block/models/advanced_electric_pump",
-    "2": "mekanism_extras:block/models/ports",
-    "3": "mekanism:block/models/ports_led",
-    "particle": "mekanism:block/steel_casing"
+    "all": "mekanism_extras:blocks/models/advanced_electric_pump",
+    "ports": "mekanism:blocks/models/ports",
+    "led": "mekanism:blocks/models/ports_led",
+    "particle": "mekanism:blocks/steelcasing"
   },
   "render_type": "minecraft:cutout",
   "elements": [
     {
-      "name": "pumpCasing",
       "from": [
         4,
         1,
@@ -28,7 +27,7 @@
             8,
             9.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "east": {
           "uv": [
@@ -37,7 +36,7 @@
             4,
             9.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "south": {
           "uv": [
@@ -46,7 +45,7 @@
             4,
             9.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -55,7 +54,7 @@
             4,
             9.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -64,7 +63,7 @@
             4,
             4
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -73,12 +72,11 @@
             4,
             4
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "powerConnectorFrame1",
       "from": [
         10,
         10,
@@ -97,7 +95,7 @@
             6,
             12.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -106,7 +104,7 @@
             6,
             13
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -115,7 +113,7 @@
             4.5,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -124,12 +122,11 @@
             6,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "powerConnectorFrame2",
       "from": [
         5,
         10,
@@ -148,7 +145,7 @@
             6,
             12.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -157,7 +154,7 @@
             6,
             13
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -166,7 +163,7 @@
             4.5,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -175,12 +172,11 @@
             6,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "powerConnectorFrame3",
       "from": [
         5,
         5,
@@ -199,7 +195,7 @@
             6,
             12.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -208,7 +204,7 @@
             6,
             13
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -217,7 +213,7 @@
             4.5,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -226,12 +222,11 @@
             6,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "powerConnectorFrame4",
       "from": [
         10,
         5,
@@ -250,7 +245,7 @@
             6,
             12.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -259,7 +254,7 @@
             6,
             13
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -268,7 +263,7 @@
             4.5,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -277,12 +272,11 @@
             6,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "pumpBase",
       "from": [
         5,
         0,
@@ -301,7 +295,7 @@
             11,
             8
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "east": {
           "uv": [
@@ -310,7 +304,7 @@
             11,
             8
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "south": {
           "uv": [
@@ -319,7 +313,7 @@
             11,
             8
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -328,7 +322,7 @@
             11,
             8
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -337,13 +331,12 @@
             7,
             3
           ],
-          "texture": "#1",
+          "texture": "#all",
           "cullface": "down"
         }
       }
     },
     {
-      "name": "pumpPortTop",
       "from": [
         4,
         15,
@@ -362,7 +355,7 @@
             8,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "east": {
           "uv": [
@@ -371,7 +364,7 @@
             8,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "south": {
           "uv": [
@@ -380,7 +373,7 @@
             8,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "west": {
           "uv": [
@@ -389,7 +382,7 @@
             8,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "up": {
           "uv": [
@@ -398,7 +391,7 @@
             8,
             8
           ],
-          "texture": "#2",
+          "texture": "#ports",
           "cullface": "up"
         },
         "down": {
@@ -408,12 +401,11 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "pumpPortTopLED",
       "from": [
         4,
         16,
@@ -432,17 +424,12 @@
             16,
             8
           ],
-          "texture": "#3",
+          "texture": "#led",
           "cullface": "up"
         }
-      },
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
       }
     },
     {
-      "name": "pumpRingTop",
       "from": [
         4,
         13,
@@ -461,7 +448,7 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "east": {
           "uv": [
@@ -470,7 +457,7 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "south": {
           "uv": [
@@ -479,7 +466,7 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -488,7 +475,7 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -497,7 +484,7 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -506,12 +493,11 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "powerConnector",
       "from": [
         6,
         6,
@@ -530,7 +516,7 @@
             1.125,
             4.75
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "east": {
           "uv": [
@@ -540,7 +526,7 @@
             11
           ],
           "rotation": 90,
-          "texture": "#1"
+          "texture": "#all"
         },
         "south": {
           "uv": [
@@ -549,7 +535,7 @@
             2.25,
             4.75
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -559,7 +545,7 @@
             11.5
           ],
           "rotation": 90,
-          "texture": "#1"
+          "texture": "#all"
         },
         "up": {
           "uv": [
@@ -568,7 +554,7 @@
             8,
             9.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "down": {
           "uv": [
@@ -577,12 +563,11 @@
             6,
             11.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         }
       }
     },
     {
-      "name": "powerPort",
       "from": [
         4,
         4,
@@ -601,7 +586,7 @@
             8,
             8
           ],
-          "texture": "#2",
+          "texture": "#ports",
           "cullface": "north"
         },
         "east": {
@@ -611,7 +596,7 @@
             1,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "south": {
           "uv": [
@@ -620,7 +605,7 @@
             4,
             13.5
           ],
-          "texture": "#1"
+          "texture": "#all"
         },
         "west": {
           "uv": [
@@ -629,7 +614,7 @@
             8,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "up": {
           "uv": [
@@ -638,7 +623,7 @@
             0,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         },
         "down": {
           "uv": [
@@ -647,12 +632,11 @@
             0,
             8
           ],
-          "texture": "#2"
+          "texture": "#ports"
         }
       }
     },
     {
-      "name": "powerPortLED",
       "from": [
         4,
         4,
@@ -671,13 +655,9 @@
             16,
             16
           ],
-          "texture": "#3",
+          "texture": "#led",
           "cullface": "north"
         }
-      },
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
       }
     }
   ]

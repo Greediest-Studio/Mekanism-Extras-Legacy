@@ -1,0 +1,21 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "TTT",
+    "TAT",
+    "TTT"
+  ],
+  "key": {
+    "T": {
+      "item": "mekanism_extras:supreme_logistical_transporter",
+      "data": 0
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_shining"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:cosmic_logistical_transporter",
+    "count": 8
+  }
+}

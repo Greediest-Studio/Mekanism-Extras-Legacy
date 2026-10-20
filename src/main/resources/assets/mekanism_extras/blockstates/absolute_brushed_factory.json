@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryleft",
+      "south": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryback",
+      "west": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryright",
+      "sides": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryright",
+      "front": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryfront",
+      "up": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_absolute",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactorylefton",
+          "south": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactorybackon",
+          "west": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/absolute/combining/absolutecombiningfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

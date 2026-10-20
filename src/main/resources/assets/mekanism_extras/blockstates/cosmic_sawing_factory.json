@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactoryside",
+      "south": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactoryback",
+      "west": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactoryside",
+      "sides": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactoryside",
+      "front": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_cosmic",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/cosmic"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/cosmic",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactorysideon",
+          "south": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactorysideon",
+          "front": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/cosmic/sawing/cosmicsawingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/cosmic",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/sawing/cosmic",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/cosmic"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/cosmic",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/cosmic",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/sawing/active/cosmic",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

@@ -1,0 +1,31 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "AEA",
+    "IPI",
+    "AEA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_radiance"
+    },
+    "E": {
+      "item": "mekanism:energytablet"
+    },
+    "I": {
+      "item": "minecraft:emerald"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:energycube",
+      "data": 0,
+      "nbt": {
+        "tier": 3
+      }
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:absolute_energy_cube",
+    "count": 1
+  }
+}

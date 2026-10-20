@@ -1,7 +1,133 @@
 {
+  "forge_marker": 1,
   "variants": {
-    "": {
-      "model": "mekanism_extras:block/polonium_containing_solution"
-    }
+    "level=0": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=1": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=2": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=3": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=4": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=5": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=6": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=7": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=8": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=9": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=10": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=11": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=12": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=13": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=14": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ],
+    "level=15": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_containing_solution"
+        }
+      }
+    ]
   }
 }

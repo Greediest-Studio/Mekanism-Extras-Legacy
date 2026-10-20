@@ -1,0 +1,27 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_radiance"
+    },
+    "C": {
+      "item": "mekanism_extras:absolute_control_circuit"
+    },
+    "I": {
+      "item": "minecraft:emerald"
+    },
+    "P": {
+      "ore": "plankWood",
+      "type": "forge:ore_dict"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:absolute_tier_installer",
+    "count": 1
+  }
+}

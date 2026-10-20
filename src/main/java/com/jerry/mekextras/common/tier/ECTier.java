@@ -2,33 +2,34 @@ package com.jerry.mekextras.common.tier;
 
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.api.annotations.NothingNullByDefault;
-import mekanism.common.config.value.CachedLongValue;
-import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
 import java.util.Locale;
 
-@NothingNullByDefault
-public enum ECTier implements IAdvancedTier, StringRepresentable {
-    ABSOLUTE(AdvancedTier.ABSOLUTE, 1_024_000_000, 1_024_000),
-    SUPREME(AdvancedTier.SUPREME, 4_096_000_000L, 4_096_000),
-    COSMIC(AdvancedTier.COSMIC, 16_384_000_000L, 16_384_000),
-    INFINITE(AdvancedTier.INFINITE, 65_536_000_000L, 65_536_000);
+public enum ECTier implements IAdvancedTier, IStringSerializable {
 
-    private final long advanceMaxEnergy;
-    private final long advanceOutput;
+    ABSOLUTE(AdvancedTier.ABSOLUTE, 1_024_000_000L, 1_024_000L),
+    SUPREME(AdvancedTier.SUPREME, 4_096_000_000L, 4_096_000L),
+    COSMIC(AdvancedTier.COSMIC, 16_384_000_000L, 16_384_000L),
+    INFINITE(AdvancedTier.INFINITE, 65_536_000_000L, 65_536_000L);
+
     private final AdvancedTier advancedTier;
-    @Nullable
-    private CachedLongValue storageReference;
-    @Nullable
-    private CachedLongValue outputReference;
+    private final long maxEnergy;
+    private final long output;
 
-    ECTier(AdvancedTier tier, long max, long out) {
-        advanceMaxEnergy = max;
-        advanceOutput = out;
-        advancedTier = tier;
+    ECTier(AdvancedTier advancedTier, long maxEnergy, long output) {
+        this.advancedTier = advancedTier;
+        this.maxEnergy = maxEnergy;
+        this.output = output;
+    }
+
+    public long getMaxEnergy() {
+        return maxEnergy;
+    }
+
+    public long getOutput() {
+        return output;
     }
 
     @Override
@@ -37,32 +38,17 @@ public enum ECTier implements IAdvancedTier, StringRepresentable {
     }
 
     @Override
-    @NotNull
-    public String getSerializedName() {
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
+    }
+
+    @Override
+    public String getName() {
         return name().toLowerCase(Locale.ROOT);
     }
 
-    public long getMaxEnergy() {
-        return storageReference == null ? getAdvanceMaxEnergy() : storageReference.getOrDefault();
-    }
-
-    public long getOutput() {
-        return outputReference == null ? getAdvanceOutput() : outputReference.getOrDefault();
-    }
-
-    public long getAdvanceMaxEnergy() {
-        return advanceMaxEnergy;
-    }
-
-    public long getAdvanceOutput() {
-        return advanceOutput;
-    }
-
-    /**
-     * ONLY CALL THIS FROM TierConfig. It is used to give the EnergyCubeTier a reference to the actual config value object
-     */
-    public void setConfigReference(CachedLongValue storageReference, CachedLongValue outputReference) {
-        this.storageReference = storageReference;
-        this.outputReference = outputReference;
+    public static ECTier byIndex(int index) {
+        ECTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
     }
 }

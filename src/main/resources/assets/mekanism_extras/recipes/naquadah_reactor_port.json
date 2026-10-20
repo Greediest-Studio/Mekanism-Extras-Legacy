@@ -1,0 +1,20 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    " F ",
+    "FCF",
+    " F "
+  ],
+  "key": {
+    "C": {
+      "item": "mekanism_extras:cosmic_control_circuit"
+    },
+    "F": {
+      "item": "mekanism_extras:naquadah_reactor_casing"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:naquadah_reactor_port",
+    "count": 4
+  }
+}

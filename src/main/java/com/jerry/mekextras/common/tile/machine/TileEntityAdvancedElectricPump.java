@@ -1,14 +1,15 @@
 package com.jerry.mekextras.common.tile.machine;
 
-import com.jerry.mekextras.api.ExtraUpgrade;
-import com.jerry.mekextras.common.config.ExtraConfig;
-import com.jerry.mekextras.common.registries.ExtraBlocks;
-import com.jerry.mekextras.common.registries.ExtraFluids;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mekanism.api.*;
 import mekanism.common.Mekanism;
-import mekanism.common.MekanismLang;
-import mekanism.common.attachments.containers.ContainerType;
+import mekanism.common.MekanismFluids;
+import mekanism.common.PacketHandler;
+import mekanism.common.Upgrade;
+import mekanism.common.base.*;
+import mekanism.common.block.states.BlockStateMachine;
+import mekanism.common.block.states.BlockStateMachine.MachineType;
 import mekanism.common.capabilities.Capabilities;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.fluid.BasicFluidTank;
@@ -19,335 +20,480 @@ import mekanism.common.capabilities.holder.fluid.IFluidTankHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.config.MekanismConfig;
-import mekanism.common.integration.computer.ComputerException;
-import mekanism.common.integration.computer.SpecialComputerMethodWrapper;
-import mekanism.common.integration.computer.annotation.ComputerMethod;
-import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
-import mekanism.common.inventory.container.MekanismContainer;
-import mekanism.common.inventory.container.sync.SyncableBoolean;
-import mekanism.common.inventory.container.sync.SyncableFluidStack;
+import mekanism.common.integration.computer.IComputerIntegration;
+import mekanism.common.inventory.container.slot.SlotOverlay;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.FluidInventorySlot;
 import mekanism.common.inventory.slot.OutputInventorySlot;
-import mekanism.common.registries.MekanismFluids;
-import mekanism.common.tile.base.TileEntityMekanism;
-import mekanism.common.util.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.security.ISecurityTile;
+import mekanism.common.tile.component.TileComponentSecurity;
+import mekanism.common.tile.component.TileComponentUpgrade;
+import mekanism.common.tile.prefab.TileEntityElectricBlock;
+import com.jerry.mekextras.common.registries.ExtraFluidBlocks;
+import com.jerry.mekextras.common.registries.ExtraUpgrades;
+import mekanism.common.util.FluidUtils;
+import mekanism.common.util.LangUtils;
+import mekanism.common.util.MekanismUtils;
+import mekanism.common.util.TileUtils;
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-public class TileEntityAdvancedElectricPump extends TileEntityMekanism implements IConfigurable {
+public class TileEntityAdvancedElectricPump extends TileEntityElectricBlock implements ISustainedTank, IConfigurable, IRedstoneControl, IUpgradeTile,
+        ITankManager, IComputerIntegration, ISecurityTile, IComparatorSupport {
 
-    private static final int BASE_TICKS_REQUIRED = 19;
-    public static final int MAX_FLUID = 1_000;
-    private static final int BASE_OUTPUT_RATE = 1024;
-
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerFluidTankWrapper.class, methodNames = {"getFluid", "getFluidCapacity", "getFluidNeeded",
-            "getFluidFilledPercentage"}, docPlaceholder = "buffer tank")
+    private static final String[] methods = new String[]{"reset"};
+    private static final int WATER_RATE_PER_TICK = 5_000;
+    private static final int HEAVY_WATER_RATE_PER_TICK = 50;
+    private static final int MAX_SPEED_UPGRADES = 8;
+    /**
+     * This pump's tank
+     */
     public BasicFluidTank fluidTank;
-
-    @NotNull
-    private FluidStack activeType = FluidStack.EMPTY;
+    /**
+     * The type of fluid this pump is pumping
+     */
+    public Fluid activeType;
+    /**
+     * How much energy this machine consumes per-tick.
+     */
+    public double BASE_ENERGY_PER_TICK = MachineType.ELECTRIC_PUMP.getUsage();
+    public double energyPerTick = BASE_ENERGY_PER_TICK;
+    /**
+     * How many ticks it takes to run an operation.
+     */
+    public int BASE_TICKS_REQUIRED = 1;
     public int ticksRequired = BASE_TICKS_REQUIRED;
-
+    /**
+     * How many ticks this machine has been operating for.
+     */
     public int operatingTicks;
-    private boolean usedEnergy = false;
-    private int outputRate = BASE_OUTPUT_RATE;
+    private boolean usedEnergy;
+    /**
+     * The nodes that have full sources near them or in them
+     */
+    public Set<Coord4D> recurringNodes = new ObjectOpenHashSet<>();
+    /**
+     * This machine's current RedstoneControl type.
+     */
+    public RedstoneControl controlType = RedstoneControl.DISABLED;
+    public TileComponentUpgrade upgradeComponent = new TileComponentUpgrade(this);
+    public TileComponentSecurity securityComponent = new TileComponentSecurity(this);
 
-    private final Set<BlockPos> recurringNodes = new ObjectOpenHashSet<>();
-    private List<BlockCapabilityCache<IFluidHandler, @Nullable Direction>> fluidHandlerAbove = Collections.emptyList();
+    private int currentRedstoneLevel;
+    private MachineEnergyContainer energyContainer;
+    private FluidInventorySlot inputSlot;
+    private OutputInventorySlot outputSlot;
+    private EnergyInventorySlot energySlot;
 
-    private MachineEnergyContainer<TileEntityAdvancedElectricPump> energyContainer;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getInputItem", docPlaceholder = "input slot")
-    FluidInventorySlot inputSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getOutputItem", docPlaceholder = "output slot")
-    OutputInventorySlot outputSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
-    EnergyInventorySlot energySlot;
-
-    public TileEntityAdvancedElectricPump(BlockPos pos, BlockState state) {
-        super(ExtraBlocks.ADVANCED_ELECTRIC_PUMP, pos, state);
+    public TileEntityAdvancedElectricPump() {
+        super("AdvancedElectricPump", MachineType.ELECTRIC_PUMP.getStorage() * 2);
+        initializeInventorySlots();
+        setSupportedUpgrade(Upgrade.FILTER);
+        setSupportedUpgrade(ExtraUpgrades.IONIC_MEMBRANE);
+        setSupportedUpgrade(ExtraUpgrades.CREATIVE);
     }
 
-    @NotNull
     @Override
     protected IFluidTankHolder getInitialFluidTanks(IContentsListener listener) {
-        FluidTankHelper builder = FluidTankHelper.forSide(this::getDirection);
-        builder.addTank(fluidTank = BasicFluidTank.output(10_000 * MAX_FLUID, listener), RelativeSide.TOP);
+        FluidTankHelper builder = FluidTankHelper.forSide(() -> facing);
+        fluidTank = BasicFluidTank.output(10_000_000, listener);
+        builder.addTank(fluidTank, RelativeSide.TOP);
         return builder.build();
     }
 
-    @NotNull
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSide(this::getDirection);
-        builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener), RelativeSide.BACK);
+        EnergyContainerHelper builder = createEnergyContainerHelper();
+        builder.addContainer(energyContainer = MachineEnergyContainer.input(this::getEnergy, this::setEnergy, this::getMaxEnergy, () -> energyPerTick, listener),
+                RelativeSide.BACK);
         return builder.build();
     }
 
-    @NotNull
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSide(this::getDirection);
-        builder.addSlot(inputSlot = FluidInventorySlot.drain(fluidTank, listener, 28, 20), RelativeSide.TOP);
-        builder.addSlot(outputSlot = OutputInventorySlot.at(listener, 28, 51), RelativeSide.BOTTOM);
-        builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener, 143, 35), RelativeSide.BACK);
+        InventorySlotHelper builder = createInventorySlotHelper();
+        inputSlot = builder.addSlot(FluidInventorySlot.drain(fluidTank, listener, 28, 20), RelativeSide.TOP);
+        inputSlot.setSlotOverlay(SlotOverlay.INPUT);
+        outputSlot = builder.addSlot(OutputInventorySlot.at(listener, 28, 51), RelativeSide.BOTTOM);
+        outputSlot.setSlotOverlay(SlotOverlay.OUTPUT);
+        energySlot = builder.addSlot(EnergyInventorySlot.fillOrConvert(energyContainer, this::getWorld, listener, 143, 35), RelativeSide.BACK);
         return builder.build();
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
-        energySlot.fillContainerOrConvert();
-        inputSlot.drainTank(outputSlot);
-        long clientEnergyUsed = 0L;
-        if (canFunction() && (fluidTank.isEmpty() || estimateIncrementAmount() <= fluidTank.getNeeded())) {
-            long energyPerTick = energyContainer.getEnergyPerTick();
-            if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
-                if (!activeType.isEmpty()) {
-                    //If we have an active type of fluid, use energy. This can cause there to be ticks where there isn't actually
-                    // anything to suck that use energy, but those will balance out with the first set of ticks where it doesn't
-                    // use any energy until it actually picks up the first block
-                    clientEnergyUsed = energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
-                }
-                operatingTicks++;
-                if (operatingTicks >= ticksRequired) {
-                    operatingTicks = 0;
-                    if (suck()) {
-                        if (clientEnergyUsed == 0L) {
-                            //If it didn't already have an active type (hasn't used energy this tick), then extract energy
-                            clientEnergyUsed = energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
-                        }
-                    } else {
-                        reset();
-                    }
-                }
-            }
+    protected void onUpdateServerPreComponents() {
+        super.onUpdateServerPreComponents();
+        if (fluidTank.getFluid() != null && !isContainerExtractionGuarded(fluidTank)) {
+            FluidUtils.emit(Collections.singleton(EnumFacing.UP), fluidTank, this,
+                    Math.min(getPumpRatePerTick(), fluidTank.getFluidAmount()));
         }
-        usedEnergy = clientEnergyUsed > 0L;
-        if (!fluidTank.isEmpty()) {
-            if (fluidHandlerAbove.isEmpty()) {
-                fluidHandlerAbove = List.of(Capabilities.FLUID.createCache((ServerLevel) level, worldPosition.above(), Direction.DOWN));
-            }
-            FluidUtils.emit(fluidHandlerAbove, fluidTank, outputRate);
-        }
-        return sendUpdatePacket;
     }
 
-    public int estimateIncrementAmount() {
-        return fluidTank.getFluid().is(MekanismFluids.HEAVY_WATER) ? ExtraConfig.extraGeneralConfig.pumpHeavyWaterAmount.get() : FluidType.BUCKET_VOLUME;
+    @Override
+    public void onUpdateServer() {
+        super.onUpdateServer();
+        usedEnergy = false;
+        energySlot.fillContainerOrConvert();
+        inputSlot.drainTank(outputSlot);
+
+        double clientEnergyUsed = 0;
+        if (MekanismUtils.canFunction(this) && (fluidTank.getFluid() == null || estimateIncrementAmount() <= fluidTank.getNeeded()) &&
+                Double.compare(energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL), energyPerTick) == 0) {
+            if (activeType != null) {
+                clientEnergyUsed = energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
+            }
+            operatingTicks++;
+            if (operatingTicks >= ticksRequired) {
+                operatingTicks = 0;
+                if (suck()) {
+                    if (clientEnergyUsed <= 0) {
+                        clientEnergyUsed = energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
+                    }
+                } else {
+                    reset();
+                }
+            }
+        }
+        usedEnergy = clientEnergyUsed > 0;
+
+        int newRedstoneLevel = getRedstoneLevel();
+        if (newRedstoneLevel != currentRedstoneLevel) {
+            updateComparatorOutputLevelSync();
+            currentRedstoneLevel = newRedstoneLevel;
+        }
+
+    }
+
+    @Override
+    public boolean supportsAsync() {
+        return false;
+    }
+
+    public boolean hasFilter() {
+        return isUpgradeInstalled(Upgrade.FILTER);
     }
 
     private boolean suck() {
-        boolean hasFilter = upgradeComponent.isUpgradeInstalled(Upgrade.FILTER);
-        //First see if there are any fluid blocks under the pump - if so, suck and adds the location to the recurring list
-        if (suck(worldPosition.relative(Direction.DOWN), hasFilter, true)) {
-            return true;
-        }
-        //Even though we can add to recurring in the above for loop, we always then exit and don't get to here if we did so
-        List<BlockPos> tempPumpList = new ArrayList<>(recurringNodes);
+        List<Coord4D> tempPumpList = Arrays.asList(recurringNodes.toArray(new Coord4D[0]));
         Collections.shuffle(tempPumpList);
+
+        //First see if there are any fluid blocks touching the pump - if so, sucks and adds the location to the recurring list
+        for (EnumFacing orientation : EnumFacing.VALUES) {
+            Coord4D wrapper = Coord4D.get(this).offset(orientation);
+            FluidStack fluid = applyIonicMembrane(MekanismUtils.getFluid(world, wrapper, hasFilter()));
+            if (validFluid(fluid)) {
+                suck(fluid, wrapper, true);
+                return true;
+            }
+        }
+
         //Finally, go over the recurring list of nodes and see if there is a fluid block available to suck - if not, will iterate around the recurring block, attempt to suck,
         //and then add the adjacent block to the recurring list
-        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
-        for (BlockPos tempPumpPos : tempPumpList) {
-            if (suck(tempPumpPos, hasFilter, false)) {
+        for (Coord4D wrapper : tempPumpList) {
+            FluidStack fluid = applyIonicMembrane(MekanismUtils.getFluid(world, wrapper, hasFilter()));
+            if (validFluid(fluid)) {
+                suck(fluid, wrapper, false);
                 return true;
             }
+
             //Add all the blocks surrounding this recurring node to the recurring node list
-            for (Direction orientation : EnumUtils.DIRECTIONS) {
-                mutable.setWithOffset(tempPumpPos, orientation);
-                if (WorldUtils.distanceBetween(worldPosition, mutable) <= MekanismConfig.general.maxPumpRange.get()) {
-                    if (suck(mutable, hasFilter, true)) {
+            for (EnumFacing orientation : EnumFacing.VALUES) {
+                Coord4D side = wrapper.offset(orientation);
+                if (Coord4D.get(this).distanceTo(side) <= MekanismConfig.current().general.maxPumpRange.val()) {
+                    fluid = applyIonicMembrane(MekanismUtils.getFluid(world, side, hasFilter()));
+                    if (validFluid(fluid)) {
+                        suck(fluid, side, true);
                         return true;
                     }
                 }
             }
-            recurringNodes.remove(tempPumpPos);
+            recurringNodes.remove(wrapper);
         }
         return false;
     }
 
-    private boolean suck(BlockPos pos, boolean hasFilter, boolean addRecurring) {
-        //Note: we get the block state from the world so that we can get the proper block in case it is fluid logged
-        Optional<BlockState> state = WorldUtils.getBlockState(level, pos);
-        if (state.isPresent()) {
-            BlockState blockState = state.get();
-            FluidState fluidState = blockState.getFluidState();
-            if (!fluidState.isEmpty() && fluidState.isSource()) {
-                //Just in case someone does weird things and has a fluid state that is empty and a source
-                // only allow collecting from non-empty sources
-                Block block = blockState.getBlock();
-                if (block instanceof BucketPickup bucketPickup) {
-                    Fluid sourceFluid = fluidState.getType();
-                    FluidStack fluidStack = getOutput(sourceFluid, hasFilter);
-                    if (validFluid(fluidStack)) {
-                        //If it can be picked up by a bucket, and we actually want to pick it up, do so to update the fluid type we are doing
-                        if (shouldPump(level, sourceFluid)) {
-                            //Note we only attempt taking if it is not water, or we want to pump water sources
-                            // otherwise we assume the type from the fluid state is correct
-                            ItemStack pickedUpStack = bucketPickup.pickupBlock(null, level, pos, blockState);
-                            if (pickedUpStack.isEmpty()) {
-                                //Couldn't actually pick it up, exit
-                                return false;
-                            } else if (pickedUpStack.getItem() instanceof BucketItem bucket) {
-                                //This isn't the best validation check given it may not return a bucket, but it is good enough for now
-                                sourceFluid = bucket.content;
-                                //Update the fluid stack in case something somehow changed about the type
-                                // making sure that we replace to heavy water if we got heavy water
-                                fluidStack = getOutput(sourceFluid, hasFilter);
-                                if (!validFluid(fluidStack)) {
-                                    Mekanism.logger.warn("Fluid removed without successfully picking up. Fluid {} at {} in {} was valid, but after picking up was {}.",
-                                            fluidState.getType(), pos, level, sourceFluid);
-                                    return false;
-                                }
-                            }
-                        }
-                        suck(fluidStack, pos, addRecurring);
-                        return true;
-                    }
-                }
-                //Otherwise, we do not know how to drain from the block, or it is not valid, and we shouldn't take it so don't handle it
-            }
-        }
-        return false;
+    private boolean validFluid(@Nullable FluidStack fluid) {
+        return fluid != null && (activeType == null || fluid.getFluid() == activeType) &&
+                (fluidTank.getFluid() == null || fluidTank.isFluidEqual(fluid)) &&
+                getPumpRatePerTick(fluid.getFluid()) <= fluidTank.getNeeded();
     }
 
-    private boolean shouldPump(Level level, Fluid sourceFluid) {
-        if (!MekanismConfig.general.pumpInfiniteFluidSources.get()) {
-            if (sourceFluid == Fluids.WATER) {
-                //If we don't pump infinite sources, only pump it if water conversion is turned off
-                return !level.getGameRules().getBoolean(GameRules.RULE_WATER_SOURCE_CONVERSION);
-            } else if (sourceFluid == Fluids.LAVA) {
-                //If we don't pump infinite sources, only pump it if lava conversion is turned off
-                return !level.getGameRules().getBoolean(GameRules.RULE_LAVA_SOURCE_CONVERSION);
-            }
-        }
-        return true;
-    }
-
-    private FluidStack getOutput(Fluid sourceFluid, boolean hasFilter) {
-        // 是否安装了离子膜升级
-        boolean hasMembrane = upgradeComponent.isUpgradeInstalled(ExtraUpgrade.IONIC_MEMBRANE);
-        if (sourceFluid == Fluids.WATER) {
-            if (hasFilter) {
-                //The speed of pumping heavy water
-                return MekanismFluids.HEAVY_WATER.asStack(ExtraConfig.extraGeneralConfig.pumpHeavyWaterAmount.get());
-            }
-            //The speed of pumping water
-            return MekanismConfig.general.pumpInfiniteFluidSources.get() ? new FluidStack(sourceFluid, FluidType.BUCKET_VOLUME)
-                    : new FluidStack(sourceFluid, FluidType.BUCKET_VOLUME * 100);
-        }
-        if(sourceFluid == ExtraFluids.NAQUADAH_HEXAFLUORIDE.get()) {
-            if (hasMembrane) {
-                return new FluidStack(ExtraFluids.RICH_NAQUADAH_FUEL.get(), FluidType.BUCKET_VOLUME);
-            }
-        }
-        if(sourceFluid == MekanismFluids.URANIUM_HEXAFLUORIDE.get()) {
-            if (hasMembrane) {
-                return new FluidStack(ExtraFluids.RICH_URANIUM_FUEL.get(), FluidType.BUCKET_VOLUME);
-            }
-        }
-        return new FluidStack(sourceFluid, FluidType.BUCKET_VOLUME);
-    }
-
-    private void suck(@NotNull FluidStack fluidStack, BlockPos pos, boolean addRecurring) {
-        //Size doesn't matter, but we do want to take the NBT into account
-        activeType = fluidStack.copyWithAmount(1);
+    private void suck(FluidStack fluid, Coord4D coord, boolean addRecurring) {
+        activeType = fluid.getFluid();
         if (addRecurring) {
-            pos = pos.immutable();
-            recurringNodes.add(pos);
+            recurringNodes.add(coord);
         }
-        int amountOffered = fluidStack.getAmount();
-        if (fluidTank.insert(fluidStack, Action.EXECUTE, AutomationType.INTERNAL).getAmount() != amountOffered) {
-            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
+        int amount = Math.min(getPumpRatePerTick(fluid.getFluid()), fluidTank.getNeeded());
+        fluidTank.insert(new FluidStack(fluid, amount), Action.EXECUTE, AutomationType.INTERNAL);
+        if (shouldTake(fluid, coord)) {
+            world.setBlockToAir(coord.getPos());
         }
-    }
-
-    private boolean validFluid(@NotNull FluidStack fluidStack) {
-        if (!fluidStack.isEmpty() && (activeType.isEmpty() || FluidStack.isSameFluidSameComponents(activeType, fluidStack))) {
-            if (fluidTank.isEmpty()) {
-                return true;
-            } else if (fluidTank.isFluidEqual(fluidStack)) {
-                return fluidStack.getAmount() <= fluidTank.getNeeded();
-            }
-        }
-        return false;
     }
 
     public void reset() {
-        activeType = FluidStack.EMPTY;
+        activeType = null;
         recurringNodes.clear();
     }
 
-    @Override
-    public void saveAdditional(@NotNull CompoundTag nbtTags, @NotNull HolderLookup.Provider provider) {
-        super.saveAdditional(nbtTags, provider);
-        nbtTags.putInt(SerializationConstants.PROGRESS, operatingTicks);
-        if (!activeType.isEmpty()) {
-            nbtTags.put(SerializationConstants.FLUID, activeType.save(provider));
+    private boolean shouldTake(FluidStack fluid, Coord4D coord) {
+        if (fluid.getFluid() == FluidRegistry.WATER || fluid.getFluid() == MekanismFluids.HeavyWater) {
+            return MekanismConfig.current().general.pumpWaterSources.val();
         }
-        if (!recurringNodes.isEmpty()) {
-            nbtTags.put(SerializationConstants.RECURRING_NODES, NBTUtils.writeBlockPositions(recurringNodes));
-        }
-    }
-
-    @Override
-    public void loadAdditional(@NotNull CompoundTag nbt, @NotNull HolderLookup.Provider provider) {
-        super.loadAdditional(nbt, provider);
-        operatingTicks = nbt.getInt(SerializationConstants.PROGRESS);
-        NBTUtils.setFluidStackIfPresent(provider, nbt, SerializationConstants.FLUID, fluid -> activeType = fluid);
-        NBTUtils.readBlockPositions(nbt, SerializationConstants.RECURRING_NODES, recurringNodes);
-    }
-
-    @Override
-    public InteractionResult onSneakRightClick(Player player) {
-        reset();
-        player.displayClientMessage(MekanismLang.PUMP_RESET.translate(), true);
-        return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public InteractionResult onRightClick(Player player) {
-        return InteractionResult.PASS;
-    }
-
-    @Override
-    public boolean supportsMode(RedstoneControl mode) {
         return true;
     }
 
     @Override
-    public void recalculateUpgrades(Upgrade upgrade) {
-        super.recalculateUpgrades(upgrade);
+    public void handlePacketData(ByteBuf dataStream) {
+        super.handlePacketData(dataStream);
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            TileUtils.readTankData(dataStream, fluidTank);
+            controlType = MekanismUtils.getByIndex(RedstoneControl.values(), dataStream.readInt(), controlType);
+            activeType = dataStream.readBoolean() ? FluidRegistry.getFluid(PacketHandler.readString(dataStream)) : null;
+            usedEnergy = dataStream.readBoolean();
+        }
+    }
+
+    @Override
+    public TileNetworkList getNetworkedData(TileNetworkList data) {
+        super.getNetworkedData(data);
+        TileUtils.addTankData(data, fluidTank);
+        data.add(controlType.ordinal());
+        data.add(activeType != null);
+        if (activeType != null) {
+            data.add(FluidRegistry.getFluidName(activeType));
+        }
+        data.add(usedEnergy);
+        return data;
+    }
+
+    @Override
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        super.writeCustomNBT(nbtTags);
+        nbtTags.setInteger("operatingTicks", operatingTicks);
+
+        if (activeType != null) {
+            nbtTags.setString("activeType", FluidRegistry.getFluidName(activeType));
+        }
+
+        nbtTags.setInteger("controlType", controlType.ordinal());
+
+        NBTTagList recurringList = new NBTTagList();
+        recurringNodes.forEach(wrapper -> {
+            NBTTagCompound tagCompound = new NBTTagCompound();
+            wrapper.write(tagCompound);
+            recurringList.appendTag(tagCompound);
+        });
+        if (recurringList.tagCount() != 0) {
+            nbtTags.setTag("recurringNodes", recurringList);
+        }
+    }
+
+    @Override
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        super.readCustomNBT(nbtTags);
+        operatingTicks = nbtTags.getInteger("operatingTicks");
+        if (nbtTags.hasKey("activeType")) {
+            activeType = FluidRegistry.getFluid(nbtTags.getString("activeType"));
+        }
+        if (!hasStoredFluidTanks(nbtTags) && nbtTags.hasKey("fluidTank")) {
+            fluidTank.readFromNBT(nbtTags.getCompoundTag("fluidTank"));
+        }
+        sanitizeAndClampTank();
+        if (nbtTags.hasKey("controlType")) {
+            controlType = MekanismUtils.getByIndex(RedstoneControl.values(), nbtTags.getInteger("controlType"), controlType);
+        }
+        if (nbtTags.hasKey("recurringNodes")) {
+            NBTTagList tagList = nbtTags.getTagList("recurringNodes", NBT.TAG_COMPOUND);
+            for (int i = 0; i < tagList.tagCount(); i++) {
+                recurringNodes.add(Coord4D.read(tagList.getCompoundTagAt(i)));
+            }
+        }
+    }
+
+    private void sanitizeAndClampTank() {
+        FluidStack stored = fluidTank.getFluid();
+        if (stored == null || stored.getFluid() == null || stored.amount <= 0) {
+            fluidTank.setEmpty();
+        } else {
+            fluidTank.setStackSize(stored.amount, Action.EXECUTE);
+        }
+    }
+
+    @Override
+    public boolean sideIsConsumer(EnumFacing side) {
+        return facing.getOpposite() == side;
+    }
+
+    @Override
+    public boolean canSetFacing(@Nonnull EnumFacing facing) {
+        return facing != EnumFacing.DOWN && facing != EnumFacing.UP;
+    }
+
+    @Override
+    public void setFluidStack(FluidStack fluidStack, Object... data) {
+        fluidTank.setFluid(fluidStack);
+        sanitizeAndClampTank();
+    }
+
+    @Override
+    public FluidStack getFluidStack(Object... data) {
+        return fluidTank.getFluid();
+    }
+
+    @Override
+    public boolean hasTank(Object... data) {
+        return true;
+    }
+
+    @Override
+    public EnumActionResult onSneakRightClick(EntityPlayer player, EnumFacing side) {
+        reset();
+        player.sendMessage(new TextComponentString(EnumColor.DARK_BLUE + Mekanism.LOG_TAG + " " + EnumColor.GREY + LangUtils.localize("tooltip.configurator.pumpReset")));
+        return EnumActionResult.SUCCESS;
+    }
+
+    @Override
+    public EnumActionResult onRightClick(EntityPlayer player, EnumFacing side) {
+        return EnumActionResult.PASS;
+    }
+
+    @Override
+    public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing side) {
+        return capability == Capabilities.CONFIGURABLE_CAPABILITY || super.hasCapability(capability, side);
+    }
+
+    @Override
+    public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing side) {
+        if (capability == Capabilities.CONFIGURABLE_CAPABILITY) {
+            return Capabilities.CONFIGURABLE_CAPABILITY.cast(this);
+        }
+        return super.getCapability(capability, side);
+    }
+
+    @Override
+    public RedstoneControl getControlType() {
+        return controlType;
+    }
+
+    @Override
+    public void setControlType(RedstoneControl type) {
+        controlType = type;
+        MekanismUtils.saveChunk(this);
+    }
+
+    @Override
+    public boolean canPulse() {
+        return true;
+    }
+
+    @Override
+    public TileComponentUpgrade getComponent() {
+        return upgradeComponent;
+    }
+
+    @Override
+    public Object[] getManagedTanks() {
+        return new Object[]{fluidTank};
+    }
+
+    @Override
+    public String[] getMethods() {
+        return methods;
+    }
+
+    @Override
+    public Object[] invoke(int method, Object[] arguments) throws NoSuchMethodException {
+        if (method == 0) {
+            reset();
+            return new Object[]{"Pump calculation reset."};
+        }
+        throw new NoSuchMethodException();
+    }
+
+    @Override
+    public TileComponentSecurity getSecurity() {
+        return securityComponent;
+    }
+
+    public int estimateIncrementAmount() {
+        Fluid fluid = fluidTank.getFluid() != null ? fluidTank.getFluid().getFluid() : activeType;
+        return getPumpRatePerTick(fluid);
+    }
+
+    public int getPumpRatePerTick() {
+        Fluid fluid = fluidTank.getFluid() != null ? fluidTank.getFluid().getFluid() : activeType;
+        return getPumpRatePerTick(fluid);
+    }
+
+    private int getPumpRatePerTick(@Nullable Fluid fluid) {
+        int baseRate = fluid == MekanismFluids.HeavyWater ? HEAVY_WATER_RATE_PER_TICK : WATER_RATE_PER_TICK;
+        int speedUpgrades = Math.min(MAX_SPEED_UPGRADES, getInstalledUpgrades(Upgrade.SPEED));
+        double multiplier = 1.0D + 9.0D * speedUpgrades / MAX_SPEED_UPGRADES;
+        return (int) Math.round(baseRate * multiplier);
+    }
+
+    public MachineEnergyContainer getEnergyContainer() {
+        return energyContainer;
+    }
+
+    public boolean usedEnergy() {
+        return usedEnergy;
+    }
+
+    @Nullable
+    public FluidStack getActiveType() {
+        return activeType == null ? null : new FluidStack(activeType, estimateIncrementAmount());
+    }
+
+    @Override
+    public void recalculateUpgradables(Upgrade upgrade) {
+        super.recalculateUpgradables(upgrade);
         if (upgrade == Upgrade.SPEED) {
             ticksRequired = MekanismUtils.getTicks(this, BASE_TICKS_REQUIRED);
-            outputRate = BASE_OUTPUT_RATE * (1 + upgradeComponent.getUpgrades(Upgrade.SPEED));
         }
+        if (upgrade == ExtraUpgrades.CREATIVE) {
+            recalculateEnergyAndCapacity();
+        }
+        if (!isRecalculatingAllUpgradables() && (upgrade == Upgrade.SPEED || upgrade == Upgrade.ENERGY)) {
+            recalculateEnergyAndCapacity();
+        }
+    }
+
+    @Override
+    protected void onAllUpgradablesRecalculated(Set<Upgrade> upgrades) {
+        super.onAllUpgradablesRecalculated(upgrades);
+        if (upgrades.contains(Upgrade.SPEED) || upgrades.contains(Upgrade.ENERGY) || upgrades.contains(ExtraUpgrades.CREATIVE)) {
+            recalculateEnergyAndCapacity();
+        }
+    }
+
+    private void recalculateEnergyAndCapacity() {
+        energyPerTick = isUpgradeInstalled(ExtraUpgrades.CREATIVE) ? 0 : MekanismUtils.getEnergyPerTick(this, BASE_ENERGY_PER_TICK);
+        maxEnergy = MekanismUtils.getMaxEnergy(this, BASE_MAX_ENERGY);
+        setEnergy(Math.min(getMaxEnergy(), getEnergy()));
+    }
+
+    @Override
+    public boolean isComparatorInput(mekanism.api.transmitters.TransmissionType type) {
+        return type == mekanism.api.transmitters.TransmissionType.FLUID;
     }
 
     @Override
@@ -356,41 +502,24 @@ public class TileEntityAdvancedElectricPump extends TileEntityMekanism implement
     }
 
     @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.FLUID;
+    public int getBlockGuiID(Block block, int metadata) {
+        return BlockStateMachine.MachineType.get(block, metadata) != null ? BlockStateMachine.MachineType.get(block, metadata).guiId : -1;
     }
 
-    @NotNull
-    @Override
-    public List<Component> getInfo(@NotNull Upgrade upgrade) {
-        return UpgradeUtils.getMultScaledInfo(this, upgrade);
+    /**
+     * The ionic membrane upgrade turns the hexafluoride fluids into their rich fuel variants while they are pumped.
+     */
+    private FluidStack applyIonicMembrane(FluidStack fluid) {
+        if (fluid == null || !isUpgradeInstalled(ExtraUpgrades.IONIC_MEMBRANE)) {
+            return fluid;
+        }
+        if (fluid.getFluid() == ExtraFluidBlocks.NAQUADAH_HEXAFLUORIDE) {
+            return new FluidStack(ExtraFluidBlocks.RICH_NAQUADAH_FUEL, fluid.amount);
+        }
+        Fluid uraniumHexafluoride = MekanismFluids.UraniumHexafluoride.getFluid();
+        if (uraniumHexafluoride != null && fluid.getFluid() == uraniumHexafluoride) {
+            return new FluidStack(ExtraFluidBlocks.RICH_URANIUM_FUEL, fluid.amount);
+        }
+        return fluid;
     }
-
-    public MachineEnergyContainer<TileEntityAdvancedElectricPump> getEnergyContainer() {
-        return energyContainer;
-    }
-
-    public boolean usedEnergy() {
-        return usedEnergy;
-    }
-
-    @NotNull
-    public FluidStack getActiveType() {
-        return this.activeType;
-    }
-
-    @Override
-    public void addContainerTrackers(MekanismContainer container) {
-        super.addContainerTrackers(container);
-        container.track(SyncableBoolean.create(this::usedEnergy, value -> usedEnergy = value));
-        container.track(SyncableFluidStack.create(this::getActiveType, value -> activeType = value));
-    }
-
-    //Methods relating to IComputerTile
-    @ComputerMethod(nameOverride = "reset", requiresPublicSecurity = true)
-    void resetPump() throws ComputerException {
-        validateSecurityIsPublic();
-        reset();
-    }
-    //End methods IComputerTile
 }

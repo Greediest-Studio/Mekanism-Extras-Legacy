@@ -1,10 +1,14 @@
 package com.jerry.mekextras.api;
 
-import com.jerry.mekextras.api.tier.IAdvancedTier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import mekanism.common.tier.ITier;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
+/**
+ * Implemented by machines that can be alloy-upgraded with the alloys added by Mekanism Extras.
+ */
 public interface IExtraAlloyInteraction {
-    <TIER extends IAdvancedTier> void onExtraAlloyInteraction(Player player, ItemStack stack, @NotNull TIER tier);
+
+    void onExtraAlloyInteraction(EntityPlayer player, ItemStack stack, ITier tier, EnumFacing side);
 }

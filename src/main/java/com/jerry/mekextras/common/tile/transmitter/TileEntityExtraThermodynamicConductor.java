@@ -1,59 +1,134 @@
 package com.jerry.mekextras.common.tile.transmitter;
 
-import com.jerry.mekextras.api.tier.AdvancedTier;
-import com.jerry.mekextras.common.content.network.transmitter.ExtraThermodynamicConductor;
+import mekanism.common.block.states.BlockStateTransmitter;
+import mekanism.common.tile.transmitter.TileEntityTransmitter;
+import io.netty.buffer.ByteBuf;
+import mekanism.api.Coord4D;
+import mekanism.api.NBTConstants;
+import mekanism.api.TileNetworkList;
+import mekanism.api.heat.HeatAPI;
 import mekanism.api.heat.IHeatCapacitor;
-import mekanism.api.heat.IMekanismHeatHandler;
-import mekanism.common.block.states.BlockStateHelper;
-import mekanism.common.block.states.TransmitterType;
+import mekanism.api.heat.IHeatHandler;
+import mekanism.api.transmitters.TransmissionType;
+import mekanism.common.ColourRGBA;
+import mekanism.common.Mekanism;
+import mekanism.common.block.states.BlockStateTransmitter.TransmitterType;
 import mekanism.common.capabilities.Capabilities;
+import mekanism.common.capabilities.heat.CachedAmbientTemperature;
+import mekanism.common.capabilities.heat.ITileHeatHandler;
+import mekanism.common.capabilities.heat.VariableHeatCapacitor;
+import mekanism.common.capabilities.holder.heat.ProxiedHeatCapacitorHolder;
 import mekanism.common.capabilities.resolver.manager.HeatHandlerManager;
-import mekanism.common.lib.transmitter.ConnectionType;
-import com.jerry.mekextras.common.registries.ExtraBlocks;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.content.network.distribution.ManagedAcceptor;
+import mekanism.common.tier.AlloyTier;
+import mekanism.common.tier.BaseTier;
+import com.jerry.mekextras.common.tier.ExtraConductorTier;
+import mekanism.common.transmitters.grid.HeatNetwork;
+import mekanism.common.util.HeatCapabilityUtils;
+import mekanism.common.util.MekanismUtils;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class TileEntityExtraThermodynamicConductor extends TileEntityExtraTransmitter {
-    private final HeatHandlerManager heatHandlerManager;
-    public TileEntityExtraThermodynamicConductor(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
-        super(blockProvider, pos, state);
-        addCapabilityResolver(heatHandlerManager = new HeatHandlerManager(direction -> {
-            ExtraThermodynamicConductor conductor = getTransmitter();
-            if (direction != null && (conductor.getConnectionTypeRaw(direction) == ConnectionType.NONE) || conductor.isRedstoneActivated()) {
-                //If we actually have a side, and our connection type on that side is none, or we are currently activated by redstone,
-                // then return that we have no capacitors
-                return Collections.emptyList();
-            }
-            return conductor.getHeatCapacitors(direction);
-        }, new IMekanismHeatHandler() {
-            @NotNull
-            @Override
-            public List<IHeatCapacitor> getHeatCapacitors(@Nullable Direction side) {
-                return heatHandlerManager.getContainers(side);
-            }
+public class TileEntityExtraThermodynamicConductor extends TileEntityTransmitter<IHeatHandler, HeatNetwork, Void> implements ITileHeatHandler {
 
-            @Override
-            public void onContentsChanged() {
-            }
-        }));
+    public TileEntityExtraThermodynamicConductor() {
+        //Required by TileEntity.create for chunk deserialization.
+    }
+
+    public TileEntityExtraThermodynamicConductor(ExtraConductorTier tier) {
+        this.tier = tier;
+        buffer.setHeatCapacity(tier.getHeatCapacity(), false);
+    }
+
+    public ExtraConductorTier tier = ExtraConductorTier.ABSOLUTE;
+
+    /**
+     * Relative-to-ambient temperature retained for the existing renderer.
+     */
+    public double temperature;
+    private double clientTemperature = -1;
+    private final ManagedAcceptor<IHeatHandler>[] adjacentHandlers = createAdjacentHandlers();
+    private final TileEntity[] simulationNeighbors = new TileEntity[6];
+    private boolean simulating;
+
+    @SuppressWarnings("unchecked")
+    private static ManagedAcceptor<IHeatHandler>[] createAdjacentHandlers() {
+        ManagedAcceptor<IHeatHandler>[] caches = new ManagedAcceptor[6];
+        for (int i = 0; i < caches.length; i++) caches[i] = new ManagedAcceptor<>();
+        return caches;
+    }
+
+    @Nullable
+    public final Object getManagedHeatAcceptorToken(EnumFacing side) {
+        return !isInvalid() && heatHandlerManager.canResolve(Capabilities.HEAT_HANDLER_CAPABILITY, side) ? getCapabilityGeneration() : null;
     }
 
     @Override
-    protected ExtraThermodynamicConductor createTransmitter(Holder<Block> blockProvider) {
-        return new ExtraThermodynamicConductor(blockProvider, this);
+    public HeatAPI.HeatTransfer simulate() {
+        simulating = true;
+        try {
+            return ITileHeatHandler.super.simulate();
+        } finally {
+            simulating = false;
+            java.util.Arrays.fill(simulationNeighbors, null);
+        }
+    }
+
+    private final CachedAmbientTemperature ambientTemperature = new CachedAmbientTemperature(this::getWorld, this::getPos);
+    public final VariableHeatCapacitor buffer = VariableHeatCapacitor.create(tier.getHeatCapacity(), () -> tier.getInverseConduction(),
+            () -> tier.getInverseConductionInsulation(), ambientTemperature, this);
+
+    private final HeatHandlerManager heatHandlerManager = new HeatHandlerManager(this, ProxiedHeatCapacitorHolder.create(
+            side -> true,
+            side -> true,
+            this::getConductorHeatTransfers
+    ));
+
+    @Override
+    public BaseTier getBaseTier() {
+        return tier.getBaseTier();
     }
 
     @Override
-    public ExtraThermodynamicConductor getTransmitter() {
-        return (ExtraThermodynamicConductor) super.getTransmitter();
+    public void setBaseTier(BaseTier baseTier) {
+        tier = ExtraConductorTier.get(baseTier);
+        buffer.setHeatCapacity(tier.getHeatCapacity(), false);
+    }
+
+    @Override
+    public HeatNetwork createNewNetwork() {
+        return new HeatNetwork();
+    }
+
+    @Override
+    public HeatNetwork createNetworkByMerging(Collection<HeatNetwork> networks) {
+        return new HeatNetwork(networks);
+    }
+
+    @Override
+    public int getCapacity() {
+        return 0;
+    }
+
+    @Override
+    public Void getBuffer() {
+        return null;
+    }
+
+    @Override
+    public void takeShare() {
+    }
+
+    @Override
+    public void updateShare() {
     }
 
     @Override
@@ -61,42 +136,222 @@ public class TileEntityExtraThermodynamicConductor extends TileEntityExtraTransm
         return TransmitterType.THERMODYNAMIC_CONDUCTOR;
     }
 
-    @NotNull
     @Override
-    protected BlockState upgradeResult(@NotNull BlockState current, @NotNull AdvancedTier tier) {
-        return BlockStateHelper.copyStateData(current, switch (tier) {
-            case ABSOLUTE -> ExtraBlocks.ABSOLUTE_THERMODYNAMIC_CONDUCTOR;
-            case SUPREME -> ExtraBlocks.SUPREME_THERMODYNAMIC_CONDUCTOR;
-            case COSMIC -> ExtraBlocks.COSMIC_THERMODYNAMIC_CONDUCTOR;
-            case INFINITE -> ExtraBlocks.INFINITE_THERMODYNAMIC_CONDUCTOR;
-        });
+    public boolean isValidAcceptor(TileEntity tile, EnumFacing side) {
+        return HeatCapabilityUtils.hasHandler(tile, side.getOpposite());
     }
 
     @Override
-    public void sideChanged(@NotNull Direction side, @NotNull ConnectionType old, @NotNull ConnectionType type) {
-        super.sideChanged(side, old, type);
-        if (type == ConnectionType.NONE) {
-            //We no longer have a capability, invalidate it, which will also notify the level
-            invalidateCapability(Capabilities.HEAT, side);
-        } else if (old == ConnectionType.NONE) {
-            //Notify any listeners to our position that we now do have a capability
-            //Note: We don't invalidate our impls because we know they are already invalid, so we can short circuit setting them to null from null
-            invalidateCapabilities();
+    public TransmissionType getTransmissionType() {
+        return TransmissionType.HEAT;
+    }
+
+    @Override
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        super.readCustomNBT(nbtTags);
+        if (nbtTags.hasKey("tier")) {
+            tier = MekanismUtils.getByIndex(ExtraConductorTier.values(), nbtTags.getInteger("tier"), tier);
+        }
+        buffer.setHeatCapacity(tier.getHeatCapacity(), false);
+        if (nbtTags.hasKey(NBTConstants.HEAT_STORED, net.minecraftforge.common.util.Constants.NBT.TAG_COMPOUND)) {
+            buffer.deserializeNBT(nbtTags.getCompoundTag(NBTConstants.HEAT_STORED));
+            buffer.setHeatCapacity(tier.getHeatCapacity(), false);
+        }
+        updateRenderTemperature();
+    }
+
+
+    @Override
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        super.writeCustomNBT(nbtTags);
+        nbtTags.setTag(NBTConstants.HEAT_STORED, buffer.serializeNBT());
+        nbtTags.setInteger("tier", tier.ordinal());
+    }
+
+    public void sendTemp() {
+        Mekanism.packetHandler.sendUpdatePacket(this);
+    }
+
+    @Override
+    public IHeatHandler getCachedAcceptor(EnumFacing side) {
+        TileEntity tile = getCachedTile(side);
+        return HeatCapabilityUtils.getHandler(tile, side.getOpposite());
+    }
+
+    @Override
+    public void handlePacketData(ByteBuf dataStream) throws Exception {
+        tier = MekanismUtils.getByIndex(ExtraConductorTier.values(), dataStream.readInt(), tier);
+        super.handlePacketData(dataStream);
+        buffer.setHeatCapacityFromPacket(dataStream.readDouble());
+        buffer.setHeat(dataStream.readDouble());
+        updateRenderTemperature();
+    }
+
+    @Override
+    public TileNetworkList getNetworkedData(TileNetworkList data) {
+        data.add(tier.ordinal());
+        super.getNetworkedData(data);
+        data.add(buffer.getHeatCapacity());
+        data.add(buffer.getHeat());
+        return data;
+    }
+
+    public ColourRGBA getBaseColour() {
+        return tier.getBaseColour();
+    }
+
+    @Override
+    public IHeatHandler getAdjacent(EnumFacing side) {
+        if (connectionMapContainsSide(getAllCurrentConnections(), side)) {
+            TileEntity adj = MekanismUtils.getTileEntity(world, getPos().offset(side));
+            if (simulating) simulationNeighbors[side.ordinal()] = adj;
+            IHeatHandler handler = adjacentHandlers[side.ordinal()].resolve(adj, Capabilities.HEAT_HANDLER_CAPABILITY, side.getOpposite());
+            return handler != null ? handler : HeatCapabilityUtils.getLegacyHandler(adj, side.getOpposite());
+        }
+        adjacentHandlers[side.ordinal()].clear();
+        return null;
+    }
+
+    @Override
+    public double getAmbientTemperature(EnumFacing side) {
+        return ambientTemperature.getTemperature(side);
+    }
+
+    @Override
+    public double simulateEnvironment(EnumFacing side) {
+        // Connection modes only control external heat capabilities. The conductor's
+        // physical surface still exchanges heat with the environment on every side.
+        double heatCapacity = buffer.getHeatCapacity();
+        if (!HeatAPI.isFinite(heatCapacity) || heatCapacity < 1) {
+            return 0;
+        }
+        double invConduction = HeatAPI.AIR_INVERSE_COEFFICIENT + buffer.getInverseInsulation() + buffer.getInverseConduction();
+        if (!HeatAPI.isFinite(invConduction) || invConduction <= 0) {
+            invConduction = HeatAPI.MAX_HEAT;
+        }
+        double temperatureTransfer = (HeatAPI.sanitizeTemperature(buffer.getTemperature()) -
+                HeatAPI.sanitizeTemperature(getAmbientTemperature(side))) / invConduction;
+        if (!HeatAPI.isFinite(temperatureTransfer)) {
+            return 0;
+        }
+        double heatToTransfer = HeatAPI.multiplyHeatSigned(temperatureTransfer, heatCapacity);
+        if (HeatAPI.isFinite(heatToTransfer) && Math.abs(heatToTransfer) > HeatAPI.EPSILON) {
+            double before = buffer.getHeat();
+            buffer.handleHeat(-heatToTransfer);
+            double after = buffer.getHeat();
+            double actualHeat = heatToTransfer > 0 ? before - after : -(after - before);
+            if (HeatAPI.isFinite(actualHeat)) {
+                temperatureTransfer = actualHeat / heatCapacity;
+            }
+        }
+        return temperatureTransfer > 0 ? temperatureTransfer : 0;
+    }
+
+    @Override
+    public double incrementAdjacentTransfer(double currentAdjacentTransfer, double tempToTransfer, EnumFacing side) {
+        TileEntity adjacent = simulating ? simulationNeighbors[side.ordinal()] : MekanismUtils.getTileEntity(world, getPos().offset(side));
+        if (!HeatAPI.isFinite(tempToTransfer) || tempToTransfer <= 0) {
+            return currentAdjacentTransfer;
+        }
+        if (adjacent instanceof TileEntityExtraThermodynamicConductor adjacentConductor) {
+            // Transfers between conductors in the same network are still part of
+            // that network's adjacent-flow statistic. Cross-network conductor
+            // transfers are attributed to the network that owns the acceptor,
+            // matching the 26.2 countsAsAdjacent rule.
+            if (getTransmitter().hasTransmitterNetwork()) {
+                HeatNetwork network = getTransmitter().getTransmitterNetwork();
+                HeatNetwork adjacentNetwork = adjacentConductor.getTransmitter().hasTransmitterNetwork()
+                        ? adjacentConductor.getTransmitter().getTransmitterNetwork() : null;
+                if (!isSameNetworkForAdjacentTransfer(network, adjacentNetwork, Coord4D.get(adjacentConductor))) {
+                    return currentAdjacentTransfer;
+                }
+            }
+        }
+        double current = HeatAPI.isFinite(currentAdjacentTransfer) ? Math.max(0, currentAdjacentTransfer) : 0;
+        return tempToTransfer >= HeatAPI.MAX_HEAT - current ? HeatAPI.MAX_HEAT : current + tempToTransfer;
+    }
+
+    static boolean isSameNetworkForAdjacentTransfer(HeatNetwork network, @Nullable HeatNetwork adjacentNetwork, Coord4D adjacentCoord) {
+        if (network == adjacentNetwork && adjacentNetwork != null) {
+            return true;
+        }
+        // During a split or merge either pointer or member set may be transitional. Retain the old
+        // coordinate lookup unless identity already proved the common, stable same-network case.
+        return network.containsTransmitterAt(adjacentCoord);
+    }
+
+    @Override
+    public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing side) {
+        return heatHandlerManager.canResolve(capability, side) || super.hasCapability(capability, side);
+    }
+
+    @Override
+    public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing side) {
+        if (heatHandlerManager.canResolve(capability, side)) {
+            return heatHandlerManager.resolve(capability, side);
+        }
+        return super.getCapability(capability, side);
+    }
+
+    @Nonnull
+    private List<IHeatCapacitor> getConductorHeatTransfers(@Nullable EnumFacing side) {
+        return isRedstoneActivated() || side != null && !canConnect(side) ? Collections.emptyList() : Collections.singletonList(buffer);
+    }
+
+    @Override
+    public List<IHeatCapacitor> getHeatCapacitors(@Nullable EnumFacing side) {
+        return getConductorHeatTransfers(side);
+    }
+
+    @Override
+    public void onContentsChanged() {
+        wakeNetwork();
+        updateRenderTemperature();
+        if (world != null && !world.isRemote) {
+            markNoUpdateSync();
+            double absoluteTemperature = buffer.getTemperature();
+            if (clientTemperature < 0) {
+                clientTemperature = ambientTemperature.getAsDouble();
+            }
+            if (Math.abs(absoluteTemperature - clientTemperature) > Math.max(HeatAPI.EPSILON, absoluteTemperature / 20)) {
+                clientTemperature = absoluteTemperature;
+                sendTemp();
+            }
         }
     }
 
     @Override
-    public void redstoneChanged(boolean powered) {
-        super.redstoneChanged(powered);
-        if (powered) {
-            //The transmitter now is powered by redstone and previously was not
-            //Note: While at first glance the below invalidation may seem over aggressive, it is not actually that aggressive as
-            // if a cap has not been initialized yet on a side then invalidating it will just NO-OP
-            invalidateCapabilityAll(Capabilities.HEAT);
-        } else {
-            //Notify any listeners to our position that we now do have a capability
-            //Note: We don't invalidate our impls because we know they are already invalid, so we can short circuit setting them to null from null
-            invalidateCapabilities();
+    public void refreshConnections() {
+        super.refreshConnections();
+        wakeNetwork();
+    }
+
+    @Override
+    public void refreshConnections(EnumFacing side) {
+        super.refreshConnections(side);
+        wakeNetwork();
+    }
+
+    private void wakeNetwork() {
+        if (getTransmitter().hasTransmitterNetwork()) {
+            getTransmitter().getTransmitterNetwork().wakeUp();
         }
+    }
+
+    @Override
+    public void onWorldSeparate() {
+        for (ManagedAcceptor<IHeatHandler> cache : adjacentHandlers) cache.clear();
+        java.util.Arrays.fill(simulationNeighbors, null);
+        super.onWorldSeparate();
+    }
+
+    private void updateRenderTemperature() {
+        temperature = HeatAPI.sanitizeTemperature(buffer.getTemperature()) - HeatAPI.sanitizeTemperature(ambientTemperature.getAsDouble());
+    }
+
+    @Override
+    public boolean upgrade(AlloyTier tierOrdinal) {
+        //Mekanism's Basic/Advanced/Elite/Ultimate alloys do not define the Extra tier ladder.
+        return false;
     }
 }

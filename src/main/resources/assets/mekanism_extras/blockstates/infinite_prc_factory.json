@@ -1,0 +1,42 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "valve": "mekanism:blocks/models/factory/prc/ultimate_valve",
+      "led": "mekanism_extras:blocks/factory/led_infinite",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_prc_led_overlay"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "valve": "mekanism:blocks/models/factory/prc/ultimate_valve_on"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

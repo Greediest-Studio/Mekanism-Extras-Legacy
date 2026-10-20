@@ -1,0 +1,27 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "CGC",
+    "FTF",
+    "FFF"
+  ],
+  "key": {
+    "C": {
+      "item": "mekanism_extras:cosmic_control_circuit"
+    },
+    "G": {
+      "ore": "paneGlass",
+      "type": "forge:ore_dict"
+    },
+    "F": {
+      "item": "mekanism_extras:naquadah_reactor_casing"
+    },
+    "T": {
+      "item": "mekanism_extras:absolute_chemical_tank"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:naquadah_reactor_controller",
+    "count": 1
+  }
+}

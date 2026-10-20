@@ -1,0 +1,28 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "BBB",
+    "AXA",
+    "OOO"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_thermonuclear"
+    },
+    "X": {
+      "item": "mekanism:machineblock",
+      "data": 12
+    },
+    "O": {
+      "ore": "blockOsmium",
+      "type": "forge:ore_dict"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:advanced_electric_pump",
+    "count": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "led": "mekanism_extras:blocks/factory/led_cosmic",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekceumoremachine:factory_organic_farm"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "model": "mekceumoremachine:factory_organic_farm_active",
+        "textures": {
+          "led": "mekanism_extras:blocks/factory/led_cosmic"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

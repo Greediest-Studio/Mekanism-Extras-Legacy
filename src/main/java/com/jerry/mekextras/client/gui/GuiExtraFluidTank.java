@@ -1,37 +1,38 @@
 package com.jerry.mekextras.client.gui;
 
-import com.jerry.mekextras.common.tile.TileEntityExtraFluidTank;
 import mekanism.client.gui.GuiMekanismTile;
+import com.jerry.mekextras.common.inventory.container.ContainerExtraFluidTank;
+import com.jerry.mekextras.common.tile.TileEntityExtraFluidTank;
+
 import mekanism.client.gui.element.GuiSideHolder;
-import mekanism.client.gui.element.gauge.GaugeType;
 import mekanism.client.gui.element.gauge.GuiFluidGauge;
 import mekanism.client.gui.element.tab.GuiContainerEditModeTab;
-import mekanism.common.inventory.container.tile.MekanismTileContainer;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class GuiExtraFluidTank extends GuiMekanismTile<TileEntityExtraFluidTank, MekanismTileContainer<TileEntityExtraFluidTank>> {
+@SideOnly(Side.CLIENT)
+public class GuiExtraFluidTank extends GuiMekanismTile<TileEntityExtraFluidTank, ContainerExtraFluidTank> {
 
-    public GuiExtraFluidTank(MekanismTileContainer<TileEntityExtraFluidTank> container, Inventory inv, Component title) {
-        super(container, inv, title);
+    public GuiExtraFluidTank(InventoryPlayer inventory, TileEntityExtraFluidTank tile) {
+        super(tile, new ContainerExtraFluidTank(inventory, tile));
         dynamicSlots = true;
     }
 
     @Override
     protected void addGuiElements() {
-        //Add the side holder before the slots, as it holds a couple of the slots
-        addRenderableWidget(GuiSideHolder.armorHolder(this));
+        addButton(GuiSideHolder.armorHolder(this));
         super.addGuiElements();
-        addRenderableWidget(new GuiContainerEditModeTab<>(this, tile));
-        addRenderableWidget(new GuiFluidGauge(() -> tile.fluidTank, () -> tile.getFluidTanks(null), GaugeType.WIDE, this, 48, 18));
+        addButton(new GuiContainerEditModeTab<>(this, tileEntity));
+        addButton(new GuiFluidGauge(this, tileEntity.fluidTank, GuiFluidGauge.Type.WIDE, 48, 18));
     }
 
     @Override
-    protected void drawForegroundText(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
-        super.drawForegroundText(guiGraphics, mouseX, mouseY);
+    protected void drawForegroundText(int mouseX, int mouseY) {
+        drawTitleText(new TextComponentString(tileEntity.getName()), 4);
+        renderInventoryText();
+        super.drawForegroundText(mouseX, mouseY);
     }
 }
+

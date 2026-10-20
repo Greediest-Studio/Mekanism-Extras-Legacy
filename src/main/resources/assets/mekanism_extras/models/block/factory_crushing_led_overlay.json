@@ -1,0 +1,87 @@
+{
+	"parent": "block/cube_all",
+	"textures": {
+		"particle": "#sides",
+		"east": "#sides",
+		"north": "#front",
+		"led": "mekanism_extras:blocks/factory/led_absolute"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#north", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#east", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#east", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#east", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#east", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#east", "cullface": "down"}
+			}
+		},
+		{
+			"name": "extra_tier_front_led",
+			"from": [5, 14.99, -0.01],
+			"to": [11, 16, 1.01],
+			"faces": {
+				"north": {"uv": [0, 0, 6, 1], "texture": "#led", "cullface": "north"}
+			}
+		},
+		{
+			"name": "extra_tier_top_front_led",
+			"from": [5, 16.01, -0.01],
+			"to": [11, 16.03, 1.01],
+			"faces": {
+				"up": {"uv": [0, 0, 6, 1], "rotation": 180, "texture": "#led"}
+			}
+		},
+		{
+			"name": "extra_tier_top_back_led",
+			"from": [5, 16.01, 14.99],
+			"to": [11, 16.03, 16.01],
+			"faces": {
+				"up": {"uv": [0, 0, 6, 1], "texture": "#led"}
+			}
+		},
+		{
+			"name": "extra_tier_top_left_led",
+			"from": [14.99, 16.01, 5],
+			"to": [16.01, 16.03, 11],
+			"faces": {
+				"up": {"uv": [0, 0, 6, 1], "rotation": 90, "texture": "#led"}
+			}
+		},
+		{
+			"name": "extra_tier_top_right_led",
+			"from": [-0.01, 16.01, 5],
+			"to": [1.01, 16.03, 11],
+			"faces": {
+				"up": {"uv": [0, 0, 6, 1], "rotation": 270, "texture": "#led"}
+			}
+		},
+		{
+			"name": "extra_tier_left_vertical_led",
+			"from": [14.99, 14.99, 5],
+			"to": [16.01, 16.01, 11],
+			"faces": {
+				"east": {"uv": [0, 0, 6, 1], "rotation": 180, "texture": "#led", "cullface": "east"}
+			}
+		},
+		{
+			"name": "extra_tier_right_vertical_led",
+			"from": [-0.01, 14.99, 5],
+			"to": [1.01, 16.01, 11],
+			"faces": {
+				"west": {"uv": [0, 0, 6, 1], "rotation": 180, "texture": "#led", "cullface": "west"}
+			}
+		},
+		{
+			"name": "extra_tier_back_vertical_led",
+			"from": [5, 14.99, 14.99],
+			"to": [11, 16.01, 16.01],
+			"faces": {
+				"south": {"uv": [0, 0, 6, 1], "texture": "#led", "cullface": "south"}
+			}
+		}
+	]
+}

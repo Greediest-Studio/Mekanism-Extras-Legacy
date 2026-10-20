@@ -1,46 +1,39 @@
 package com.jerry.mekextras.common.item;
 
-import com.jerry.mekextras.api.IExtraAlloyInteraction;
 import com.jerry.mekextras.api.tier.ExtraAlloyTier;
-import com.jerry.mekextras.common.capabilities.ExtraCapabilities;
-import mekanism.common.config.MekanismConfig;
-import mekanism.common.util.WorldUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import com.jerry.mekextras.common.util.ExtraTransmitterUpgradeUtils;
+import mekanism.common.item.ItemMekanism;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumRarity;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
-public class ItemExtraAlloy extends Item {
+public class ItemExtraAlloy extends ItemMekanism {
 
     private final ExtraAlloyTier tier;
 
-    public ItemExtraAlloy(ExtraAlloyTier tier, Properties properties) {
-        super(properties);
+    public ItemExtraAlloy(ExtraAlloyTier tier, EnumRarity rarity) {
         this.tier = tier;
-    }
-
-    @NotNull
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Player player = context.getPlayer();
-        if (player != null && MekanismConfig.general.transmitterAlloyUpgrade.get()) {
-            Level world = context.getLevel();
-            BlockPos pos = context.getClickedPos();
-            IExtraAlloyInteraction alloyInteraction = WorldUtils.getCapability(world, ExtraCapabilities.EXTRA_ALLOY_INTERACTION, pos, context.getClickedFace());
-            if (alloyInteraction != null) {
-                if (!world.isClientSide) {
-                    alloyInteraction.onExtraAlloyInteraction(player, context.getItemInHand(), tier);
-                }
-                return InteractionResult.sidedSuccess(world.isClientSide);
-            }
-        }
-        return InteractionResult.PASS;
+        setRarity(rarity);
     }
 
     public ExtraAlloyTier getTier() {
         return tier;
+    }
+
+    @Override
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side,
+                                           float hitX, float hitY, float hitZ, EnumHand hand) {
+        if (ExtraTransmitterUpgradeUtils.canUpgrade(world, pos, tier.getAdvanceTier())) {
+            if (!world.isRemote && !ExtraTransmitterUpgradeUtils.tryUpgrade(
+                  player, world, pos, player.getHeldItem(hand), tier.getAdvanceTier())) {
+                return EnumActionResult.PASS;
+            }
+            return EnumActionResult.SUCCESS;
+        }
+        return EnumActionResult.PASS;
     }
 }

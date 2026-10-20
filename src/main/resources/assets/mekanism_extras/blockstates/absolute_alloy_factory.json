@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryback",
+      "west": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryright",
+      "front": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_absolute",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/absolute/smelting/absolutesmeltingfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

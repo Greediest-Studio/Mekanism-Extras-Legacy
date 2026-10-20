@@ -1,0 +1,24 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "ICI",
+    "C#C",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "ore": "ingotLead",
+      "type": "forge:ore_dict"
+    },
+    "C": {
+      "item": "mekanism_extras:qio_drive_black_hole"
+    },
+    "#": {
+      "item": "mekanism:AntimatterPellet"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:qio_drive_singularity",
+    "count": 1
+  }
+}

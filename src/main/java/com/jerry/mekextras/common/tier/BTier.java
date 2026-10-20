@@ -2,20 +2,28 @@ package com.jerry.mekextras.common.tier;
 
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.common.config.value.CachedIntValue;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
-public enum BTier implements IAdvancedTier {
-    ABSOLUTE(AdvancedTier.ABSOLUTE, 1_048_576),// x4
-    SUPREME(AdvancedTier.SUPREME, 8_388_608),// x8
-    COSMIC(AdvancedTier.COSMIC, 134_217_728),// x16
-    INFINITE(AdvancedTier.INFINITE, Integer.MAX_VALUE); // x16
+import java.util.Locale;
 
-    private final int advanceStorage;
+public enum BTier implements IAdvancedTier, IStringSerializable {
+
+    ABSOLUTE(AdvancedTier.ABSOLUTE, 1_048_576),
+    SUPREME(AdvancedTier.SUPREME, 8_388_608),
+    COSMIC(AdvancedTier.COSMIC, 134_217_728),
+    INFINITE(AdvancedTier.INFINITE, Integer.MAX_VALUE);
+
     private final AdvancedTier advancedTier;
-    private CachedIntValue storageReference;
-    BTier(AdvancedTier advancedTier, int i) {
+    private final int storage;
+
+    BTier(AdvancedTier advancedTier, int storage) {
         this.advancedTier = advancedTier;
-        this.advanceStorage = i;
+        this.storage = storage;
+    }
+
+    public int getStorage() {
+        return storage;
     }
 
     @Override
@@ -23,18 +31,18 @@ public enum BTier implements IAdvancedTier {
         return advancedTier;
     }
 
-    public int getStorage() {
-        return storageReference == null ? getAdvanceStorage() : storageReference.getOrDefault();
+    @Override
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
     }
 
-    public int getAdvanceStorage() {
-        return advanceStorage;
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT);
     }
 
-    /**
-     * ONLY CALL THIS FROM TierConfig. It is used to give the BinTier a reference to the actual config value object
-     */
-    public void setConfigReference(CachedIntValue storageReference) {
-        this.storageReference = storageReference;
+    public static BTier byIndex(int index) {
+        BTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
     }
 }

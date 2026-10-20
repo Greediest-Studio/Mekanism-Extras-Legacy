@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryback",
+      "west": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryright",
+      "front": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_cosmic",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/cosmic/smelting/cosmicsmeltingfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

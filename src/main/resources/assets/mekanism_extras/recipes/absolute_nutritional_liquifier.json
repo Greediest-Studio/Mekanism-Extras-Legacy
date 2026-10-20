@@ -1,0 +1,27 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_radiance"
+    },
+    "C": {
+      "item": "mekanism_extras:absolute_control_circuit"
+    },
+    "I": {
+      "item": "minecraft:emerald"
+    },
+    "P": {
+      "item": "mekceumoremachine:TierNutritionalLiquifier",
+      "data": 3
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:absolute_nutritional_liquifier",
+    "count": 1
+  }
+}

@@ -1,419 +1,491 @@
 package com.jerry.mekextras.common.registries;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import com.jerry.mekextras.MekanismExtras;
-import com.jerry.mekextras.api.tier.IAdvancedTier;
-import com.jerry.mekextras.common.attachments.containers.chemical.ExtraComponentBackedChemicalTankTank;
-import com.jerry.mekextras.common.attachments.containers.fluid.ExtraComponentBackedFluidTankFluidTank;
-import com.jerry.mekextras.common.attachments.containers.item.ExtraComponentBackedBinInventorySlot;
-import com.jerry.mekextras.common.block.BlockLargeCapRadioactiveWasteBarrel;
-import com.jerry.mekextras.common.block.attribute.ExtraAttributeTier;
-import com.jerry.mekextras.common.block.basic.BlockExtraBin;
-import com.jerry.mekextras.common.block.basic.BlockExtraFluidTank;
-import com.jerry.mekextras.common.block.basic.BlockExtraResource;
-import com.jerry.mekextras.common.block.prefab.BlockExtraFactoryMachine.BlockExtraFactory;
-import com.jerry.mekextras.common.content.blocktype.ExtraFactory;
-import com.jerry.mekextras.common.item.block.*;
-import com.jerry.mekextras.common.item.block.machine.ItemBlockExtraFactory;
-import com.jerry.mekextras.common.resource.BlockExtraResourceInfo;
-import com.jerry.mekextras.common.resource.ExtraResource;
-import com.jerry.mekextras.common.resource.ore.ExtraOreType;
-import com.jerry.mekextras.common.tier.*;
-import com.jerry.mekextras.common.tile.*;
+import com.jerry.mekextras.api.tier.AdvancedTier;
+import com.jerry.mekextras.common.ExtraGuiIds;
+import com.jerry.mekextras.common.block.BlockExtraBin;
+import com.jerry.mekextras.common.block.BlockExtraAdvancedElectricPump;
+import com.jerry.mekextras.common.block.BlockExtraChemicalTank;
 import com.jerry.mekextras.common.block.BlockExtraEnergyCube;
-import com.jerry.mekextras.common.item.block.transmitter.ItemBlockExtraUniversalCable;
-import com.jerry.mekextras.common.tile.factory.TileEntityExtraFactory;
-import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraUniversalCable;
-import com.jerry.mekextras.common.item.block.transmitter.ItemBlockExtraLogisticalTransporter;
-import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraLogisticalTransporter;
-import com.jerry.mekextras.common.item.block.transmitter.ItemBlockExtraMechanicalPipe;
+import com.jerry.mekextras.common.block.BlockExtraFactory;
+import com.jerry.mekextras.common.block.BlockExtraInductionCasing;
+import com.jerry.mekextras.common.block.BlockExtraReactor;
+import com.jerry.mekextras.common.block.BlockExtraInductionCell;
+import com.jerry.mekextras.common.block.BlockExtraInductionProvider;
+import com.jerry.mekextras.common.block.BlockExtraMoreMachine;
+import com.jerry.mekextras.common.block.BlockExtraTransmitter;
+import com.jerry.mekextras.common.block.BlockExtraFluidTank;
+import com.jerry.mekextras.common.block.BlockExtraWasteBarrel;
+import com.jerry.mekextras.common.block.BlockExtraOre;
+import com.jerry.mekextras.common.block.BlockExtraResource;
+import com.jerry.mekextras.common.block.ExtraWorldGenerator;
+import com.jerry.mekextras.common.item.ItemBlockExtraBin;
+import com.jerry.mekextras.common.item.ItemBlockExtraMachine;
+import com.jerry.mekextras.common.item.ItemBlockExtraTransmitter;
+import com.jerry.mekextras.common.tier.BTier;
+import com.jerry.mekextras.common.tier.CTTier;
+import com.jerry.mekextras.common.tier.ECTier;
+import com.jerry.mekextras.common.tier.ExtraFactoryTier;
+import com.jerry.mekextras.common.tier.FTTier;
+import com.jerry.mekextras.common.tier.ExtraMachineTier;
+import com.jerry.mekextras.common.tier.ExtraTransporterTier;
+import com.jerry.mekextras.common.tier.ICTier;
+import com.jerry.mekextras.common.tier.IPTier;
+import mekanism.common.base.IFactory.RecipeType;
+import mekanism.common.block.states.BlockStateTransmitter.TransmitterType;
 import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraMechanicalPipe;
-import com.jerry.mekextras.common.item.block.transmitter.ItemBlockExtraThermodynamicConductor;
-import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraThermodynamicConductor;
-import com.jerry.mekextras.common.item.block.transmitter.ItemBlockExtraPressurizedTube;
 import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraPressurizedTube;
-import com.jerry.mekextras.common.item.block.machine.ItemBlockExtraFluidTank;
-import com.jerry.mekextras.common.tile.machine.TileEntityAdvancedElectricPump;
-import com.jerry.mekextras.common.tile.multiblock.TileEntityReinforcedInductionCasing;
-import com.jerry.mekextras.common.tile.multiblock.TileEntityReinforcedInductionPort;
-import com.jerry.mekextras.common.tile.multiblock.TileEntityExtraInductionCell;
-import com.jerry.mekextras.common.tile.multiblock.TileEntityExtraInductionProvider;
-import com.jerry.mekextras.common.util.ExtraEnumUtils;
-import fr.iglee42.evolvedmekanism.registries.EMFactoryType;
-import mekanism.common.attachments.containers.ContainerType;
-import mekanism.common.attachments.containers.chemical.ChemicalTanksBuilder;
-import mekanism.common.attachments.containers.fluid.FluidTanksBuilder;
-import mekanism.common.attachments.containers.item.ItemSlotsBuilder;
-import mekanism.common.block.BlockOre;
-import mekanism.common.block.interfaces.IHasDescription;
-import mekanism.common.block.prefab.BlockBasicMultiblock;
-import mekanism.common.block.prefab.BlockTile;
-import mekanism.common.block.transmitter.BlockLargeTransmitter;
-import mekanism.common.block.transmitter.BlockSmallTransmitter;
-import mekanism.common.content.blocktype.BlockTypeTile;
-import mekanism.common.content.blocktype.FactoryType;
-import mekanism.common.content.blocktype.Machine;
-import mekanism.common.item.block.ItemBlockMekanism;
-import mekanism.common.item.block.ItemBlockTooltip;
-import mekanism.common.recipe.MekanismRecipeType;
-import mekanism.common.recipe.lookup.cache.InputRecipeCache;
-import mekanism.common.registration.impl.BlockDeferredRegister;
-import mekanism.common.registration.impl.BlockRegistryObject;
-import mekanism.common.resource.BlockResourceInfo;
-import mekanism.common.resource.IResource;
-import mekanism.common.resource.ore.OreBlockType;
-import mekanism.common.resource.ore.OreType;
-import mekanism.common.tile.machine.TileEntityMetallurgicInfuser;
-import mekanism.common.tile.prefab.TileEntityAdvancedElectricMachine;
-import mekanism.common.util.EnumUtils;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.bus.api.IEventBus;
-import org.jetbrains.annotations.NotNull;
+import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraThermodynamicConductor;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraChemicalInfuser;
+import com.jerry.mekextras.common.tile.multiblock.TileEntityExtraReactorCasing;
+import com.jerry.mekextras.common.tile.multiblock.TileEntityExtraReactorController;
+import com.jerry.mekextras.common.tile.multiblock.TileEntityExtraReactorLaserFocusMatrix;
+import com.jerry.mekextras.common.tile.multiblock.TileEntityExtraReactorPort;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraChemicalOxidizer;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraChemicalWasher;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraIsotopicCentrifuge;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraCrystallizer;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraDissolutionChamber;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraNutritionalLiquifier;
+import com.jerry.mekextras.common.tile.moremachine.TileEntityExtraOrganicFarm;
+import com.jerry.mekextras.common.tile.moremachine.ExtraMoreMachineTiles;
+import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraLogisticalTransporter;
+import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraUniversalCable;
+import com.jerry.mekextras.common.tier.RWBTier;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class ExtraBlocks {
 
-    public static final BlockDeferredRegister EXTRA_BLOCKS = new BlockDeferredRegister(MekanismExtras.MOD_ID);
+    //Ores and storage blocks
+    public static final Block NAQUADAH_ORE = new BlockExtraOre(ExtraItems.RAW_NAQUADAH, 3.0F, 5.0F, 2);
+    public static final Block END_NAQUADAH_ORE = new BlockExtraOre(ExtraItems.RAW_NAQUADAH, 4.0F, 6.0F, 2);
+    public static final Block NAQUADAH_BLOCK = new BlockExtraResource(5.0F, 10.0F);
+    public static final Block RAW_NAQUADAH_BLOCK = new BlockExtraResource(5.0F, 10.0F);
 
-    public static final Map<IResource, BlockRegistryObject<?, ?>> PROCESSED_RESOURCE_BLOCKS = new LinkedHashMap<>();
-    public static final Map<OreType, OreBlockType> ORES = new LinkedHashMap<>();
+    //Storage machines
+    public static final Block ABSOLUTE_BIN = new BlockExtraBin(BTier.ABSOLUTE);
+    public static final Block SUPREME_BIN = new BlockExtraBin(BTier.SUPREME);
+    public static final Block COSMIC_BIN = new BlockExtraBin(BTier.COSMIC);
+    public static final Block INFINITE_BIN = new BlockExtraBin(BTier.INFINITE);
 
-    private static final Table<ExtraFactoryTier, FactoryType, BlockRegistryObject<BlockExtraFactory<?>, ItemBlockExtraFactory>> FACTORIES = HashBasedTable.create();
+    public static final Block ABSOLUTE_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.ABSOLUTE);
+    public static final Block SUPREME_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.SUPREME);
+    public static final Block COSMIC_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.COSMIC);
+    public static final Block INFINITE_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.INFINITE);
+
+    public static final Block ABSOLUTE_FLUID_TANK = new BlockExtraFluidTank(FTTier.ABSOLUTE);
+    public static final Block SUPREME_FLUID_TANK = new BlockExtraFluidTank(FTTier.SUPREME);
+    public static final Block COSMIC_FLUID_TANK = new BlockExtraFluidTank(FTTier.COSMIC);
+    public static final Block INFINITE_FLUID_TANK = new BlockExtraFluidTank(FTTier.INFINITE);
+
+    public static final Block ABSOLUTE_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.ABSOLUTE);
+    public static final Block SUPREME_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.SUPREME);
+    public static final Block COSMIC_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.COSMIC);
+    public static final Block INFINITE_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.INFINITE);
+
+    public static final Block ABSOLUTE_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.ABSOLUTE);
+    public static final Block SUPREME_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.SUPREME);
+    public static final Block COSMIC_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.COSMIC);
+    public static final Block INFINITE_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.INFINITE);
+    public static final Block REINFORCED_INDUCTION_CASING = new BlockExtraInductionCasing(false);
+    public static final Block REINFORCED_INDUCTION_PORT = new BlockExtraInductionCasing(true);
+
+    public static final Block ABSOLUTE_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.ABSOLUTE);
+    public static final Block SUPREME_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.SUPREME);
+    public static final Block COSMIC_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.COSMIC);
+    public static final Block INFINITE_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.INFINITE);
+
+    public static final Block ABSOLUTE_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.ABSOLUTE);
+    public static final Block SUPREME_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.SUPREME);
+    public static final Block COSMIC_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.COSMIC);
+    public static final Block INFINITE_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.INFINITE);
+    /**
+     * The extra factories: one block per (tier, recipe type), mirroring Mekanism's own factory blocks.
+     */
+    public static final Map<RecipeType, Block[]> FACTORIES = new EnumMap<>(RecipeType.class);
 
     static {
-        // factories
-        for (ExtraFactoryTier tier : ExtraEnumUtils.EXTRA_FACTORY_TIERS) {
-            for (FactoryType type : EnumUtils.FACTORY_TYPES) {
-                if (MekanismExtras.hooks.evolvedMekanism.isLoaded()) {
-                    if (type != EMFactoryType.ALLOYING) {
-                        FACTORIES.put(tier, type, registerFactory(ExtraBlockTypes.getAdvancedFactory(tier, type)));
-                    }
-                } else {
-                    FACTORIES.put(tier, type, registerFactory(ExtraBlockTypes.getAdvancedFactory(tier, type)));
-                }
+        for (RecipeType type : RecipeType.values()) {
+            Block[] tiers = new Block[ExtraFactoryTier.values().length];
+            for (ExtraFactoryTier tier : ExtraFactoryTier.values()) {
+                Block block = new BlockExtraFactory(tier, type);
+                tiers[tier.ordinal()] = block;
+                init(block, tier.getName() + "_" + type.name().toLowerCase(java.util.Locale.ROOT) + "_factory");
             }
-        }
-        // resource blocks
-        for (ExtraResource resource : ExtraEnumUtils.EXTRA_RESOURCES) {
-            if (resource.getResourceBlockInfo() != null) {
-                PROCESSED_RESOURCE_BLOCKS.put(resource, registerResourceBlock(resource.getResourceBlockInfo()));
-            }
-            BlockExtraResourceInfo rawResource = resource.getRawResourceBlockInfo();
-            if (rawResource != null) {
-                PROCESSED_RESOURCE_BLOCKS.put(rawResource, registerResourceBlock(rawResource));
-            }
-        }
-        // ores
-        for (OreType ore : EnumUtils.ORE_TYPES) {
-            if (ore == ExtraOreType.NAQUADAH) {
-                ORES.put(ore, registerOre(ore));
-            }
+            FACTORIES.put(type, tiers);
         }
     }
+    public static final Block NAQUADAH_REACTOR_CASING = new BlockExtraReactor(BlockExtraReactor.Kind.CASING);
+    public static final Block NAQUADAH_REACTOR_PORT = new BlockExtraReactor(BlockExtraReactor.Kind.PORT);
+    public static final Block NAQUADAH_REACTOR_CONTROLLER = new BlockExtraReactor(BlockExtraReactor.Kind.CONTROLLER);
+    public static final Block NAQUADAH_REACTOR_LOGIC_ADAPTER = new BlockExtraReactor(BlockExtraReactor.Kind.LOGIC_ADAPTER);
+    public static final Block LEAD_COATED_LASER_FOCUS_MATRIX = new BlockExtraReactor(BlockExtraReactor.Kind.LASER_FOCUS_MATRIX);
 
-    private static <BLOCK extends Block, ITEM extends BlockItem> BlockRegistryObject<BLOCK, ITEM> registerTieredBlock(IAdvancedTier tier, String suffix,
-                                                                                                                      Function<MapColor, ? extends BLOCK> blockSupplier, BiFunction<BLOCK, Item.Properties, ITEM> itemCreator) {
-        return registerTieredBlock(tier, suffix, () -> blockSupplier.apply(tier.getAdvanceTier().getMapColor()), itemCreator);
-    }
+    /**
+     * The advanced electric pump, the single machine of this mod that is not a factory or a storage block.
+     */
+    public static final Block ADVANCED_ELECTRIC_PUMP = new BlockExtraAdvancedElectricPump();
 
-    private static <BLOCK extends Block, ITEM extends BlockItem> BlockRegistryObject<BLOCK, ITEM> registerTieredBlock(IAdvancedTier tier, String suffix,
-                                                                                                                      Supplier<? extends BLOCK> blockSupplier, BiFunction<BLOCK, Item.Properties, ITEM> itemCreator) {
-        return EXTRA_BLOCKS.register(tier.getAdvanceTier().getLowerName() + suffix, blockSupplier, itemCreator);
-    }
+    /**
+     * The extra transmitters: one block per (kind, tier) pair, five kinds in total.
+     */
+    public static final Map<TransmitterType, Block[]> TRANSMITTERS = new EnumMap<>(TransmitterType.class);
+    private static final TransmitterType[] EXTRA_TRANSMITTER_TYPES = {
+          TransmitterType.UNIVERSAL_CABLE, TransmitterType.MECHANICAL_PIPE, TransmitterType.PRESSURIZED_TUBE,
+          TransmitterType.THERMODYNAMIC_CONDUCTOR, TransmitterType.LOGISTICAL_TRANSPORTER
+    };
 
-    private static <BLOCK extends Block, ITEM extends BlockItem> BlockRegistryObject<BLOCK, ITEM> registerTieredBlock(String registerName,
-                                                                                                                      Supplier<? extends BLOCK> blockSupplier, BiFunction<BLOCK, Item.Properties, ITEM> itemCreator) {
-        return EXTRA_BLOCKS.register(registerName, blockSupplier, itemCreator);
-    }
-
-    private static <BLOCK extends Block & IHasDescription> BlockRegistryObject<BLOCK, ItemBlockTooltip<BLOCK>> registerBlock(String name,
-                                                                                                                             Supplier<? extends BLOCK> blockSupplier) {
-        return EXTRA_BLOCKS.register(name, blockSupplier, ItemBlockTooltip::new);
-    }
-
-    public static final BlockRegistryObject<BlockExtraBin, ItemBlockExtraBin> ABSOLUTE_BIN = registerBin(ExtraBlockTypes.ABSOLUTE_BIN);
-    public static final BlockRegistryObject<BlockExtraBin, ItemBlockExtraBin> SUPREME_BIN = registerBin(ExtraBlockTypes.SUPREME_BIN);
-    public static final BlockRegistryObject<BlockExtraBin, ItemBlockExtraBin> COSMIC_BIN = registerBin(ExtraBlockTypes.COSMIC_BIN);
-    public static final BlockRegistryObject<BlockExtraBin, ItemBlockExtraBin> INFINITE_BIN = registerBin(ExtraBlockTypes.INFINITE_BIN);
-
-    public static final BlockRegistryObject<BlockBasicMultiblock<TileEntityReinforcedInductionCasing>, ItemBlockTooltip<BlockBasicMultiblock<TileEntityReinforcedInductionCasing>>> REINFORCED_INDUCTION_CASING = registerBlock("reinforced_induction_casing", () -> new BlockBasicMultiblock<>(ExtraBlockTypes.REINFORCED_INDUCTION_CASING, properties -> properties.mapColor(MapColor.COLOR_LIGHT_GRAY)));
-    public static final BlockRegistryObject<BlockBasicMultiblock<TileEntityReinforcedInductionPort>, ItemBlockTooltip<BlockBasicMultiblock<TileEntityReinforcedInductionPort>>> REINFORCED_INDUCTION_PORT = registerBlock("reinforced_induction_port", () -> new BlockBasicMultiblock<>(ExtraBlockTypes.REINFORCED_INDUCTION_PORT, properties -> properties.mapColor(MapColor.COLOR_LIGHT_GRAY)));
-
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionCell, BlockTypeTile<TileEntityExtraInductionCell>>, ItemBlockExtraInductionCell> ABSOLUTE_INDUCTION_CELL = registerInductionCell(ExtraBlockTypes.ABSOLUTE_INDUCTION_CELL);
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionCell, BlockTypeTile<TileEntityExtraInductionCell>>, ItemBlockExtraInductionCell> SUPREME_INDUCTION_CELL = registerInductionCell(ExtraBlockTypes.SUPREME_INDUCTION_CELL);
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionCell, BlockTypeTile<TileEntityExtraInductionCell>>, ItemBlockExtraInductionCell> COSMIC_INDUCTION_CELL = registerInductionCell(ExtraBlockTypes.COSMIC_INDUCTION_CELL);
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionCell, BlockTypeTile<TileEntityExtraInductionCell>>, ItemBlockExtraInductionCell> INFINITE_INDUCTION_CELL = registerInductionCell(ExtraBlockTypes.INFINITE_INDUCTION_CELL);
-
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionProvider, BlockTypeTile<TileEntityExtraInductionProvider>>, ItemBlockExtraInductionProvider> ABSOLUTE_INDUCTION_PROVIDER = registerInductionProvider(ExtraBlockTypes.ABSOLUTE_INDUCTION_PROVIDER);
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionProvider, BlockTypeTile<TileEntityExtraInductionProvider>>, ItemBlockExtraInductionProvider> SUPREME_INDUCTION_PROVIDER = registerInductionProvider(ExtraBlockTypes.SUPREME_INDUCTION_PROVIDER);
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionProvider, BlockTypeTile<TileEntityExtraInductionProvider>>, ItemBlockExtraInductionProvider> COSMIC_INDUCTION_PROVIDER = registerInductionProvider(ExtraBlockTypes.COSMIC_INDUCTION_PROVIDER);
-    public static final BlockRegistryObject<BlockTile<TileEntityExtraInductionProvider, BlockTypeTile<TileEntityExtraInductionProvider>>, ItemBlockExtraInductionProvider> INFINITE_INDUCTION_PROVIDER = registerInductionProvider(ExtraBlockTypes.INFINITE_INDUCTION_PROVIDER);
-
-    public static final BlockRegistryObject<BlockExtraEnergyCube, ItemBlockExtraEnergyCube> ABSOLUTE_ENERGY_CUBE = registerEnergyCube(ExtraBlockTypes.ABSOLUTE_ENERGY_CUBE);
-    public static final BlockRegistryObject<BlockExtraEnergyCube, ItemBlockExtraEnergyCube> SUPREME_ENERGY_CUBE = registerEnergyCube(ExtraBlockTypes.SUPREME_ENERGY_CUBE);
-    public static final BlockRegistryObject<BlockExtraEnergyCube, ItemBlockExtraEnergyCube> COSMIC_ENERGY_CUBE = registerEnergyCube(ExtraBlockTypes.COSMIC_ENERGY_CUBE);
-    public static final BlockRegistryObject<BlockExtraEnergyCube, ItemBlockExtraEnergyCube> INFINITE_ENERGY_CUBE = registerEnergyCube(ExtraBlockTypes.INFINITE_ENERGY_CUBE);
-
-    public static final BlockRegistryObject<BlockExtraFluidTank, ItemBlockExtraFluidTank> ABSOLUTE_FLUID_TANK = registerFluidTank(ExtraBlockTypes.ABSOLUTE_FLUID_TANK);
-    public static final BlockRegistryObject<BlockExtraFluidTank, ItemBlockExtraFluidTank> SUPREME_FLUID_TANK = registerFluidTank(ExtraBlockTypes.SUPREME_FLUID_TANK);
-    public static final BlockRegistryObject<BlockExtraFluidTank, ItemBlockExtraFluidTank> COSMIC_FLUID_TANK = registerFluidTank(ExtraBlockTypes.COSMIC_FLUID_TANK);
-    public static final BlockRegistryObject<BlockExtraFluidTank, ItemBlockExtraFluidTank> INFINITE_FLUID_TANK = registerFluidTank(ExtraBlockTypes.INFINITE_FLUID_TANK);
-
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraUniversalCable>, ItemBlockExtraUniversalCable> ABSOLUTE_UNIVERSAL_CABLE = registerUniversalCable("absolute", ExtraBlockTypes.ABSOLUTE_UNIVERSAL_CABLE);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraUniversalCable>, ItemBlockExtraUniversalCable> SUPREME_UNIVERSAL_CABLE = registerUniversalCable("supreme", ExtraBlockTypes.SUPREME_UNIVERSAL_CABLE);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraUniversalCable>, ItemBlockExtraUniversalCable> COSMIC_UNIVERSAL_CABLE = registerUniversalCable("cosmic", ExtraBlockTypes.COSMIC_UNIVERSAL_CABLE);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraUniversalCable>, ItemBlockExtraUniversalCable> INFINITE_UNIVERSAL_CABLE = registerUniversalCable("infinite", ExtraBlockTypes.INFINITE_UNIVERSAL_CABLE);
-
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraMechanicalPipe>, ItemBlockExtraMechanicalPipe> ABSOLUTE_MECHANICAL_PIPE = registerMechanicalPipe("absolute", ExtraBlockTypes.ABSOLUTE_MECHANICAL_PIPE);
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraMechanicalPipe>, ItemBlockExtraMechanicalPipe> SUPREME_MECHANICAL_PIPE = registerMechanicalPipe("supreme", ExtraBlockTypes.SUPREME_MECHANICAL_PIPE);
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraMechanicalPipe>, ItemBlockExtraMechanicalPipe> COSMIC_MECHANICAL_PIPE = registerMechanicalPipe("cosmic", ExtraBlockTypes.COSMIC_MECHANICAL_PIPE);
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraMechanicalPipe>, ItemBlockExtraMechanicalPipe> INFINITE_MECHANICAL_PIPE = registerMechanicalPipe("infinite", ExtraBlockTypes.INFINITE_MECHANICAL_PIPE);
-
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraPressurizedTube>, ItemBlockExtraPressurizedTube> ABSOLUTE_PRESSURIZED_TUBE = registerPressurizedTube("absolute", ExtraBlockTypes.ABSOLUTE_PRESSURIZED_TUBE);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraPressurizedTube>, ItemBlockExtraPressurizedTube> SUPREME_PRESSURIZED_TUBE = registerPressurizedTube("supreme", ExtraBlockTypes.SUPREME_PRESSURIZED_TUBE);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraPressurizedTube>, ItemBlockExtraPressurizedTube> COSMIC_PRESSURIZED_TUBE = registerPressurizedTube("cosmic", ExtraBlockTypes.COSMIC_PRESSURIZED_TUBE);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraPressurizedTube>, ItemBlockExtraPressurizedTube> INFINITE_PRESSURIZED_TUBE = registerPressurizedTube("infinite", ExtraBlockTypes.INFINITE_PRESSURIZED_TUBE);
-
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraLogisticalTransporter>, ItemBlockExtraLogisticalTransporter> ABSOLUTE_LOGISTICAL_TRANSPORTER = registerLogisticalTransporter("absolute", ExtraBlockTypes.ABSOLUTE_LOGISTICAL_TRANSPORTER);
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraLogisticalTransporter>, ItemBlockExtraLogisticalTransporter> SUPREME_LOGISTICAL_TRANSPORTER = registerLogisticalTransporter("supreme", ExtraBlockTypes.SUPREME_LOGISTICAL_TRANSPORTER);
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraLogisticalTransporter>, ItemBlockExtraLogisticalTransporter> COSMIC_LOGISTICAL_TRANSPORTER = registerLogisticalTransporter("cosmic", ExtraBlockTypes.COSMIC_LOGISTICAL_TRANSPORTER);
-    public static final BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraLogisticalTransporter>, ItemBlockExtraLogisticalTransporter> INFINITE_LOGISTICAL_TRANSPORTER = registerLogisticalTransporter("infinite", ExtraBlockTypes.INFINITE_LOGISTICAL_TRANSPORTER);
-
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraThermodynamicConductor>, ItemBlockExtraThermodynamicConductor> ABSOLUTE_THERMODYNAMIC_CONDUCTOR = registerThermodynamicConductor("absolute", ExtraBlockTypes.ABSOLUTE_THERMODYNAMIC_CONDUCTOR);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraThermodynamicConductor>, ItemBlockExtraThermodynamicConductor> SUPREME_THERMODYNAMIC_CONDUCTOR = registerThermodynamicConductor("supreme", ExtraBlockTypes.SUPREME_THERMODYNAMIC_CONDUCTOR);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraThermodynamicConductor>, ItemBlockExtraThermodynamicConductor> COSMIC_THERMODYNAMIC_CONDUCTOR = registerThermodynamicConductor("cosmic", ExtraBlockTypes.COSMIC_THERMODYNAMIC_CONDUCTOR);
-    public static final BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraThermodynamicConductor>, ItemBlockExtraThermodynamicConductor> INFINITE_THERMODYNAMIC_CONDUCTOR = registerThermodynamicConductor("infinite", ExtraBlockTypes.INFINITE_THERMODYNAMIC_CONDUCTOR);
-
-    public static final BlockRegistryObject<BlockTile.BlockTileModel<TileEntityExtraChemicalTank, Machine<TileEntityExtraChemicalTank>>, ItemBlockExtraChemicalTank> ABSOLUTE_CHEMICAL_TANK = registerChemicalTank(ExtraBlockTypes.ABSOLUTE_CHEMICAL_TANK);
-    public static final BlockRegistryObject<BlockTile.BlockTileModel<TileEntityExtraChemicalTank, Machine<TileEntityExtraChemicalTank>>, ItemBlockExtraChemicalTank> SUPREME_CHEMICAL_TANK = registerChemicalTank(ExtraBlockTypes.SUPREME_CHEMICAL_TANK);
-    public static final BlockRegistryObject<BlockTile.BlockTileModel<TileEntityExtraChemicalTank, Machine<TileEntityExtraChemicalTank>>, ItemBlockExtraChemicalTank> COSMIC_CHEMICAL_TANK = registerChemicalTank(ExtraBlockTypes.COSMIC_CHEMICAL_TANK);
-    public static final BlockRegistryObject<BlockTile.BlockTileModel<TileEntityExtraChemicalTank, Machine<TileEntityExtraChemicalTank>>, ItemBlockExtraChemicalTank> INFINITE_CHEMICAL_TANK = registerChemicalTank(ExtraBlockTypes.INFINITE_CHEMICAL_TANK);
-
-    public static final BlockRegistryObject<BlockLargeCapRadioactiveWasteBarrel, ItemBlockLargeCapRadioactiveWasteBarrel> ABSOLUTE_RADIOACTIVE_WASTE_BARREL = registryWasteBarrel(ExtraBlockTypes.ABSOLUTE_RADIOACTIVE_WASTE_BARREL);
-    public static final BlockRegistryObject<BlockLargeCapRadioactiveWasteBarrel, ItemBlockLargeCapRadioactiveWasteBarrel> SUPREME_RADIOACTIVE_WASTE_BARREL = registryWasteBarrel(ExtraBlockTypes.SUPREME_RADIOACTIVE_WASTE_BARREL);
-    public static final BlockRegistryObject<BlockLargeCapRadioactiveWasteBarrel, ItemBlockLargeCapRadioactiveWasteBarrel> COSMIC_RADIOACTIVE_WASTE_BARREL = registryWasteBarrel(ExtraBlockTypes.COSMIC_RADIOACTIVE_WASTE_BARREL);
-    public static final BlockRegistryObject<BlockLargeCapRadioactiveWasteBarrel, ItemBlockLargeCapRadioactiveWasteBarrel> INFINITE_RADIOACTIVE_WASTE_BARREL = registryWasteBarrel(ExtraBlockTypes.INFINITE_RADIOACTIVE_WASTE_BARREL);
-
-    public static final BlockRegistryObject<BlockTile.BlockTileModel<TileEntityAdvancedElectricPump, Machine<TileEntityAdvancedElectricPump>>, ItemBlockTooltip<BlockTile.BlockTileModel<TileEntityAdvancedElectricPump, Machine<TileEntityAdvancedElectricPump>>>> ADVANCED_ELECTRIC_PUMP =
-            EXTRA_BLOCKS.register("advanced_electric_pump", () -> new BlockTile.BlockTileModel<>(ExtraBlockTypes.ADVANCED_ELECTRIC_PUMP, properties -> properties.mapColor(BlockResourceInfo.STEEL.getMapColor())), ItemBlockTooltip::new)
-                    .forItemHolder(holder -> holder
-                            .addAttachmentOnlyContainers(ContainerType.FLUID, () -> FluidTanksBuilder.builder()
-                                    .addBasic(TileEntityAdvancedElectricPump.MAX_FLUID)
-                                    .build()
-                            ).addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                    .addFluidDrainSlot(0)
-                                    .addOutput()
-                                    .addEnergy()
-                                    .build()
-                            )
-                    );
-
-    private static BlockRegistryObject<BlockExtraResource, ItemBlockMekanism<BlockExtraResource>> registerResourceBlock(BlockExtraResourceInfo resource) {
-        return EXTRA_BLOCKS.register("block_" + resource.getRegistrySuffix(), () -> new BlockExtraResource(resource), (block, properties) -> {
-            if (!block.getResourceInfo().burnsInFire()) {
-                properties = properties.fireResistant();
+    static {
+        for (TransmitterType type : EXTRA_TRANSMITTER_TYPES) {
+            Block[] tiers = new Block[AdvancedTier.values().length];
+            for (AdvancedTier tier : AdvancedTier.values()) {
+                Block block = new BlockExtraTransmitter(type, tier);
+                tiers[tier.ordinal()] = block;
+                init(block, tier.getLowerName() + "_" + type.getName());
             }
-            return new ItemBlockMekanism<>(block, properties);
-        });
-    }
-
-    public static OreBlockType registerOre(OreType ore) {
-        String name = ore.getResource().getRegistrySuffix() + "_ore";
-        BlockRegistryObject<BlockOre, ItemBlockTooltip<BlockOre>> stoneOre = registerBlock(name, () -> new BlockOre(ore));
-        BlockRegistryObject<BlockOre, ItemBlockTooltip<BlockOre>> endOre = EXTRA_BLOCKS.register("end_" + name,
-                () -> new BlockOre(ore, BlockBehaviour.Properties.ofLegacyCopy(stoneOre.value()).mapColor(MapColor.SAND)
-                        .strength(3.0F, 9.0F).sound(SoundType.STONE)), ItemBlockTooltip::new);
-        return new OreBlockType(stoneOre, endOre);
-    }
-
-    private static BlockRegistryObject<BlockExtraBin, ItemBlockExtraBin> registerBin(BlockTypeTile<TileEntityExtraBin> type) {
-        BTier tier = (BTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_bin", color -> new BlockExtraBin(type, properties -> properties.mapColor(color)), ItemBlockExtraBin::new)
-                .forItemHolder(holder -> holder.addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                        .addSlot(ExtraComponentBackedBinInventorySlot::create)
-                        .build()
-                ));
-    }
-
-    private static BlockRegistryObject<BlockTile<TileEntityExtraInductionCell, BlockTypeTile<TileEntityExtraInductionCell>>, ItemBlockExtraInductionCell> registerInductionCell(BlockTypeTile<TileEntityExtraInductionCell> type) {
-        ICTier tier = (ICTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_induction_cell", color -> new BlockTile<>(type, properties -> properties.mapColor(color)), ItemBlockExtraInductionCell::new);
-    }
-
-    private static BlockRegistryObject<BlockTile<TileEntityExtraInductionProvider, BlockTypeTile<TileEntityExtraInductionProvider>>, ItemBlockExtraInductionProvider> registerInductionProvider(BlockTypeTile<TileEntityExtraInductionProvider> type) {
-        IPTier tier = (IPTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_induction_provider", color -> new BlockTile<>(type, properties -> properties.mapColor(color)), ItemBlockExtraInductionProvider::new);
-    }
-
-    private static BlockRegistryObject<BlockExtraEnergyCube, ItemBlockExtraEnergyCube> registerEnergyCube(Machine<TileEntityExtraEnergyCube> type) {
-        ECTier tier = (ECTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_energy_cube", () -> new BlockExtraEnergyCube(type), ItemBlockExtraEnergyCube::new)
-                .forItemHolder(holder -> holder.addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                        .addEnergy()
-                        .addDrainEnergy()
-                        .build()
-                ));
-    }
-
-    private static BlockRegistryObject<BlockExtraFluidTank, ItemBlockExtraFluidTank> registerFluidTank(Machine<TileEntityExtraFluidTank> type) {
-        FTTier tier = (FTTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_fluid_tank", () -> new BlockExtraFluidTank(type), ItemBlockExtraFluidTank::new)
-                .forItemHolder(holder -> holder
-                        .addAttachedContainerCapabilities(ContainerType.FLUID, () -> FluidTanksBuilder.builder()
-                                .addTank(ExtraComponentBackedFluidTankFluidTank::create)
-                                .build()
-                        ).addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                .addFluidInputSlot(0)
-                                .addOutput()
-                                .build()
-                        )
-                );
-    }
-
-    private static BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraUniversalCable>, ItemBlockExtraUniversalCable> registerUniversalCable(
-            String nameTier, BlockTypeTile<TileEntityExtraUniversalCable> type) {
-        return registerTieredBlock(nameTier + "_universal_cable", () -> new BlockSmallTransmitter<>(type), ItemBlockExtraUniversalCable::new);
-    }
-
-    private static BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraMechanicalPipe>, ItemBlockExtraMechanicalPipe> registerMechanicalPipe(
-            String nameTier, BlockTypeTile<TileEntityExtraMechanicalPipe> type) {
-        return registerTieredBlock(nameTier + "_mechanical_pipe", () -> new BlockLargeTransmitter<>(type), ItemBlockExtraMechanicalPipe::new);
-    }
-
-    private static BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraPressurizedTube>, ItemBlockExtraPressurizedTube> registerPressurizedTube(
-            String nameTier, BlockTypeTile<TileEntityExtraPressurizedTube> type) {
-        return registerTieredBlock(nameTier + "_pressurized_tube", () -> new BlockSmallTransmitter<>(type), ItemBlockExtraPressurizedTube::new);
-    }
-
-    private static BlockRegistryObject<BlockLargeTransmitter<TileEntityExtraLogisticalTransporter>, ItemBlockExtraLogisticalTransporter> registerLogisticalTransporter(
-            String nameTier, BlockTypeTile<TileEntityExtraLogisticalTransporter> type) {
-        return registerTieredBlock(nameTier + "_logistical_transporter", () -> new BlockLargeTransmitter<>(type), ItemBlockExtraLogisticalTransporter::new);
-    }
-
-    private static BlockRegistryObject<BlockSmallTransmitter<TileEntityExtraThermodynamicConductor>, ItemBlockExtraThermodynamicConductor> registerThermodynamicConductor(
-            String nameTier, BlockTypeTile<TileEntityExtraThermodynamicConductor> type) {
-        return registerTieredBlock(nameTier + "_thermodynamic_conductor", () -> new BlockSmallTransmitter<>(type), ItemBlockExtraThermodynamicConductor::new);
-    }
-
-    private static BlockRegistryObject<BlockTile.BlockTileModel<TileEntityExtraChemicalTank, Machine<TileEntityExtraChemicalTank>>, ItemBlockExtraChemicalTank> registerChemicalTank(
-            Machine<TileEntityExtraChemicalTank> type) {
-        CTTier tier = (CTTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_chemical_tank", color -> new BlockTile.BlockTileModel<>(type, properties -> properties.mapColor(color)), ItemBlockExtraChemicalTank::new)
-                .forItemHolder(holder -> holder
-                        .addAttachedContainerCapabilities(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
-                                .addTank(ExtraComponentBackedChemicalTankTank::create).build()
-                        ).addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                .addChemicalDrainSlot(0)
-                                .addChemicalFillSlot(0)
-                                .build()
-                        )
-                );
-    }
-
-    private static BlockRegistryObject<BlockLargeCapRadioactiveWasteBarrel, ItemBlockLargeCapRadioactiveWasteBarrel> registryWasteBarrel(
-            BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> type) {
-        RWBTier tier = (RWBTier) Objects.requireNonNull(type.get(ExtraAttributeTier.class)).tier();
-        return registerTieredBlock(tier, "_radioactive_waste_barrel", () -> new BlockLargeCapRadioactiveWasteBarrel(type), ItemBlockLargeCapRadioactiveWasteBarrel::new);
-    }
-
-    private static <TILE extends TileEntityExtraFactory<?>> BlockRegistryObject<BlockExtraFactory<?>, ItemBlockExtraFactory> registerFactory(ExtraFactory<TILE> type) {
-        ExtraFactoryTier tier = (ExtraFactoryTier) type.get(ExtraAttributeTier.class).tier();
-        BlockRegistryObject<BlockExtraFactory<?>, ItemBlockExtraFactory> factory = registerTieredBlock(tier, "_" + type.getFactoryType().getRegistryNameComponent() + "_factory", () -> new BlockExtraFactory<>(type), ItemBlockExtraFactory::new);
-        factory.forItemHolder(holder -> {
-            int processes = tier.processes;
-            Predicate<ItemStack> recipeInputPredicate = switch (type.getFactoryType()) {
-                case SMELTING -> s -> MekanismRecipeType.SMELTING.getInputCache().containsInput(null, s);
-                case ENRICHING -> s -> MekanismRecipeType.ENRICHING.getInputCache().containsInput(null, s);
-                case CRUSHING -> s -> MekanismRecipeType.CRUSHING.getInputCache().containsInput(null, s);
-                case COMPRESSING -> s -> MekanismRecipeType.COMPRESSING.getInputCache().containsInputA(null, s);
-                case COMBINING -> s -> MekanismRecipeType.COMBINING.getInputCache().containsInputA(null, s);
-                case PURIFYING -> s -> MekanismRecipeType.PURIFYING.getInputCache().containsInputA(null, s);
-                case INJECTING -> s -> MekanismRecipeType.INJECTING.getInputCache().containsInputA(null, s);
-                case INFUSING -> s -> MekanismRecipeType.METALLURGIC_INFUSING.getInputCache().containsInputA(null, s);
-                case SAWING -> s -> MekanismRecipeType.SAWING.getInputCache().containsInput(null, s);
-            };
-            switch (type.getFactoryType()) {
-                case SMELTING, ENRICHING, CRUSHING ->
-                        holder.addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                .addBasicFactorySlots(processes, recipeInputPredicate)
-                                .addEnergy()
-                                .build()
-                        );
-                case COMPRESSING, INJECTING, PURIFYING -> holder
-                        .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
-                                .addBasic(TileEntityAdvancedElectricMachine.MAX_GAS * processes * processes, switch (type.getFactoryType()) {
-                                    case COMPRESSING -> MekanismRecipeType.COMPRESSING;
-                                    case INJECTING -> MekanismRecipeType.INJECTING;
-                                    case PURIFYING -> MekanismRecipeType.PURIFYING;
-                                    default ->
-                                            throw new IllegalStateException("Factory type doesn't have a known gas recipe");
-                                }, InputRecipeCache.ItemChemical::containsInputB)
-                                .build()
-                        ).addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                .addBasicFactorySlots(processes, recipeInputPredicate)
-                                .addChemicalFillOrConvertSlot(0)
-                                .addEnergy()
-                                .build()
-                        );
-                case COMBINING ->
-                        holder.addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                .addBasicFactorySlots(processes, recipeInputPredicate)
-                                .addInput(MekanismRecipeType.COMBINING, InputRecipeCache.DoubleItem::containsInputB)
-                                .addEnergy()
-                                .build()
-                        );
-                case INFUSING -> holder
-                        .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
-                                .addBasic(TileEntityMetallurgicInfuser.MAX_INFUSE * processes * processes, MekanismRecipeType.METALLURGIC_INFUSING, InputRecipeCache.ItemChemical::containsInputB)
-                                .build()
-                        ).addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                                .addBasicFactorySlots(processes, recipeInputPredicate)
-                                .addInfusionFillOrConvertSlot(0)
-                                .addEnergy()
-                                .build()
-                        );
-                case SAWING -> holder.addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                        .addBasicFactorySlots(processes, recipeInputPredicate, true)
-                        .addEnergy()
-                        .build()
-                );
-            }
-
-        });
-        return factory;
+            TRANSMITTERS.put(type, tiers);
+        }
     }
 
     /**
-     * Retrieves a Factory with a defined tier and recipe type.
-     *
-     * @param tier - tier to add to the Factory
-     * @param type - recipe type to add to the Factory
-     * @return factory with defined tier and recipe type
+     * The MoreMachine based machines: one block per (kind, tier) pair, eleven kinds in total.
      */
-    public static BlockRegistryObject<BlockExtraFactory<?>, ItemBlockExtraFactory> getExtraFactory(@NotNull ExtraFactoryTier tier, @NotNull FactoryType type) {
-        return FACTORIES.get(tier, type);
+    public static final Map<String, Block[]> MORE_MACHINES = new java.util.LinkedHashMap<>();
+    public static final Block[] CRYSTALLIZERS = registerMoreMachine("crystallizer", ExtraGuiIds.CRYSTALLIZER, ExtraMoreMachineTiles::createCrystallizer);
+    public static final Block[] DISSOLUTION_CHAMBERS = registerMoreMachine("dissolution_chamber", ExtraGuiIds.DISSOLUTION_CHAMBER, ExtraMoreMachineTiles::createDissolutionChamber);
+    public static final Block[] CHEMICAL_OXIDIZERS = registerMoreMachine("chemical_oxidizer", ExtraGuiIds.CHEMICAL_OXIDIZER, ExtraMoreMachineTiles::createChemicalOxidizer);
+    public static final Block[] NUTRITIONAL_LIQUIFIERS = registerMoreMachine("nutritional_liquifier", ExtraGuiIds.NUTRITIONAL_LIQUIFIER, ExtraMoreMachineTiles::createNutritionalLiquifier);
+    public static final Block[] ORGANIC_FARMS = registerMoreMachine("organic_farm", ExtraGuiIds.ORGANIC_FARM, ExtraMoreMachineTiles::createOrganicFarm);
+    public static final Block[] CHEMICAL_WASHERS = registerMoreMachine("chemical_washer", ExtraGuiIds.CHEMICAL_WASHER, ExtraMoreMachineTiles::createChemicalWasher);
+    public static final Block[] CHEMICAL_INFUSERS = registerMoreMachine("chemical_infuser", ExtraGuiIds.CHEMICAL_INFUSER, ExtraMoreMachineTiles::createChemicalInfuser);
+    public static final Block[] ISOTOPIC_CENTRIFUGES = registerMoreMachine("isotopic_centrifuge", ExtraGuiIds.ISOTOPIC_CENTRIFUGE, ExtraMoreMachineTiles::createIsotopicCentrifuge);
+
+    private static Block[] registerMoreMachine(String name, int guiId, java.util.function.Function<ExtraMachineTier, net.minecraft.tileentity.TileEntity> factory) {
+        Block[] tiers = new Block[ExtraMachineTier.values().length];
+        for (ExtraMachineTier tier : ExtraMachineTier.values()) {
+            Block block = new BlockExtraMoreMachine(tier, factory, guiId);
+            tiers[tier.ordinal()] = block;
+            init(block, tier.getAdvanceTier().getLowerName() + "_" + name);
+        }
+        MORE_MACHINES.put(name, tiers);
+        return tiers;
     }
 
-    @SuppressWarnings("unchecked")
-    public static BlockRegistryObject<BlockExtraFactory<?>, ItemBlockExtraFactory>[] getExtraFactoryBlocks() {
-        return FACTORIES.values().toArray(new BlockRegistryObject[0]);
+    private ExtraBlocks() {
     }
 
-    public static void register(IEventBus eventBus) {
-        EXTRA_BLOCKS.register(eventBus);
+    private static Block init(Block block, String name) {
+        block.setTranslationKey(MekanismExtras.MODID + "." + name);
+        block.setRegistryName(new ResourceLocation(MekanismExtras.MODID, name));
+        block.setCreativeTab(MekanismExtras.tabExtra);
+        return block;
+    }
+
+    public static void registerBlocks(IForgeRegistry<Block> registry) {
+        registry.register(init(NAQUADAH_ORE, "naquadah_ore"));
+        registry.register(init(END_NAQUADAH_ORE, "end_naquadah_ore"));
+        registry.register(init(NAQUADAH_BLOCK, "block_naquadah"));
+        registry.register(init(RAW_NAQUADAH_BLOCK, "block_raw_naquadah"));
+
+        registry.register(init(ABSOLUTE_BIN, "absolute_bin"));
+        registry.register(init(SUPREME_BIN, "supreme_bin"));
+        registry.register(init(COSMIC_BIN, "cosmic_bin"));
+        registry.register(init(INFINITE_BIN, "infinite_bin"));
+
+        registry.register(init(ABSOLUTE_ENERGY_CUBE, "absolute_energy_cube"));
+        registry.register(init(SUPREME_ENERGY_CUBE, "supreme_energy_cube"));
+        registry.register(init(COSMIC_ENERGY_CUBE, "cosmic_energy_cube"));
+        registry.register(init(INFINITE_ENERGY_CUBE, "infinite_energy_cube"));
+
+        registry.register(init(ABSOLUTE_FLUID_TANK, "absolute_fluid_tank"));
+        registry.register(init(SUPREME_FLUID_TANK, "supreme_fluid_tank"));
+        registry.register(init(COSMIC_FLUID_TANK, "cosmic_fluid_tank"));
+        registry.register(init(INFINITE_FLUID_TANK, "infinite_fluid_tank"));
+
+        registry.register(init(ABSOLUTE_CHEMICAL_TANK, "absolute_chemical_tank"));
+        registry.register(init(SUPREME_CHEMICAL_TANK, "supreme_chemical_tank"));
+        registry.register(init(COSMIC_CHEMICAL_TANK, "cosmic_chemical_tank"));
+        registry.register(init(INFINITE_CHEMICAL_TANK, "infinite_chemical_tank"));
+
+        registry.register(init(ABSOLUTE_RADIOACTIVE_WASTE_BARREL, "absolute_radioactive_waste_barrel"));
+        registry.register(init(SUPREME_RADIOACTIVE_WASTE_BARREL, "supreme_radioactive_waste_barrel"));
+        registry.register(init(COSMIC_RADIOACTIVE_WASTE_BARREL, "cosmic_radioactive_waste_barrel"));
+        registry.register(init(INFINITE_RADIOACTIVE_WASTE_BARREL, "infinite_radioactive_waste_barrel"));
+
+        registry.register(init(NAQUADAH_REACTOR_CASING, "naquadah_reactor_casing"));
+        registry.register(init(NAQUADAH_REACTOR_PORT, "naquadah_reactor_port"));
+        registry.register(init(NAQUADAH_REACTOR_CONTROLLER, "naquadah_reactor_controller"));
+        registry.register(init(NAQUADAH_REACTOR_LOGIC_ADAPTER, "naquadah_reactor_logic_adapter"));
+        registry.register(init(LEAD_COATED_LASER_FOCUS_MATRIX, "lead_coated_laser_focus_matrix"));
+        registry.register(init(ADVANCED_ELECTRIC_PUMP, "advanced_electric_pump"));
+        registry.register(init(REINFORCED_INDUCTION_CASING, "reinforced_induction_casing"));
+        registry.register(init(REINFORCED_INDUCTION_PORT, "reinforced_induction_port"));
+        registry.register(init(ABSOLUTE_INDUCTION_CELL, "absolute_induction_cell"));
+        registry.register(init(SUPREME_INDUCTION_CELL, "supreme_induction_cell"));
+        registry.register(init(COSMIC_INDUCTION_CELL, "cosmic_induction_cell"));
+        registry.register(init(INFINITE_INDUCTION_CELL, "infinite_induction_cell"));
+        registry.register(init(ABSOLUTE_INDUCTION_PROVIDER, "absolute_induction_provider"));
+        registry.register(init(SUPREME_INDUCTION_PROVIDER, "supreme_induction_provider"));
+        registry.register(init(COSMIC_INDUCTION_PROVIDER, "cosmic_induction_provider"));
+        registry.register(init(INFINITE_INDUCTION_PROVIDER, "infinite_induction_provider"));
+        for (Block[] tiers : FACTORIES.values()) {
+            for (Block block : tiers) {
+                registry.register(block);
+            }
+        }
+        for (Block[] tiers : TRANSMITTERS.values()) {
+            for (Block block : tiers) {
+                registry.register(block);
+            }
+        }
+        for (Block[] tiers : MORE_MACHINES.values()) {
+            for (Block block : tiers) {
+                registry.register(block);
+            }
+        }
+    }
+
+    public static void registerItemBlocks(IForgeRegistry<Item> registry) {
+        registerItemBlock(registry, NAQUADAH_ORE);
+        registerItemBlock(registry, END_NAQUADAH_ORE);
+        registerItemBlock(registry, NAQUADAH_BLOCK);
+        registerItemBlock(registry, RAW_NAQUADAH_BLOCK);
+
+        registerMachineItemBlock(registry, ABSOLUTE_BIN);
+        registerMachineItemBlock(registry, SUPREME_BIN);
+        registerMachineItemBlock(registry, COSMIC_BIN);
+        registerMachineItemBlock(registry, INFINITE_BIN);
+
+        registerMachineItemBlock(registry, ABSOLUTE_ENERGY_CUBE);
+        registerMachineItemBlock(registry, SUPREME_ENERGY_CUBE);
+        registerMachineItemBlock(registry, COSMIC_ENERGY_CUBE);
+        registerMachineItemBlock(registry, INFINITE_ENERGY_CUBE);
+
+        registerMachineItemBlock(registry, ABSOLUTE_FLUID_TANK);
+        registerMachineItemBlock(registry, SUPREME_FLUID_TANK);
+        registerMachineItemBlock(registry, COSMIC_FLUID_TANK);
+        registerMachineItemBlock(registry, INFINITE_FLUID_TANK);
+
+        registerMachineItemBlock(registry, ABSOLUTE_CHEMICAL_TANK);
+        registerMachineItemBlock(registry, SUPREME_CHEMICAL_TANK);
+        registerMachineItemBlock(registry, COSMIC_CHEMICAL_TANK);
+        registerMachineItemBlock(registry, INFINITE_CHEMICAL_TANK);
+
+        registerMachineItemBlock(registry, ABSOLUTE_RADIOACTIVE_WASTE_BARREL);
+        registerMachineItemBlock(registry, SUPREME_RADIOACTIVE_WASTE_BARREL);
+        registerMachineItemBlock(registry, COSMIC_RADIOACTIVE_WASTE_BARREL);
+        registerMachineItemBlock(registry, INFINITE_RADIOACTIVE_WASTE_BARREL);
+
+        registerMachineItemBlock(registry, NAQUADAH_REACTOR_CASING);
+        registerMachineItemBlock(registry, NAQUADAH_REACTOR_PORT);
+        registerMachineItemBlock(registry, NAQUADAH_REACTOR_CONTROLLER);
+        registerMachineItemBlock(registry, NAQUADAH_REACTOR_LOGIC_ADAPTER);
+        registerMachineItemBlock(registry, LEAD_COATED_LASER_FOCUS_MATRIX);
+        registerMachineItemBlock(registry, ADVANCED_ELECTRIC_PUMP);
+        registerMachineItemBlock(registry, REINFORCED_INDUCTION_CASING);
+        registerMachineItemBlock(registry, REINFORCED_INDUCTION_PORT);
+        registerMachineItemBlock(registry, ABSOLUTE_INDUCTION_CELL);
+        registerMachineItemBlock(registry, SUPREME_INDUCTION_CELL);
+        registerMachineItemBlock(registry, COSMIC_INDUCTION_CELL);
+        registerMachineItemBlock(registry, INFINITE_INDUCTION_CELL);
+        registerMachineItemBlock(registry, ABSOLUTE_INDUCTION_PROVIDER);
+        registerMachineItemBlock(registry, SUPREME_INDUCTION_PROVIDER);
+        registerMachineItemBlock(registry, COSMIC_INDUCTION_PROVIDER);
+        registerMachineItemBlock(registry, INFINITE_INDUCTION_PROVIDER);
+        for (Block[] tiers : FACTORIES.values()) {
+            for (Block block : tiers) {
+                registerMachineItemBlock(registry, block);
+            }
+        }
+        for (Block[] tiers : TRANSMITTERS.values()) {
+            for (Block block : tiers) {
+                registerTransmitterItemBlock(registry, block);
+            }
+        }
+        for (Block[] tiers : MORE_MACHINES.values()) {
+            for (Block block : tiers) {
+                registerMachineItemBlock(registry, block);
+            }
+        }
+    }
+
+    private static void registerTransmitterItemBlock(IForgeRegistry<Item> registry, Block block) {
+        Item item = new ItemBlockExtraTransmitter(block);
+        item.setRegistryName(block.getRegistryName());
+        item.setTranslationKey(block.getTranslationKey().replace("tile.", "").replace(".name", ""));
+        item.setCreativeTab(MekanismExtras.tabExtra);
+        registry.register(item);
+    }
+
+    private static void registerItemBlock(IForgeRegistry<Item> registry, Block block) {
+        Item item = new ItemBlock(block);
+        item.setRegistryName(block.getRegistryName());
+        item.setTranslationKey(block.getTranslationKey().replace("tile.", "").replace(".name", ""));
+        item.setCreativeTab(MekanismExtras.tabExtra);
+        registry.register(item);
+    }
+
+    private static void registerMachineItemBlock(IForgeRegistry<Item> registry, Block block) {
+        Item item = block instanceof BlockExtraBin ? new ItemBlockExtraBin(block) : new ItemBlockExtraMachine(block);
+        item.setRegistryName(block.getRegistryName());
+        item.setTranslationKey(block.getTranslationKey().replace("tile.", "").replace(".name", ""));
+        registry.register(item);
+    }
+
+    public static void registerWorldGenerators() {
+        GameRegistry.registerWorldGenerator(new ExtraWorldGenerator(), 0);
+    }
+
+    /**
+     * @return the bin block of the given tier, or null if the tier does not have a bin
+     */
+    public static Block getBinBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_BIN;
+            case SUPREME:
+                return SUPREME_BIN;
+            case COSMIC:
+                return COSMIC_BIN;
+            case INFINITE:
+                return INFINITE_BIN;
+            default:
+                return null;
+        }
+    }
+
+    public static Block getFactoryBlock(RecipeType recipeType, ExtraFactoryTier tier) {
+        Block[] tiers = FACTORIES.get(recipeType);
+        return tiers == null ? null : tiers[tier.ordinal()];
+    }
+    public static net.minecraft.tileentity.TileEntity createTransmitterTile(TransmitterType type, AdvancedTier tier) {
+        int index = tier.ordinal();
+        switch (type) {
+            case UNIVERSAL_CABLE:
+                return new TileEntityExtraUniversalCable(com.jerry.mekextras.common.tier.ExtraCableTier.byIndex(index));
+            case MECHANICAL_PIPE:
+                return new TileEntityExtraMechanicalPipe(com.jerry.mekextras.common.tier.ExtraPipeTier.byIndex(index));
+            case PRESSURIZED_TUBE:
+                return new TileEntityExtraPressurizedTube(com.jerry.mekextras.common.tier.ExtraTubeTier.byIndex(index));
+            case THERMODYNAMIC_CONDUCTOR:
+                return new TileEntityExtraThermodynamicConductor(com.jerry.mekextras.common.tier.ExtraConductorTier.byIndex(index));
+            case LOGISTICAL_TRANSPORTER:
+                return new TileEntityExtraLogisticalTransporter(ExtraTransporterTier.byIndex(index));
+            default:
+                return null;
+        }
+    }
+    public static Block getInductionCellBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_INDUCTION_CELL;
+            case SUPREME:
+                return SUPREME_INDUCTION_CELL;
+            case COSMIC:
+                return COSMIC_INDUCTION_CELL;
+            case INFINITE:
+                return INFINITE_INDUCTION_CELL;
+            default:
+                return null;
+        }
+    }
+
+    public static Block getInductionProviderBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_INDUCTION_PROVIDER;
+            case SUPREME:
+                return SUPREME_INDUCTION_PROVIDER;
+            case COSMIC:
+                return COSMIC_INDUCTION_PROVIDER;
+            case INFINITE:
+                return INFINITE_INDUCTION_PROVIDER;
+            default:
+                return null;
+        }
+    }
+    public static Block getEnergyCubeBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_ENERGY_CUBE;
+            case SUPREME:
+                return SUPREME_ENERGY_CUBE;
+            case COSMIC:
+                return COSMIC_ENERGY_CUBE;
+            case INFINITE:
+                return INFINITE_ENERGY_CUBE;
+            default:
+                return null;
+        }
+    }
+
+    public static Block getFluidTankBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_FLUID_TANK;
+            case SUPREME:
+                return SUPREME_FLUID_TANK;
+            case COSMIC:
+                return COSMIC_FLUID_TANK;
+            case INFINITE:
+                return INFINITE_FLUID_TANK;
+            default:
+                return null;
+        }
+    }
+
+    public static Block getChemicalTankBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_CHEMICAL_TANK;
+            case SUPREME:
+                return SUPREME_CHEMICAL_TANK;
+            case COSMIC:
+                return COSMIC_CHEMICAL_TANK;
+            case INFINITE:
+                return INFINITE_CHEMICAL_TANK;
+            default:
+                return null;
+        }
+    }
+
+    public static Block getWasteBarrelBlock(AdvancedTier tier) {
+        switch (tier) {
+            case ABSOLUTE:
+                return ABSOLUTE_RADIOACTIVE_WASTE_BARREL;
+            case SUPREME:
+                return SUPREME_RADIOACTIVE_WASTE_BARREL;
+            case COSMIC:
+                return COSMIC_RADIOACTIVE_WASTE_BARREL;
+            case INFINITE:
+                return INFINITE_RADIOACTIVE_WASTE_BARREL;
+            default:
+                return null;
+        }
+    }
+    public static Block getMachineBlock(String prefix, AdvancedTier tier) {
+        if ("bin".equals(prefix)) {
+            return getBinBlock(tier);
+        }
+        return null;
+    }
+
+    public static Block getTransmitterBlock(TransmitterType type, AdvancedTier tier) {
+        Block[] tiers = TRANSMITTERS.get(type);
+        return tiers == null ? null : tiers[tier.ordinal()];
+    }
+
+    public static Block getMoreMachineBlock(String name, AdvancedTier tier) {
+        Block[] tiers = MORE_MACHINES.get(name);
+        return tiers == null ? null : tiers[tier.ordinal()];
     }
 }
+

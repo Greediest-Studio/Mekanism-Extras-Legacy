@@ -1,0 +1,14 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "SSS",
+    "SCS",
+    "SSS"
+  ],
+  "key": {
+      "C": {"item": "mekanism_extras:infinite_control_circuit"},
+      "S": {"item": "mekanism_extras:alloy_spectrum"}
+  },
+  "result": {"item": "mekanism_extras:upgrade_creative", "count": 1}
+}
+

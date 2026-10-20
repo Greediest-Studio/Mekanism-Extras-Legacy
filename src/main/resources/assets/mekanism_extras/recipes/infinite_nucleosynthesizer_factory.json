@@ -1,0 +1,29 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPJ",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_spectrum"
+    },
+    "C": {
+      "item": "mekanism_extras:infinite_control_circuit"
+    },
+    "I": {
+      "item": "mekanism:PlutoniumPellet"
+    },
+    "J": {
+      "item": "mekanism:PoloniumPellet"
+    },
+    "P": {
+      "item": "mekanism_extras:cosmic_nucleosynthesizer_factory"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:infinite_nucleosynthesizer_factory",
+    "count": 1
+  }
+}

@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryback",
+      "west": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryright",
+      "front": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_cosmic",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_crushing_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/cosmic"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/cosmic",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/cosmic/crushing/cosmiccrushingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/cosmic",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/cosmic",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/cosmic"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/cosmic",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/cosmic",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/cosmic",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "item/generated",
   "textures": {
-    "layer0": "mekanism_extras:item/raw_naquadah"
+    "layer0": "mekanism_extras:items/raw_naquadah"
   }
 }

@@ -2,28 +2,34 @@ package com.jerry.mekextras.common.tier;
 
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.common.config.value.CachedLongValue;
-import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
 import java.util.Locale;
 
-public enum CTTier implements IAdvancedTier, StringRepresentable {
-    ABSOLUTE(AdvancedTier.ABSOLUTE, 131_072_000, 65_536_000),// x16 1/2
-    SUPREME(AdvancedTier.SUPREME, 4_194_304_000L, 2_097_150_000),// x32 1/2
-    COSMIC(AdvancedTier.COSMIC, 268_435_456_000L, 134_217_728_000L),// x64 3/4
-    INFINITE(AdvancedTier.INFINITE, 34_359_738_368_000L, 17_179_869_184_000L); // x128 3/4
+public enum CTTier implements IAdvancedTier, IStringSerializable {
 
-    private final long advanceStorage;
-    private final long advanceOutput;
+    ABSOLUTE(AdvancedTier.ABSOLUTE, 131_072_000L, 65_536_000L),
+    SUPREME(AdvancedTier.SUPREME, 4_194_304_000L, 2_097_150_000L),
+    COSMIC(AdvancedTier.COSMIC, 268_435_456_000L, 134_217_728_000L),
+    INFINITE(AdvancedTier.INFINITE, 34_359_738_368_000L, 17_179_869_184_000L);
+
     private final AdvancedTier advancedTier;
-    private CachedLongValue storageReference;
-    private CachedLongValue outputReference;
+    private final long storage;
+    private final long output;
 
-    CTTier(AdvancedTier tier, long s, long o) {
-        advanceStorage = s;
-        advanceOutput = o;
-        advancedTier = tier;
+    CTTier(AdvancedTier advancedTier, long storage, long output) {
+        this.advancedTier = advancedTier;
+        this.storage = storage;
+        this.output = output;
+    }
+
+    public long getStorage() {
+        return storage;
+    }
+
+    public long getOutput() {
+        return output;
     }
 
     @Override
@@ -31,33 +37,18 @@ public enum CTTier implements IAdvancedTier, StringRepresentable {
         return advancedTier;
     }
 
-    @NotNull
     @Override
-    public String getSerializedName() {
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
+    }
+
+    @Override
+    public String getName() {
         return name().toLowerCase(Locale.ROOT);
     }
 
-    public long getStorage() {
-        return storageReference == null ? getAdvanceStorage() : storageReference.getOrDefault();
-    }
-
-    public long getOutput() {
-        return outputReference == null ? getAdvanceOutput() : outputReference.getOrDefault();
-    }
-
-    public long getAdvanceStorage() {
-        return advanceStorage;
-    }
-
-    public long getAdvanceOutput() {
-        return advanceOutput;
-    }
-
-    /**
-     * ONLY CALL THIS FROM TierConfig. It is used to give the GasTankTier a reference to the actual config value object
-     */
-    public void setConfigReference(CachedLongValue storageReference, CachedLongValue outputReference) {
-        this.storageReference = storageReference;
-        this.outputReference = outputReference;
+    public static CTTier byIndex(int index) {
+        CTTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
     }
 }

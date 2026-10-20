@@ -1,52 +1,54 @@
 package com.jerry.mekextras.common.tier;
 
-
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.common.config.value.CachedIntValue;
-import mekanism.common.config.value.CachedLongValue;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
-public enum ExtraQIODriveTier implements IAdvancedTier {
-    COLLAPSE(AdvancedTier.ABSOLUTE, 512_000_000_000L, 131_072),// x32 x16
-    GAMMA(AdvancedTier.SUPREME, 65_536_000_000_000L, 2_097_152),// x128 x16
-    BLACK_HOLE(AdvancedTier.COSMIC, 33_554_432_000_000_000L, 33_554_432),// x512 x16
+import java.util.Locale;
+
+public enum ExtraQIODriveTier implements IAdvancedTier, IStringSerializable {
+
+    COLLAPSE(AdvancedTier.ABSOLUTE, 512_000_000_000L, 131_072),
+    GAMMA(AdvancedTier.SUPREME, 65_536_000_000_000L, 2_097_152),
+    BLACK_HOLE(AdvancedTier.COSMIC, 33_554_432_000_000_000L, 33_554_432),
     SINGULARITY(AdvancedTier.INFINITE, Long.MAX_VALUE, Integer.MAX_VALUE);
 
-    private final AdvancedTier baseTier;
+    private final AdvancedTier advancedTier;
     private final long count;
     private final int types;
-    private CachedLongValue countReference;
-    private CachedIntValue typesReference;
 
-    ExtraQIODriveTier(AdvancedTier tier, long count, int types) {
-        baseTier = tier;
+    ExtraQIODriveTier(AdvancedTier advancedTier, long count, int types) {
+        this.advancedTier = advancedTier;
         this.count = count;
         this.types = types;
     }
 
-    @Override
-    public AdvancedTier getAdvanceTier() {
-        return baseTier;
-    }
-
     public long getCount() {
-        return countReference == null ? getMaxCount() : countReference.getOrDefault();
-    }
-
-    public int getTypes() {
-        return typesReference == null ? getMaxTypes() : typesReference.getOrDefault();
-    }
-
-    public long getMaxCount() {
         return count;
     }
 
-    public int getMaxTypes() {
+    public int getTypes() {
         return types;
     }
 
-    public void setConfigReference(CachedLongValue countReference, CachedIntValue typesReference) {
-        this.countReference = countReference;
-        this.typesReference = typesReference;
+    @Override
+    public AdvancedTier getAdvanceTier() {
+        return advancedTier;
+    }
+
+    @Override
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
+    }
+
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT);
+    }
+
+    public static ExtraQIODriveTier byIndex(int index) {
+        ExtraQIODriveTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : COLLAPSE;
     }
 }

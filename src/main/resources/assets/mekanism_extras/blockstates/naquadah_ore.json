@@ -1,7 +1,5 @@
 {
   "variants": {
-    "": {
-      "model": "mekanism_extras:block/ore/naquadah"
-    }
+    "normal": { "model": "mekanism_extras:naquadah_ore" }
   }
 }

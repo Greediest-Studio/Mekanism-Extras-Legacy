@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryback",
+      "west": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryright",
+      "front": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_absolute",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_crushing_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/absolute"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/absolute",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/absolute/crushing/absolutecrushingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/absolute",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/crushing/absolute",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/absolute"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/absolute",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/absolute",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/crushing/active/absolute",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

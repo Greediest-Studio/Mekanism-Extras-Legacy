@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryback",
+      "west": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryright",
+      "front": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_absolute",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_back_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/absolute"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/absolute",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/absolute/injecting/absoluteinjectingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/absolute",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/absolute",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/absolute"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/absolute",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/absolute",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/absolute",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

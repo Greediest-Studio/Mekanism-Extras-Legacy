@@ -1,7 +1,133 @@
 {
+  "forge_marker": 1,
   "variants": {
-    "": {
-      "model": "mekanism_extras:block/naquadah_hexafluoride"
-    }
+    "level=0": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=1": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=2": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=3": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=4": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=5": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=6": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=7": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=8": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=9": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=10": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=11": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=12": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=13": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=14": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ],
+    "level=15": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.naquadah_hexafluoride"
+        }
+      }
+    ]
   }
 }

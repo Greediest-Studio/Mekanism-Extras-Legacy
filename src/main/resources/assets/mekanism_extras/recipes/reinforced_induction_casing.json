@@ -1,0 +1,27 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "PSP",
+    "SES",
+    "PSP"
+  ],
+  "key": {
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:basicblock2",
+      "data": 1
+    },
+    "S": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:basicblock",
+      "data": 8
+    },
+    "E": {
+      "item": "mekanism:energytablet"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:reinforced_induction_casing",
+    "count": 4
+  }
+}

@@ -1,0 +1,34 @@
+apply from: 'gradle/scripts/helpers.gradle'
+
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name 'CurseMaven'
+                url 'https://cursemaven.com'
+            }
+        }
+        filter {
+            includeGroup 'curse.maven'
+        }
+    }
+    mavenLocal()
+}
+
+dependencies {
+    // Required at runtime as well: Mekanism CE Unofficial (1.12.2) + MoreMachine
+    implementation rfg.deobf('curse.maven:mekanism-ce-unofficial-840735:9130809')
+    implementation rfg.deobf('curse.maven:mekanismceu-moremachine-1606952:9130837')
+
+    //Compile time only: Mekanism's own interfaces reference the RedstoneFlux and IC2 APIs in their signatures.
+    compileOnly 'curse.maven:redstone-flux-270789:2920436'
+    compileOnly 'curse.maven:tesla-244651:2487959'
+    compileOnly rfg.deobf('curse.maven:industrial-craft-242638:3838713')
+
+    // JEI 1.12.2 recipe-viewer integration
+    implementation rfg.deobf('curse.maven:jei-238222:9205059')
+
+    // Mixins (CleanroomMC MixinBooter, 1.12.2)
+    implementation rfg.deobf('curse.maven:mixin-booter-419286:9143655')
+}
+

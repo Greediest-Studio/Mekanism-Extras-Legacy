@@ -1,123 +1,134 @@
 package com.jerry.mekextras;
 
-import com.jerry.genextras.common.content.naquadah.NaquadahReactorCache;
-import com.jerry.genextras.common.content.naquadah.NaquadahReactorMultiblockData;
-import com.jerry.genextras.common.content.naquadah.NaquadahReactorValidator;
-import com.jerry.genextras.common.registries.GenExtraFluids;
-import com.jerry.mekextras.common.ExtraLang;
-import com.jerry.mekextras.common.capabilities.ExtraCapabilities;
-import com.jerry.mekextras.common.command.builders.ExtraBuilders;
+import com.jerry.mekextras.client.ClientProxy;
+import com.jerry.mekextras.common.CommonProxy;
+import com.jerry.mekextras.common.CreativeTabExtra;
+import com.jerry.mekextras.common.ExtraGuiHandler;
 import com.jerry.mekextras.common.config.ExtraConfig;
-import com.jerry.mekextras.common.content.matrix.ReinforcedMatrixMultiblockData;
-import com.jerry.mekextras.common.content.matrix.ReinforcedMatrixValidator;
-import com.jerry.mekextras.common.integration.mekaf.registries.ExtraAdvancedFactoryBlocks;
-import com.jerry.mekextras.common.integration.mekaf.registries.ExtraAdvancedFactoryContainerTypes;
-import com.jerry.mekextras.common.integration.mekaf.registries.ExtraAdvancedFactoryTileEntityTypes;
-import com.jerry.mekextras.common.integration.mekmm.registries.ExtraMoreMachineBlocks;
-import com.jerry.mekextras.common.integration.mekmm.registries.ExtraMoreMachineContainerTypes;
-import com.jerry.mekextras.common.integration.mekmm.registries.ExtraMoreMachineTileEntityTypes;
-import com.jerry.mekextras.common.network.ExtraPacketHandler;
-import com.jerry.mekextras.common.registries.*;
-import com.jerry.mekextras.common.integration.ExtraHooks;
-import com.mojang.logging.LogUtils;
-import mekanism.common.base.IModModule;
-import mekanism.common.command.CommandMek;
-import mekanism.common.command.builders.BuildCommand;
-import mekanism.common.lib.Version;
-import mekanism.common.lib.multiblock.MultiblockCache;
-import mekanism.common.lib.multiblock.MultiblockManager;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import org.slf4j.Logger;
+import com.jerry.mekextras.common.registries.ExtraBlocks;
+import com.jerry.mekextras.common.registries.ExtraFluids;
+import com.jerry.mekextras.common.registries.ExtraItems;
+import com.jerry.mekextras.common.recipe.ExtraSupremeRecipes;
+import com.jerry.mekextras.common.registries.ExtraUpgrades;
+import io.netty.buffer.ByteBuf;
+import mekanism.common.Mekanism;
+import mekanism.common.Version;
+import mekanism.common.base.IModule;
+import mekanism.common.config.MekanismConfig;
+import mekanism.common.network.PacketSimpleGui;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Logger;
 
-@Mod(MekanismExtras.MOD_ID)
-public class MekanismExtras implements IModModule {
+@Mod(modid = MekanismExtras.MODID, name = MekanismExtras.NAME, version = MekanismExtras.VERSION,
+      acceptedMinecraftVersions = "[1.12.2]",
+      dependencies = "required-after:mekanism;required-after:mekceumoremachine",
+      customProperties = {
+            @Mod.CustomProperty(k = "license", v = "MIT"),
+            @Mod.CustomProperty(k = "issueTrackerUrl", v = "https://github.com/Jerry-Modding/Mekanism-Extras/issues"),
+            @Mod.CustomProperty(k = "iconFile", v = "assets/mekanism_extras/logo.png")
+      })
+@Mod.EventBusSubscriber
+public class MekanismExtras implements IModule {
 
-    public static final String MOD_ID = "mekanism_extras";
-    public static final String MOD_NAME = "MekanismExtras";
-    public static final String FOLD_NAME = "Mekanism-Extras";
+    public static final String MODID = "mekanism_extras";
+    public static final String NAME = "Mekanism Extras Legacy";
+    public static final String VERSION = "1.0.0";
 
-    private final ExtraPacketHandler extraPacketHandler;
+    @SidedProxy(clientSide = "com.jerry.mekextras.client.ClientProxy", serverSide = "com.jerry.mekextras.common.CommonProxy")
+    public static CommonProxy proxy;
 
+    @Mod.Instance(MekanismExtras.MODID)
     public static MekanismExtras instance;
 
-    public static ExtraHooks hooks = new ExtraHooks();
+    public static Version versionNumber = new Version(1, 0, 0);
 
-    public final Version versionNumber;
+    public static CreativeTabExtra tabExtra = new CreativeTabExtra();
 
-    public static final MultiblockManager<ReinforcedMatrixMultiblockData> matrixManager = new MultiblockManager<>("reinforcedInductionMatrix", MultiblockCache::new, ReinforcedMatrixValidator::new);
-    public static final MultiblockManager<NaquadahReactorMultiblockData> naquadahReactorManager = new MultiblockManager<>("naquadahReactor", NaquadahReactorCache::new, NaquadahReactorValidator::new);
+    public static Logger logger;
 
-    public static final Logger LOGGER = LogUtils.getLogger();
-
-    public MekanismExtras(ModContainer modContainer, IEventBus modEventBus) {
-        instance = this;
-        versionNumber = new Version(modContainer);
-        ExtraConfig.registerConfigs(modContainer);
-        NeoForge.EVENT_BUS.addListener(this::registerCommands);
-        modEventBus.addListener(ExtraCapabilities::registerCapabilities);
-        modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(ExtraConfig::onConfigLoad);
-        ExtraItems.register(modEventBus);
-        ExtraBlocks.register(modEventBus);
-        ExtraFluids.register(modEventBus);
-        ExtraContainerTypes.register(modEventBus);
-        ExtraTileEntityTypes.register(modEventBus);
-        ExtraCreativeTabs.register(modEventBus);
-        ExtraRecipeSerializersInternal.register(modEventBus);
-        ExtraChemicals.register(modEventBus);
-
-        //MoreMachine
-        registerMoreMachineFactory(modEventBus);
-        registerAdvancedFactory(modEventBus);
-
-        extraPacketHandler = new ExtraPacketHandler(modEventBus, versionNumber);
-        hooks.hookConstructor(modContainer, modEventBus);
+    static {
+        // Gases, infuse types, slurries and their fluid counterparts have to exist before Mekanism finishes loading.
+        ExtraFluids.register();
     }
 
-    public static ExtraPacketHandler extraPacketHandler() {
-        return instance.extraPacketHandler;
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
+        ExtraBlocks.registerBlocks(event.getRegistry());
+        com.jerry.mekextras.common.registries.ExtraFluidBlocks.registerBlocks(event.getRegistry());
     }
 
-    public static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    @SubscribeEvent
+    public static void registerItems(RegistryEvent.Register<Item> event) {
+        ExtraItems.registerItems(event.getRegistry());
+        ExtraBlocks.registerItemBlocks(event.getRegistry());
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            ExtraFluids.EXTRA_FLUIDS.registerBucketDispenserBehavior();
-            if (hooks.mekanismGenerators.isLoaded()){
-                GenExtraFluids.GEN_EXTRA_FLUIDS.registerBucketDispenserBehavior();
-            }
-        });
+    @SubscribeEvent
+    public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
+        ExtraSupremeRecipes.register(event.getRegistry());
     }
 
-    private void registerCommands(RegisterCommandsEvent event) {
-        BuildCommand.register("reinforced_matrix", ExtraLang.REINFORCED_MATRIX, new ExtraBuilders.ReinforcedMatrixBuilder());
-        if (hooks.mekanismGenerators.isLoaded()){
-            BuildCommand.register("naquadah", ExtraLang.NAQUADAH_REACTOR, new ExtraBuilders.NaquadahReactorBuilder());
-        }
-        event.getDispatcher().register(CommandMek.register());
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public static void registerModels(ModelRegistryEvent event) {
+        proxy.registerRenders();
     }
 
-    private void registerAdvancedFactory(IEventBus modEventBus) {
-        if (hooks.mekmm.isLoaded()) {
-            ExtraAdvancedFactoryBlocks.AF_BLOCKS.register(modEventBus);
-            ExtraAdvancedFactoryContainerTypes.AF_CONTAINER_TYPES.register(modEventBus);
-            ExtraAdvancedFactoryTileEntityTypes.AF_TILE_ENTITY_TYPES.register(modEventBus);
-        }
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        logger = event.getModLog();
+        ExtraConfig.init(event);
+        ExtraBlocks.registerWorldGenerators();
+        ExtraUpgrades.init();
+        proxy.preInit();
     }
 
-    private void registerMoreMachineFactory(IEventBus modEventBus) {
-        if (hooks.mekmm.isLoaded()) {
-            ExtraMoreMachineBlocks.MM_BLOCKS.register(modEventBus);
-            ExtraMoreMachineContainerTypes.MM_CONTAINER_TYPES.register(modEventBus);
-            ExtraMoreMachineTileEntityTypes.MM_TILE_ENTITY_TYPES.register(modEventBus);
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        // Register this mod as a Mekanism module so that Mekanism knows about our tiers and upgrades.
+        Mekanism.modulesLoaded.add(this);
+        // Register this mod's GUI provider in the simple packet protocol.
+        PacketSimpleGui.handlers.add(proxy);
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new ExtraGuiHandler());
+
+        ExtraItems.registerOreDict();
+        ExtraItems.registerAlloyRecipes();
+        ExtraItems.registerAdvancedRecipes();
+        ExtraItems.registerNaquadahProcessing();
+        ExtraItems.registerInfuseObjects();
+        ExtraItems.registerSmelting();
+
+        proxy.registerTileEntities();
+        proxy.registerTESRs();
+        proxy.init();
+
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        proxy.postInit();
+    }
+
+    @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.getModID().equals(MODID) || event.getModID().equals(Mekanism.MODID)) {
+            ExtraConfig.sync();
         }
     }
 
@@ -129,5 +140,17 @@ public class MekanismExtras implements IModModule {
     @Override
     public String getName() {
         return "Extras";
+    }
+
+    @Override
+    public void writeConfig(ByteBuf dataStream, MekanismConfig config) {
+    }
+
+    @Override
+    public void readConfig(ByteBuf dataStream, MekanismConfig destConfig) {
+    }
+
+    @Override
+    public void resetClient() {
     }
 }

@@ -1,19 +1,37 @@
 {
-  "variants": {
-    "facing=north": {
-      "model": "mekanism_extras:block/radioactive_waste_barrel/absolute"
-    },
-    "facing=south": {
-      "model": "mekanism_extras:block/radioactive_waste_barrel/absolute",
-      "y": 180
-    },
-    "facing=east": {
-      "model": "mekanism_extras:block/radioactive_waste_barrel/absolute",
-      "y": 90
-    },
-    "facing=west": {
-      "model": "mekanism_extras:block/radioactive_waste_barrel/absolute",
-      "y": -90
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism:radioactive_waste_barrel",
+    "textures": {
+      "barrel": "mekanism_extras:blocks/models/radioactive_waste_barrel/absolute",
+      "particle": "mekanism_extras:blocks/models/radioactive_waste_barrel/absolute"
     }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {},
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
   }
 }

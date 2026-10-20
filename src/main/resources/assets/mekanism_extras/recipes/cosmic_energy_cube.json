@@ -1,0 +1,27 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "AEA",
+    "IPI",
+    "AEA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_shining"
+    },
+    "E": {
+      "item": "mekanism:energytablet"
+    },
+    "I": {
+      "ore": "ingotRefinedObsidian",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "item": "mekanism_extras:supreme_energy_cube"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:cosmic_energy_cube",
+    "count": 1
+  }
+}

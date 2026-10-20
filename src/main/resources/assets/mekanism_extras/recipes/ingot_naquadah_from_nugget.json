@@ -1,0 +1,21 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "NNN",
+    "NPN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "ore": "nuggetNaquadah",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "item": "mekanism_extras:nugget_naquadah"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:ingot_naquadah",
+    "count": 1
+  }
+}

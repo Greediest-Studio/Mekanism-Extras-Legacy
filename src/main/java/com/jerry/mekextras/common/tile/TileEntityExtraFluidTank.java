@@ -1,208 +1,315 @@
 package com.jerry.mekextras.common.tile;
 
-import com.jerry.mekextras.common.block.attribute.ExtraAttribute;
-import com.jerry.mekextras.common.capabilities.fluid.ExtraFluidTankFluidTank;
-import com.jerry.mekextras.common.tier.FTTier;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.DataResult;
-import mekanism.api.Action;
+import mekanism.common.base.IActiveState;
 import mekanism.api.IConfigurable;
+import mekanism.common.base.ISustainedTank;
+import mekanism.common.base.IFluidContainerManager;
+import mekanism.common.base.ITankManager;
+import mekanism.common.base.IUpgradeableTile;
+import mekanism.common.base.ITieredTile;
+import mekanism.common.base.IComparatorSupport;
 import mekanism.api.IContentsListener;
-import mekanism.api.SerializationConstants;
+import mekanism.api.transmitters.TransmissionType;
+import mekanism.api.Coord4D;
+import mekanism.api.TileNetworkList;
+import com.jerry.mekextras.api.IExtraTierMachine;
+import com.jerry.mekextras.api.tier.AdvancedTier;
+import com.jerry.mekextras.common.capabilities.ExtraTankFluidTank;
+import com.jerry.mekextras.common.registries.ExtraBlocks;
+import com.jerry.mekextras.common.tier.FTTier;
+import net.minecraft.block.Block;
+
+import io.netty.buffer.ByteBuf;
+import mekanism.api.*;
 import mekanism.common.Mekanism;
-import mekanism.common.attachments.containers.ContainerType;
-import mekanism.common.capabilities.Capabilities;
+import mekanism.common.base.*;
+
 import mekanism.common.capabilities.holder.fluid.FluidTankHelper;
 import mekanism.common.capabilities.holder.fluid.IFluidTankHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.config.MekanismConfig;
-import mekanism.common.integration.computer.ComputerException;
-import mekanism.common.integration.computer.SpecialComputerMethodWrapper;
-import mekanism.common.integration.computer.annotation.ComputerMethod;
-import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
-import mekanism.common.inventory.container.MekanismContainer;
 import mekanism.common.inventory.container.slot.SlotOverlay;
-import mekanism.common.inventory.container.sync.SyncableEnum;
 import mekanism.common.inventory.slot.FluidInventorySlot;
 import mekanism.common.inventory.slot.OutputInventorySlot;
-import mekanism.common.registries.MekanismDataComponents;
-import mekanism.common.tile.base.TileEntityMekanism;
-import mekanism.common.tile.component.ITileComponent;
-import mekanism.common.tile.interfaces.IFluidContainerManager;
+import mekanism.common.security.ISecurityTile;
+import mekanism.common.tier.BaseTier;
+import mekanism.common.tile.component.TileComponentSecurity;
+import mekanism.common.tile.prefab.TileEntityContainerBlock;
 import mekanism.common.upgrade.FluidTankUpgradeData;
 import mekanism.common.upgrade.IUpgradeData;
 import mekanism.common.util.FluidUtils;
+import mekanism.common.util.LangUtils;
 import mekanism.common.util.MekanismUtils;
-import mekanism.common.util.NBTUtils;
-import net.minecraft.SharedConstants;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.util.TileUtils;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
-public class TileEntityExtraFluidTank extends TileEntityMekanism implements IConfigurable, IFluidContainerManager {
+public class TileEntityExtraFluidTank extends TileEntityContainerBlock implements IExtraTierMachine, IActiveState, IConfigurable, ISustainedTank, IFluidContainerManager,
+        ITankManager, ISecurityTile, IUpgradeableTile, ITieredTile, IComparatorSupport {
 
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerFluidTankWrapper.class, methodNames = {"getStored", "getCapacity", "getNeeded",
-            "getFilledPercentage"}, docPlaceholder = "tank")
-    public ExtraFluidTankFluidTank fluidTank;
+    public boolean isActive;
 
-    private ContainerEditMode editMode = ContainerEditMode.BOTH;
+    public boolean clientActive;
 
-    public FTTier tier;
+    public ExtraTankFluidTank fluidTank;
+
+    public ContainerEditMode editMode = ContainerEditMode.BOTH;
+
+    public FTTier tier = FTTier.ABSOLUTE;
+
+    public int updateDelay;
+
+    public int prevAmount;
 
     public int valve;
-    @NotNull
-    public FluidStack valveFluid = FluidStack.EMPTY;
-    private List<BlockCapabilityCache<IFluidHandler, @Nullable Direction>> fluidHandlerBelow = Collections.emptyList();
+    public FluidStack valveFluid;
 
     public float prevScale;
 
-    private boolean needsPacket;
+    public boolean needsPacket;
 
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getInputItem", docPlaceholder = "input slot")
-    FluidInventorySlot inputSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getOutputItem", docPlaceholder = "output slot")
-    OutputInventorySlot outputSlot;
+    public int currentRedstoneLevel;
 
-    private int lastLightLevel;
-    private int lightUpdateDelay;
+    public TileComponentSecurity securityComponent = new TileComponentSecurity(this);
+    private FluidInventorySlot inputSlot;
+    private OutputInventorySlot outputSlot;
 
-    public TileEntityExtraFluidTank(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
-        super(blockProvider, pos, state);
+    public TileEntityExtraFluidTank() {
+        super("FluidTank");
+        initializeInventorySlots();
     }
 
-    @Override
-    protected void presetVariables() {
-        super.presetVariables();
-        tier = ExtraAttribute.getAdvancedTier(getBlockHolder(), FTTier.class);
+    public TileEntityExtraFluidTank(FTTier tier) {
+        this();
+        this.tier = tier;
     }
 
-    @NotNull
     @Override
     protected IFluidTankHolder getInitialFluidTanks(IContentsListener listener) {
-        FluidTankHelper builder = FluidTankHelper.forSide(this::getDirection);
-        builder.addTank(fluidTank = ExtraFluidTankFluidTank.create(this, listener));
+        FluidTankHelper builder = FluidTankHelper.forSide(() -> facing);
+        fluidTank = builder.addTank(ExtraTankFluidTank.create(() -> tier.getStorage(), () -> tier.getOutput(), listener));
         return builder.build();
     }
 
-    @NotNull
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSide(this::getDirection);
-        builder.addSlot(inputSlot = FluidInventorySlot.input(fluidTank, listener, 146, 19));
-        builder.addSlot(outputSlot = OutputInventorySlot.at(listener, 146, 51));
+        InventorySlotHelper builder = createInventorySlotHelper();
+        inputSlot = builder.addSlot(FluidInventorySlot.input(fluidTank, listener, 146, 19));
         inputSlot.setSlotOverlay(SlotOverlay.INPUT);
+        outputSlot = builder.addSlot(OutputInventorySlot.at(listener, 146, 51));
         outputSlot.setSlotOverlay(SlotOverlay.OUTPUT);
         return builder.build();
     }
 
     @Override
-    protected void onUpdateClient() {
-        super.onUpdateClient();
-        checkLight();
+    public boolean canInstallUpgrade(BaseTier upgradeTier) {
+        //Mekanism's own tier installers are not used for our tiers, the extra tier installers replace the block instead.
+        return false;
     }
 
-    private void checkLight() {
-        if (lightUpdateDelay > 0) {
-            lightUpdateDelay--;
-            if (lightUpdateDelay == 0) {
-                int lightLevel = getBlockState().getLightEmission(level, worldPosition);
-                if (lightLevel != lastLightLevel) {
-                    lastLightLevel = lightLevel;
-                    level.getLightEngine().checkBlock(worldPosition);
-                }
+    @Nullable
+    @Override
+    public IUpgradeData getUpgradeData(BaseTier upgradeTier) {
+        if (!canInstallUpgrade(upgradeTier)) {
+            return null;
+        }
+        return new FluidTankUpgradeData(upgradeTier, facing, clientFacing, ticker, redstone, redstoneLastTick, doAutoSync, isActive,
+                clientActive, editMode, valve, valveFluid, fluidTank.getFluid(), currentRedstoneLevel, writeUpgradeComponentData(),
+                inputSlot.serializeNBT(), outputSlot.serializeNBT());
+    }
+
+    @Nonnull
+    private NBTTagCompound writeUpgradeComponentData() {
+        NBTTagCompound componentData = new NBTTagCompound();
+        securityComponent.write(componentData);
+        return componentData;
+    }
+
+    @Override
+    public boolean parseUpgradeData(IUpgradeData upgradeData) {
+        if (upgradeData instanceof FluidTankUpgradeData data && data.getUpgradeTier().ordinal() == tier.ordinal() + 1) {
+            facing = data.facing;
+            clientFacing = data.clientFacing;
+            ticker = data.ticker;
+            redstone = data.redstone;
+            redstoneLastTick = data.redstoneLastTick;
+            doAutoSync = data.doAutoSync;
+            tier = FTTier.values()[data.getUpgradeTier().ordinal()];
+            isActive = data.active;
+            clientActive = data.clientActive;
+            editMode = data.editMode;
+            valve = data.valve;
+            valveFluid = data.valveFluid == null ? null : data.valveFluid.copy();
+            currentRedstoneLevel = data.currentRedstoneLevel;
+            securityComponent.read(data.componentData);
+            inputSlot.deserializeNBT(data.inputSlot);
+            outputSlot.deserializeNBT(data.outputSlot);
+            fluidTank.setFluid(data.stored);
+            sanitizeAndClampTank();
+            prevAmount = fluidTank.getFluidAmount();
+            prevScale = fluidTank.getCapacity() == 0 ? 0 : (float) fluidTank.getFluidAmount() / fluidTank.getCapacity();
+            MekanismUtils.updateBlock(world, getPos());
+            Mekanism.packetHandler.sendUpdatePacket(this);
+            markNoUpdateSync();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canSetFacing(@Nonnull EnumFacing facing) {
+        return false;
+    }
+
+
+    @Override
+    public void onUpdateClient() {
+        super.onUpdateClient();
+        if (updateDelay > 0) {
+            updateDelay--;
+            if (updateDelay == 0 && clientActive != isActive) {
+                isActive = clientActive;
+                MekanismUtils.updateBlock(world, getPos());
             }
+        }
+        float targetScale = (float) (fluidTank.getFluid() != null ? fluidTank.getFluid().amount : 0) / fluidTank.getCapacity();
+        if (Math.abs(prevScale - targetScale) > 0.01) {
+            prevScale = (9 * prevScale + targetScale) / 10;
         }
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
-        if (valve > 0) {
-            valve--;
-            if (valve == 0) {
-                valveFluid = FluidStack.EMPTY;
+    public void onUpdateServer() {
+        super.onUpdateServer();
+        if (fluidTank.getFluid() != null && fluidTank.getFluidAmount() == 0) {
+            fluidTank.setEmpty();
+        }
+        if (updateDelay > 0) {
+            updateDelay--;
+            if (updateDelay == 0 && clientActive != isActive) {
                 needsPacket = true;
             }
         }
 
-        float scale = MekanismUtils.getScale(prevScale, fluidTank);
-        if (scale != prevScale) {
-            if (prevScale == 0 || scale == 0) {
-                //If it was empty and no longer is, or wasn't empty and now is empty we want to recheck the block lighting
-                // as the fluid may have changed and have a light value
-                if (lightUpdateDelay == 0) {
-                    lightUpdateDelay = prevScale == 0 ? 1 : MekanismConfig.general.blockDeactivationDelay.get();
-                }
+        if (valve > 0) {
+            valve--;
+            if (valve == 0) {
+                valveFluid = null;
+                needsPacket = true;
             }
-            prevScale = scale;
-            sendUpdatePacket = true;
         }
-        inputSlot.handleTank(outputSlot, editMode);
-        if (getActive()) {
-            if (fluidHandlerBelow.isEmpty()) {
-                fluidHandlerBelow = List.of(Capabilities.FLUID.createCache((ServerLevel) level, worldPosition.below(), Direction.UP));
-            }
-            FluidUtils.emit(fluidHandlerBelow, fluidTank, tier.getOutput());
+
+        transferFullTankUpward();
+
+        if (fluidTank.getFluidAmount() != prevAmount) {
+            MekanismUtils.saveChunk(this);
+            needsPacket = true;
+        }
+
+        prevAmount = fluidTank.getFluidAmount();
+        if (!inputSlot.isEmpty()) {
+            manageInventory();
+        }
+        if (isActive) {
+            activeEmit();
+        }
+
+        int newRedstoneLevel = getRedstoneLevel();
+        if (newRedstoneLevel != currentRedstoneLevel) {
+            markNoUpdateSync();
+            currentRedstoneLevel = newRedstoneLevel;
         }
         if (needsPacket) {
-            sendUpdatePacket = true;
-            needsPacket = false;
+            Mekanism.packetHandler.sendUpdatePacket(this);
         }
-        return sendUpdatePacket;
+        needsPacket = false;
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return getBlockType().getLocalizedName();
+    }
+
+    private void activeEmit() {
+        if (fluidTank.getFluid() != null) {
+            FluidUtils.emit(Collections.singleton(EnumFacing.DOWN), fluidTank, this, Math.min(tier.getOutput(), fluidTank.getFluidAmount()));
+        }
+    }
+
+    private void manageInventory() {
+        inputSlot.handleTank(outputSlot, editMode);
     }
 
     @Override
-    public void writeSustainedData(HolderLookup.Provider provider, CompoundTag data) {
-        super.writeSustainedData(provider, data);
-        NBTUtils.writeEnum(data, SerializationConstants.EDIT_MODE, editMode);
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        super.writeCustomNBT(nbtTags);
+        nbtTags.setInteger("tier", tier.ordinal());
+        nbtTags.setBoolean("isActive", isActive);
+        nbtTags.setInteger("editMode", editMode.ordinal());
     }
 
     @Override
-    public void readSustainedData(HolderLookup.Provider provider, CompoundTag data) {
-        super.writeSustainedData(provider, data);
-        NBTUtils.setEnumIfPresent(data, SerializationConstants.EDIT_MODE, ContainerEditMode.BY_ID, mode -> editMode = mode);
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        super.readCustomNBT(nbtTags);
+        tier = MekanismUtils.getByIndex(FTTier.values(), nbtTags.getInteger("tier"), tier);
+        clientActive = isActive = nbtTags.getBoolean("isActive");
+        editMode = ContainerEditMode.byIndexStatic(nbtTags.getInteger("editMode"));
+        if (!hasStoredFluidTanks(nbtTags) && nbtTags.hasKey("fluidTank")) {
+            fluidTank.readFromNBT(nbtTags.getCompoundTag("fluidTank"));
+        }
+        sanitizeAndClampTank();
+    }
+
+    private void sanitizeAndClampTank() {
+        FluidStack stored = fluidTank.getFluid();
+        if (stored == null || stored.getFluid() == null || stored.amount <= 0) {
+            fluidTank.setEmpty();
+        } else {
+            fluidTank.setStackSize(stored.amount, Action.EXECUTE);
+        }
     }
 
     @Override
-    protected void collectImplicitComponents(@NotNull DataComponentMap.Builder builder) {
-        super.collectImplicitComponents(builder);
-        builder.set(MekanismDataComponents.EDIT_MODE, editMode);
+    public void handlePacketData(ByteBuf dataStream) {
+        super.handlePacketData(dataStream);
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            FTTier prevTier = tier;
+            tier = MekanismUtils.getByIndex(FTTier.values(), dataStream.readInt(), tier);
+
+            clientActive = dataStream.readBoolean();
+            valve = dataStream.readInt();
+            editMode = ContainerEditMode.byIndexStatic(dataStream.readInt());
+            if (valve > 0) {
+                valveFluid = TileUtils.readFluidStack(dataStream);
+            } else {
+                valveFluid = null;
+            }
+
+            TileUtils.readTankData(dataStream, fluidTank);
+            if (prevTier != tier || (updateDelay == 0 && clientActive != isActive)) {
+                updateDelay = MekanismConfig.current().general.UPDATE_DELAY.val();
+                isActive = clientActive;
+                MekanismUtils.updateBlock(world, getPos());
+            }
+        }
     }
 
     @Override
-    protected void applyImplicitComponents(@NotNull BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        editMode = input.getOrDefault(MekanismDataComponents.EDIT_MODE, editMode);
+    public boolean isComparatorInput(mekanism.api.transmitters.TransmissionType type) {
+        return type == mekanism.api.transmitters.TransmissionType.FLUID;
     }
 
     @Override
@@ -210,221 +317,218 @@ public class TileEntityExtraFluidTank extends TileEntityMekanism implements ICon
         return MekanismUtils.redstoneLevelFromContents(fluidTank.getFluidAmount(), fluidTank.getCapacity());
     }
 
-    @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.FLUID;
+    public int getCurrentNeeded() {
+        int needed = fluidTank.getCapacity() - fluidTank.getFluidAmount();
+        if (false) {
+            return Integer.MAX_VALUE;
+        }
+        Coord4D top = Coord4D.get(this).offset(EnumFacing.UP);
+        TileEntity topTile = top.getTileEntity(world);
+        if (topTile instanceof TileEntityExtraFluidTank topTank) {
+            if (fluidTank.getFluid() != null && topTank.fluidTank.getFluid() != null) {
+                if (fluidTank.getFluid().getFluid() != topTank.fluidTank.getFluid().getFluid()) {
+                    return needed;
+                }
+            }
+            needed += topTank.getCurrentNeeded();
+        }
+        return needed;
     }
 
-    @NotNull
     @Override
-    public FluidStack insertFluid(int tank, @NotNull FluidStack stack, @Nullable Direction side, @NotNull Action action) {
-        return insertExcess(stack, side, action, super.insertFluid(tank, stack, side, action));
+    public TileNetworkList getNetworkedData(TileNetworkList data) {
+        super.getNetworkedData(data);
+        data.add(tier.ordinal());
+        data.add(isActive);
+        data.add(valve);
+        data.add(editMode.ordinal());
+        if (valve > 0) {
+            TileUtils.addFluidStack(data, valveFluid);
+        }
+        TileUtils.addTankData(data, fluidTank);
+        return data;
     }
 
-    @NotNull
     @Override
-    public FluidStack insertFluid(@NotNull FluidStack stack, @Nullable Direction side, @NotNull Action action) {
-        return insertExcess(stack, side, action, super.insertFluid(stack, side, action));
+    public boolean getActive() {
+        return isActive;
     }
 
-    private FluidStack insertExcess(@NotNull FluidStack stack, @Nullable Direction side, @NotNull Action action, @NotNull FluidStack remainder) {
-        if (side == Direction.UP && action.execute() && remainder.getAmount() < stack.getAmount() && !isRemote()) {
+    @Override
+    public void setActive(boolean active) {
+        isActive = active;
+        if (clientActive != active && updateDelay == 0) {
+            Mekanism.packetHandler.sendUpdatePacket(this);
+            updateDelay = 10;
+            clientActive = active;
+        }
+    }
+
+    @Override
+    public boolean renderUpdate() {
+        return true;
+    }
+
+    @Override
+    public boolean lightUpdate() {
+        return true;
+    }
+
+    @Override
+    public EnumActionResult onSneakRightClick(EntityPlayer player, EnumFacing side) {
+        if (!isRemote()) {
+            setActive(!getActive());
+            world.playSound(null, getPos().getX(), getPos().getY(), getPos().getZ(), SoundEvents.UI_BUTTON_CLICK, SoundCategory.BLOCKS, 0.3F, 1);
+        }
+        return EnumActionResult.SUCCESS;
+    }
+
+    @Override
+    public EnumActionResult onRightClick(EntityPlayer player, EnumFacing side) {
+        return EnumActionResult.PASS;
+    }
+
+    @Override
+    @Nullable
+    public FluidStack insertFluid(int tank, @Nullable FluidStack stack, @Nullable EnumFacing side, Action action) {
+        return tryCallContainerTransaction(() ->
+                insertExcess(stack, side, action, super.insertFluid(tank, stack, side, action)), () -> stack);
+    }
+
+    @Override
+    @Nullable
+    public FluidStack insertFluid(@Nullable FluidStack stack, @Nullable EnumFacing side, Action action) {
+        return tryCallContainerTransaction(() ->
+                insertExcess(stack, side, action, super.insertFluid(stack, side, action)), () -> stack);
+    }
+
+    @Nullable
+    private FluidStack insertExcess(@Nullable FluidStack stack, @Nullable EnumFacing side, Action action, @Nullable FluidStack remainder) {
+        FluidStack pushed = pushRemainderUpward(remainder, action);
+        int inserted = (stack == null ? 0 : stack.amount) - (pushed == null ? 0 : pushed.amount);
+        if (action.execute() && inserted > 0) {
             if (valve == 0) {
                 needsPacket = true;
             }
-            valve = SharedConstants.TICKS_PER_SECOND;
-            valveFluid = stack.copyWithAmount(1);
+            valve = 20;
+            valveFluid = new FluidStack(stack, 1);
         }
-        return remainder;
+        return pushed;
     }
 
-    @Override
-    public InteractionResult onSneakRightClick(Player player) {
-        if (!isRemote()) {
-            setActive(!getActive());
-            Level world = getLevel();
-            if (world != null) {
-                world.playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.BLOCKS, 0.3F, 1);
-            }
+    @Nullable
+    private FluidStack insertFromBelow(@Nonnull FluidStack stack, Action action) {
+        return super.insertFluid(stack, EnumFacing.DOWN, action);
+    }
+
+    @Nullable
+    private FluidStack pushRemainderUpward(@Nullable FluidStack stack, Action action) {
+        if (stack == null || stack.amount <= 0) {
+            return null;
         }
-        return InteractionResult.SUCCESS;
+        TileEntity above = world == null ? null : world.getTileEntity(getPos().up());
+        if (above instanceof TileEntityExtraFluidTank topTank) {
+            return topTank.insertFromBelow(stack, action);
+        }
+        return stack;
+    }
+
+    private void transferFullTankUpward() {
+        int stored = fluidTank.getFluidAmount();
+        if (stored <= 0 || stored < fluidTank.getCapacity() || fluidTank.getFluid() == null) {
+            return;
+        }
+        TileEntity above = world.getTileEntity(getPos().up());
+        if (!(above instanceof TileEntityExtraFluidTank topTank)) {
+            return;
+        }
+        int offered = Math.min(tier.getOutput(), stored);
+        FluidStack simulated = fluidTank.extract(offered, Action.SIMULATE, AutomationType.INTERNAL);
+        if (simulated == null) {
+            return;
+        }
+        FluidStack simulatedRemainder = topTank.insertFromBelow(simulated, Action.SIMULATE);
+        int accepted = simulated.amount - (simulatedRemainder == null ? 0 : simulatedRemainder.amount);
+        if (accepted <= 0) {
+            return;
+        }
+        FluidStack drained = fluidTank.extract(accepted, Action.EXECUTE, AutomationType.INTERNAL);
+        if (drained == null) {
+            return;
+        }
+        FluidStack unsupported = topTank.insertFromBelow(drained, Action.EXECUTE);
+        if (unsupported != null && unsupported.amount > 0) {
+            super.insertFluid(unsupported, EnumFacing.DOWN, Action.EXECUTE);
+        }
+        if (valve == 0) {
+            needsPacket = true;
+        }
+        valve = 20;
+        valveFluid = new FluidStack(drained, 1);
     }
 
     @Override
-    public InteractionResult onRightClick(Player player) {
-        return InteractionResult.PASS;
+    public void setFluidStack(FluidStack fluidStack, Object... data) {
+        fluidTank.setFluid(fluidStack);
+        sanitizeAndClampTank();
     }
 
     @Override
-    @ComputerMethod
+    public FluidStack getFluidStack(Object... data) {
+        return fluidTank.getFluid();
+    }
+
+    @Override
+    public boolean hasTank(Object... data) {
+        return true;
+    }
+
+    @Override
     public ContainerEditMode getContainerEditMode() {
         return editMode;
     }
 
     @Override
-    public void nextMode() {
-        editMode = editMode.getNext();
-        markForSave();
-    }
-
-    @Override
-    public void previousMode() {
-        editMode = editMode.getPrevious();
-        setChanged();
-    }
-
-    @Override
-    public void parseUpgradeData(HolderLookup.Provider provider, @NotNull IUpgradeData upgradeData) {
-        if (upgradeData instanceof FluidTankUpgradeData data) {
-            redstone = data.redstone;
-            inputSlot.setStack(data.inputSlot.getStack());
-            outputSlot.setStack(data.outputSlot.getStack());
-            editMode = data.editMode;
-            fluidTank.setStack(data.stored);
-            for (ITileComponent component : getComponents()) {
-                component.read(data.components, provider);
-            }
-        } else {
-            super.parseUpgradeData(provider, upgradeData);
-        }
-    }
-
-    @NotNull
-    @Override
-    public FluidTankUpgradeData getUpgradeData(HolderLookup.Provider provider) {
-        return new FluidTankUpgradeData(provider, redstone, inputSlot, outputSlot, editMode, fluidTank.getFluid(), getComponents());
-    }
-
-    @Override
-    public void addContainerTrackers(MekanismContainer container) {
-        super.addContainerTrackers(container);
-        container.track(SyncableEnum.create(ContainerEditMode.BY_ID, ContainerEditMode.BOTH, () -> editMode, value -> editMode = value));
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getReducedUpdateTag(@NotNull HolderLookup.Provider provider) {
-        CompoundTag updateTag = super.getReducedUpdateTag(provider);
-        //updateTag.put(SerializationConstants.FLUID, fluidTank.getFluid().saveOptional(provider));
-        //updateTag.put(SerializationConstants.VALVE, valveFluid.saveOptional(provider));
-        updateTag.putFloat(SerializationConstants.SCALE, prevScale);
-        //TODO - 1.21: Re-evaluate this alternate encoding further
-        CompoundTag fluidData = new CompoundTag();
-        FluidStack fluid = fluidTank.getFluid();
-        if (fluid.isEmpty()) {
-            fluid = valveFluid;
-        } else {
-            fluidData.putInt(SerializationConstants.AMOUNT, fluid.getAmount());
-        }
-        if (!fluid.isEmpty()) {
-            //Note: This should never be null as it returns a reference holder
-            // We throw if it is, so that we can find the bug if it gets introduced during porting
-            ResourceKey<Fluid> key = Objects.requireNonNull(fluid.getFluidHolder().getKey(), "Resource key should always be present");
-            fluidData.putString(SerializationConstants.ID, key.location().toString());
-            if (!fluid.isComponentsPatchEmpty()) {
-                //Note: This isn't necessarily optimal, but it does mean in general we can avoid codecs unless it happens to be a fluid that
-                // does have component data
-                DataResult<Tag> componentData = DataComponentPatch.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), fluid.getComponentsPatch());
-                if (componentData.isError()) {
-                    componentData.mapError(error -> {
-                        Mekanism.logger.error("Failed to encode fluid stack component data: {}", error);
-                        return error;
-                    });
-                } else {
-                    fluidData.put(SerializationConstants.DATA, componentData.getOrThrow());
-                }
-            }
-            fluidData.putBoolean(SerializationConstants.VALVE, !valveFluid.isEmpty());
-            updateTag.put(SerializationConstants.FLUID, fluidData);
-        }
-        return updateTag;
-    }
-
-    @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
-        super.handleUpdateTag(tag, provider);
-        //NBTUtils.setFluidStackIfPresent(provider, tag, SerializationConstants.FLUID, fluid -> fluidTank.setStack(fluid));
-        //NBTUtils.setFluidStackIfPresent(provider, tag, SerializationConstants.VALVE, fluid -> valveFluid = fluid);
-        NBTUtils.setFloatIfPresent(tag, SerializationConstants.SCALE, scale -> {
-            if (lightUpdateDelay == 0 && MekanismUtils.scaleChanged(prevScale, scale)) {
-                if (prevScale == 0 || scale == 0) {
-                    //If it was empty and no longer is, or wasn't empty and now is empty we want to recheck the block lighting
-                    // as the fluid may have changed and have a light value, mark that the client should update the light value
-                    //Note: If we previously had no fluid, we queue the lighting for the next client tick
-                    lightUpdateDelay = prevScale == 0 ? 1 : MekanismConfig.general.blockDeactivationDelay.get();
-                }
-            }
-            prevScale = scale;
-        });
-
-        boolean unsetFluid = true;
-        if (tag.contains(SerializationConstants.FLUID, Tag.TAG_COMPOUND)) {
-            CompoundTag fluidData = tag.getCompound(SerializationConstants.FLUID);
-            if (!fluidData.isEmpty()) {
-                String fluidId = fluidData.getString(SerializationConstants.ID);
-                Optional<Holder.Reference<Fluid>> holder = BuiltInRegistries.FLUID.getHolder(ResourceLocation.parse(fluidId));
-                if (holder.isEmpty()) {
-                    Mekanism.logger.info("Received update packet for a fluid tank for an unregistered fluid with expected id: {}", fluidId);
-                } else {
-                    Holder.Reference<Fluid> fluidType = holder.get();
-                    DataComponentPatch patch = DataComponentPatch.EMPTY;
-                    int amount = fluidData.getInt(SerializationConstants.AMOUNT);
-                    if (fluidData.contains(SerializationConstants.DATA)) {
-                        DataResult<Pair<DataComponentPatch, Tag>> componentPatch = DataComponentPatch.CODEC.decode(
-                                provider.createSerializationContext(NbtOps.INSTANCE),
-                                fluidData.get(SerializationConstants.DATA)
-                        );
-                        if (componentPatch.isSuccess()) {
-                            patch = componentPatch.getOrThrow().getFirst();
-                        } else {
-                            componentPatch.mapError(error -> {
-                                Mekanism.logger.info("Received update packet for a fluid tank storing {}, and could not decode the data component patch: {}",
-                                        fluidId, error);
-                                return error;
-                            });
-                        }
-                    }
-                    //We actually have something to set, so mark that we shouldn't reset the stored fluid data
-                    unsetFluid = false;
-                    if (amount == 0) {
-                        fluidTank.setEmpty();
-                    } else {
-                        fluidTank.setStack(new FluidStack(fluidType, amount, patch));
-                    }
-                    if (fluidData.getBoolean(SerializationConstants.VALVE)) {
-                        valveFluid = new FluidStack(fluidType, 1, patch);
-                    } else {
-                        valveFluid = FluidStack.EMPTY;
-                    }
-                }
-            }
-        }
-        if (unsetFluid) {
-            fluidTank.setEmpty();
-            valveFluid = FluidStack.EMPTY;
-        }
-    }
-
-    //Methods relating to IComputerTile
-    @ComputerMethod(requiresPublicSecurity = true)
-    void setContainerEditMode(ContainerEditMode mode) throws ComputerException {
-        validateSecurityIsPublic();
+    public void setContainerEditMode(ContainerEditMode mode) {
         if (editMode != mode) {
             editMode = mode;
-            markForSave();
+            MekanismUtils.saveChunk(this);
+            Mekanism.packetHandler.sendUpdatePacket(this);
         }
     }
 
-    @ComputerMethod(requiresPublicSecurity = true)
-    void incrementContainerEditMode() throws ComputerException {
-        validateSecurityIsPublic();
-        nextMode();
+    @Override
+    public Object[] getManagedTanks() {
+        return new Object[]{fluidTank};
     }
 
-    @ComputerMethod(requiresPublicSecurity = true)
-    void decrementContainerEditMode() throws ComputerException {
-        validateSecurityIsPublic();
-        previousMode();
+    @Override
+    public TileComponentSecurity getSecurity() {
+        return securityComponent;
     }
-    //End methods IComputerTile
+
+    @Override
+    public BaseTier getTier() {
+        return tier.getBaseTier();
+    }
+
+    @Override
+    public boolean supportsAsync() {
+        return false;
+    }
+
+    @Override
+    public AdvancedTier getExtraTier() {
+        return tier.getAdvanceTier();
+    }
+
+    @Override
+    public void setExtraTier(AdvancedTier newTier) {
+        //The tier is defined by the block, the machine is replaced when it is upgraded.
+    }
+
+    @Override
+    public Block getBlockForTier(AdvancedTier newTier) {
+        return ExtraBlocks.getFluidTankBlock(newTier);
+    }
 }

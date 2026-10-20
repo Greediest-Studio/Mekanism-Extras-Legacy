@@ -1,148 +1,124 @@
+import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
+
 plugins {
+    id 'java'
     id 'java-library'
+    id 'maven-publish'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.3'
     id 'eclipse'
     id 'idea'
-    id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.165'
 }
 
-version = mod_version
-group = mod_group_id
+apply from: 'gradle/scripts/helpers.gradle'
 
-repositories {
-    mavenLocal()
-}
+// Early Assertions
+assertProperty 'mod_version'
+assertProperty 'root_package'
+assertProperty 'mod_id'
+assertProperty 'mod_name'
+
+// Defaults
+setDefaultProperty 'use_modern_java_syntax', false, false
+setDefaultProperty 'use_jetbrains_annotations', false, false
+setDefaultProperty 'generate_sources_jar', true, false
+setDefaultProperty 'generate_javadocs_jar', true, false
+setDefaultProperty 'mapping_channel', true, 'stable'
+setDefaultProperty 'mapping_version', true, '39'
+setDefaultProperty 'use_dependency_at_files', true, true
+setDefaultProperty 'minecraft_username', true, 'Developer'
+setDefaultProperty 'extra_jvm_args', false, ''
+setDefaultProperty 'extra_tweak_classes', false, ''
+setDefaultProperty 'change_minecraft_sources', false, false
+setDefaultProperty 'use_tags', false, false
+setDefaultProperty 'use_access_transformer', false, false
+setDefaultProperty 'access_transformer_locations', false, ''
+setDefaultProperty 'use_mixins', false, false
+
+version = propertyString('mod_version')
+group = propertyString('root_package')
 
 base {
-    archivesName = mod_id
+    archivesName.set(propertyString('mod_id'))
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+tasks.decompressDecompiledSources.enabled !propertyBool('change_minecraft_sources') || !layout.buildDirectory.dir('rfg/minecraft-src').get().asFile.exists()
 
-//neoForge {
-//    version = project.neo_version
-//
-//    parchment {
-//        mappingsVersion = project.parchment_mappings_version
-//        minecraftVersion = project.parchment_minecraft_version
-//    }
-//}
-
-minecraft.accessTransformers.files(
-        file('src/main/resources/META-INF/accesstransformer.cfg')
-)
-
-runs {
-    configureEach {
-        systemProperty 'neoforge.logging.markers', 'REGISTRIES'
-
-        systemProperty 'neoforge.logging.console.level', 'debug'
-
-        modSource project.sourceSets.main
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(propertyBool('use_modern_java_syntax') ? 17 : 8))
     }
-
-    client {
-        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+    if (propertyBool('generate_sources_jar')) {
+        withSourcesJar()
     }
-
-    server {
-        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        programArgument '--nogui'
-    }
-
-    gameTestServer {
-        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-    }
-
-    data {
-        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    if (propertyBool('generate_javadocs_jar')) {
+        withJavadocJar()
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+minecraft {
+    mcVersion.set('1.12.2')
+
+    mcpMappingChannel.set(propertyString('mapping_channel'))
+    mcpMappingVersion.set(propertyString('mapping_version'))
+
+    useDependencyAccessTransformers.set(propertyBool('use_dependency_at_files'))
+
+    username.set(propertyString('minecraft_username'))
+
+    extraTweakClasses.addAll(propertyStringList('extra_tweak_classes'))
+
+    def args = ['-ea:' + group]
+    extraRunJvmArguments.addAll(args)
+    extraRunJvmArguments.addAll(propertyStringList('extra_jvm_args'))
+}
 
 repositories {
     maven {
-        url 'https://modmaven.dev/'
-    }
-    maven {
-        url "https://cursemaven.com"
-    }
-    maven {
-        name = "TerraformersMC"
-        url = "https://maven.terraformersmc.com/"
-    }
-    maven {
-        url "https://maven.squiddev.cc"
-        content {
-            includeGroup("cc.tweaked")
-        }
+        name 'CleanroomMC Maven'
+        url 'https://maven.cleanroommc.com'
     }
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${neo_version}"
-
-//    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
-//    compileOnly "mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
-
-    implementation "mekanism:Mekanism:${mekanism_version}"
-    runtimeOnly "mekanism:Mekanism:${mekanism_version}:additions"
-    implementation "mekanism:Mekanism:${mekanism_version}:generators"
-    runtimeOnly "mekanism:Mekanism:${mekanism_version}:tools"
-
-    implementation "curse.maven:mekanism-more-machine-1275257:7324317"
-
-    runtimeOnly "curse.maven:iglee-library-541199:7000755"
-    implementation "curse.maven:evolved-mekanism-1230085:7321395"
-
-    runtimeOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cctVersion}"
-}
-
-var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
-    var replaceProperties = [
-            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-            neo_version         : neo_version, neo_version_range: neo_version_range,
-            loader_version_range: loader_version_range,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors         : mod_authors, mod_description: mod_description,
-    ]
-    inputs.properties replaceProperties
-
-//    filesMatching(['META-INF/mods.toml']) {
-//        expand replaceProperties + [project: project]
-//    }
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
-}
-
-sourceSets.main.resources.srcDir generateModMetadata
-// To avoid having to run "generateModMetadata" manually, make it run on every project reload
-//neoForge.ideSyncTask generateModMetadata
-
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            from components.java
+    if (propertyBool('use_modern_java_syntax')) {
+        annotationProcessor 'com.github.bsideup.jabel:jabel-javac-plugin:1.0.0'
+        annotationProcessor 'net.java.dev.jna:jna-platform:5.13.0'
+        compileOnly ('com.github.bsideup.jabel:jabel-javac-plugin:1.0.0') {
+            transitive = false
         }
+        patchedMinecraft 'me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0'
     }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
+    if (propertyBool('use_jetbrains_annotations')) {
+        compileOnly 'org.jetbrains:annotations:26.1.0'
     }
 }
+
+apply from: 'gradle/scripts/dependencies.gradle'
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
+    if (propertyBool('use_modern_java_syntax')) {
+        if (it.name in ['compileMcLauncherJava', 'compilePatchedMcJava']) {
+            return
+        }
+        sourceCompatibility = 17
+        options.release.set(8)
+        javaCompiler.set(javaToolchains.compilerFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        })
     }
 }
+
+if (propertyBool('use_modern_java_syntax')) {
+    tasks.withType(Javadoc).configureEach {
+        sourceCompatibility = 17
+    }
+}
+
+if (propertyBool('use_tags')) {
+    tasks.named('injectTags', InjectTagsTask).configure {
+        it.outputClassName.set(propertyString('tag_class_name'))
+    }
+}
+
+apply from: 'gradle/scripts/extra.gradle'

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "mekanism_extras",
+  "name": "Mekanism Extras Legacy",
+  "description": "A legacy (1.12.2) port of Mekanism Extras for Mekanism CE Unofficial.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/NNYYOONNIIOO/Mekanism-Extras-Legacy",
+  "updateUrl": "",
+  "authorList": ["Lost Myself", "Jerry", "Nyonio"],
+  "credits": "Ported from Mekanism-Extras (NeoForge)",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": ["mekanism", "mekceumoremachine"]
+}
+]

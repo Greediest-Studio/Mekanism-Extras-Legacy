@@ -1,0 +1,13 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    {
+      "ore": "ingotNaquadah",
+      "type": "forge:ore_dict"
+    }
+  ],
+  "result": {
+    "item": "mekanism_extras:nugget_naquadah",
+    "count": 9
+  }
+}

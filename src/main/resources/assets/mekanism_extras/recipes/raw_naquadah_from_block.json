@@ -1,0 +1,12 @@
+{
+  "type": "forge:ore_shapeless",
+  "ingredients": [
+    {
+      "item": "mekanism_extras:block_raw_naquadah"
+    }
+  ],
+  "result": {
+    "item": "mekanism_extras:raw_naquadah",
+    "count": 9
+  }
+}

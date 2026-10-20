@@ -1,0 +1,133 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "level=0": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=1": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=2": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=3": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=4": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=5": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=6": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=7": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=8": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=9": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=10": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=11": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=12": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=13": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=14": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ],
+    "level=15": [
+      {
+        "model": "forge:fluid",
+        "custom": {
+          "fluid": "mekanism_extras.polonium_208"
+        }
+      }
+    ]
+  }
+}

@@ -1,34 +1,41 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "led": "mekanism_extras:blocks/factory/led_supreme",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism:factory_stamping"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/stamping/supreme"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/stamping/supreme",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "led": "mekanism_extras:blocks/factory/led_supreme"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/stamping/supreme",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/stamping/supreme",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/stamping/active/supreme"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/stamping/active/supreme",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/stamping/active/supreme",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/stamping/active/supreme",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

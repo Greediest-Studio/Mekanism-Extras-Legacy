@@ -2,27 +2,40 @@ package com.jerry.mekextras.common.tier;
 
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.common.config.value.CachedIntValue;
-import mekanism.common.config.value.CachedLongValue;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
-public enum RWBTier implements IAdvancedTier {
-    ABSOLUTE(AdvancedTier.ABSOLUTE, 2_048_000, 20, 4),
-    SUPREME(AdvancedTier.SUPREME, 8_192_000, 10, 16),
-    COSMIC(AdvancedTier.COSMIC, 32_768_000, 5, 64),
-    INFINITE(AdvancedTier.INFINITE, 131_072_000, 5, 256);
+import java.util.Locale;
 
-    private final long advanceStorage;
+public enum RWBTier implements IAdvancedTier, IStringSerializable {
+
+    ABSOLUTE(AdvancedTier.ABSOLUTE, 2_048_000L, 20, 4),
+    SUPREME(AdvancedTier.SUPREME, 8_192_000L, 10, 16),
+    COSMIC(AdvancedTier.COSMIC, 32_768_000L, 5, 64),
+    INFINITE(AdvancedTier.INFINITE, 131_072_000L, 5, 256);
+
+    private final AdvancedTier advancedTier;
+    private final long storage;
     private final int processTicks;
     private final long decayAmount;
-    private final AdvancedTier advancedTier;
-    private CachedLongValue storageReference;
-    private CachedIntValue tickReference;
-    private CachedLongValue amountReference;
-    RWBTier(AdvancedTier tier, long s, int t, long a) {
-        advanceStorage = s;
-        processTicks = t;
-        decayAmount = a;
-        advancedTier = tier;
+
+    RWBTier(AdvancedTier advancedTier, long storage, int processTicks, long decayAmount) {
+        this.advancedTier = advancedTier;
+        this.storage = storage;
+        this.processTicks = processTicks;
+        this.decayAmount = decayAmount;
+    }
+
+    public long getStorage() {
+        return storage;
+    }
+
+    public int getProcessTicks() {
+        return processTicks;
+    }
+
+    public long getDecayAmount() {
+        return decayAmount;
     }
 
     @Override
@@ -30,33 +43,18 @@ public enum RWBTier implements IAdvancedTier {
         return advancedTier;
     }
 
-    public long getStorage() {
-        return storageReference == null ? getAdvanceStorage() : storageReference.getOrDefault();
+    @Override
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
     }
 
-    public int getProcessTicks() {
-        return tickReference == null ? getAdvanceProcessTicks() : tickReference.getOrDefault();
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT);
     }
 
-    public long getDecayAmount() {
-        return amountReference == null ? getAdvanceDecayAmount() : amountReference.getOrDefault();
-    }
-
-    public long getAdvanceStorage() {
-        return advanceStorage;
-    }
-
-    public int getAdvanceProcessTicks() {
-        return processTicks;
-    }
-
-    public long getAdvanceDecayAmount() {
-        return decayAmount;
-    }
-
-    public void setConfigReference(CachedLongValue storageReference, CachedIntValue tickReference, CachedLongValue amountReference) {
-        this.storageReference = storageReference;
-        this.tickReference = tickReference;
-        this.amountReference = amountReference;
+    public static RWBTier byIndex(int index) {
+        RWBTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
     }
 }

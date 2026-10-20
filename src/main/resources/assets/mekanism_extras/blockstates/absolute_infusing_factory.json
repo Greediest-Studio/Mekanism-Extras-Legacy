@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryback",
+      "west": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryright",
+      "front": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_absolute",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_back_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/infusing/absolute"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/infusing/absolute",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/absolute/infusing/absoluteinfusingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/infusing/absolute",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/infusing/absolute",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/infusing/active/absolute"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/infusing/active/absolute",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/infusing/active/absolute",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/infusing/active/absolute",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

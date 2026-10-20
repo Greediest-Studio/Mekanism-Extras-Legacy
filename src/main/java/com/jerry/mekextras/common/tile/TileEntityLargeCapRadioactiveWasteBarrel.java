@@ -1,74 +1,78 @@
 package com.jerry.mekextras.common.tile;
 
-import com.jerry.mekextras.common.block.attribute.ExtraAttribute;
-import com.jerry.mekextras.common.capabilities.chemical.StackedLargeCapWasteBarrel;
+import com.jerry.mekextras.api.IExtraTierMachine;
+import com.jerry.mekextras.api.tier.AdvancedTier;
+import com.jerry.mekextras.common.registries.ExtraBlocks;
 import com.jerry.mekextras.common.tier.RWBTier;
+import io.netty.buffer.ByteBuf;
 import mekanism.api.*;
-import mekanism.api.chemical.ChemicalStack;
-import mekanism.api.chemical.IChemicalHandler;
-import mekanism.api.chemical.IChemicalTank;
-import mekanism.api.functions.ConstantPredicates;
-import mekanism.common.attachments.containers.ContainerType;
-import mekanism.common.capabilities.Capabilities;
-import mekanism.common.capabilities.holder.chemical.ChemicalTankHelper;
-import mekanism.common.capabilities.holder.chemical.IChemicalTankHolder;
-import mekanism.common.capabilities.proxy.ProxyChemicalHandler;
-import mekanism.common.integration.computer.SpecialComputerMethodWrapper;
-import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
-import mekanism.common.tile.base.TileEntityMekanism;
-import mekanism.common.util.ChemicalUtil;
+import mekanism.api.gas.GasStack;
+import mekanism.common.Mekanism;
+import mekanism.common.base.IActiveState;
+import mekanism.common.base.IComparatorSupport;
+import mekanism.common.base.ISustainedData;
+import mekanism.common.base.ITankManager;
+import mekanism.common.security.ISecurityTile;
+import mekanism.common.tile.component.TileComponentSecurity;
+import mekanism.common.capabilities.gas.BasicGasTank;
+import mekanism.common.capabilities.holder.gas.GasTankHelper;
+import mekanism.common.capabilities.holder.gas.IGasTankHolder;
+import mekanism.common.lib.radiation.RadiationUtil;
+import mekanism.common.tile.prefab.TileEntityContainerBlock;
+import mekanism.common.util.GasUtils;
+import mekanism.common.util.ItemDataUtils;
 import mekanism.common.util.MekanismUtils;
-import mekanism.common.util.NBTUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.util.TileUtils;
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
-import java.util.List;
 
-public class TileEntityLargeCapRadioactiveWasteBarrel extends TileEntityMekanism implements IConfigurable {
+/**
+ * The large capacity radioactive waste barrels added by Mekanism Extras Legacy. Mirrors Mekanism's own waste barrel but
+ * storage, decay amount and decay rate come from our own tier.
+ */
+public class TileEntityLargeCapRadioactiveWasteBarrel extends TileEntityContainerBlock implements ISustainedData, ITankManager,
+      IComparatorSupport, IActiveState, IExtraTierMachine, IConfigurable, ISecurityTile {
 
+    private static final ThreadLocal<RWBTier> PENDING_TIER = new ThreadLocal<>();
+
+    /**
+     * Creates a barrel of the given tier, safe against the fact that the base constructor already builds the gas tank holder.
+     */
+    public static TileEntityLargeCapRadioactiveWasteBarrel create(RWBTier tier) {
+        PENDING_TIER.set(tier);
+        try {
+            return new TileEntityLargeCapRadioactiveWasteBarrel();
+        } finally {
+            PENDING_TIER.remove();
+        }
+    }
+
+    private RWBTier tier = RWBTier.ABSOLUTE;
     private long lastProcessTick;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerChemicalTankWrapper.class, methodNames = {"getStored", "getCapacity", "getNeeded",
-            "getFilledPercentage"}, docPlaceholder = "barrel")
-    StackedLargeCapWasteBarrel chemicalTank;
-    @Nullable
-    private IChemicalTank belowTank;
-    private boolean resolvedBelowTank;
+    public BasicGasTank gasTank;
     private int processTicks;
-    private RWBTier tier;
-    private List<BlockCapabilityCache<IChemicalHandler, @Nullable Direction>> chemicalHandlerBelow = Collections.emptyList();
+    public boolean isActive;
+    public boolean clientActive;
+    public final TileComponentSecurity securityComponent = new TileComponentSecurity(this);
 
-    public TileEntityLargeCapRadioactiveWasteBarrel(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
-        super(blockProvider, pos, state);
-        delaySupplier = NO_DELAY;
-    }
-
-    @Override
-    protected void presetVariables() {
-        super.presetVariables();
-        tier = ExtraAttribute.getAdvancedTier(getBlockHolder(), RWBTier.class);
-    }
-
-    @NotNull
-    @Override
-    public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
-        ChemicalTankHelper builder = ChemicalTankHelper.forSide(this::getDirection);
-        builder.addTank(chemicalTank = StackedLargeCapWasteBarrel.create(this, listener), RelativeSide.TOP, RelativeSide.BOTTOM);
-        return builder.build();
+    public TileEntityLargeCapRadioactiveWasteBarrel() {
+        super("radioactive_waste_barrel");
+        RWBTier pending = PENDING_TIER.get();
+        if (pending != null) {
+            tier = pending;
+        }
+        initializeInventorySlots();
     }
 
     public RWBTier getTier() {
@@ -76,107 +80,186 @@ public class TileEntityLargeCapRadioactiveWasteBarrel extends TileEntityMekanism
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
-        if (level != null && level.getGameTime() > lastProcessTick) {
-            //If we are not on the same tick do stuff, otherwise ignore it (anti tick accelerator protection)
-            lastProcessTick = level.getGameTime();
-            if (tier.getDecayAmount() > 0 && !chemicalTank.isEmpty() &&
-                    !chemicalTank.getStack().is(MekanismAPITags.Chemicals.WASTE_BARREL_DECAY_BLACKLIST) &&
-                    ++processTicks >= tier.getProcessTicks()) {
+    protected IGasTankHolder getInitialGasTanks(IContentsListener listener) {
+        GasTankHelper builder = createGasTankHelper();
+        gasTank = BasicGasTank.input((int) Math.min(Integer.MAX_VALUE, tier.getStorage()), gas -> gas != null && gas.isRadiation(), listener);
+        builder.addTank(gasTank);
+        return builder.build();
+    }
+
+    @Override
+    public void onUpdateServer() {
+        super.onUpdateServer();
+        if (getWorld().getTotalWorldTime() > lastProcessTick) {
+            lastProcessTick = getWorld().getTotalWorldTime();
+            GasStack stored = gasTank.getGas();
+            long decayAmount = tier.getDecayAmount();
+            int processTicksRequired = Math.max(1, tier.getProcessTicks());
+            if (decayAmount > 0 && RadiationUtil.canDecayInWasteBarrel(stored) && ++processTicks >= processTicksRequired) {
                 processTicks = 0;
-                chemicalTank.shrinkStack(tier.getDecayAmount(), Action.EXECUTE);
+                gasTank.extract((int) Math.min(Integer.MAX_VALUE, decayAmount), Action.EXECUTE, AutomationType.INTERNAL);
             }
             if (getActive()) {
-                if (chemicalHandlerBelow.isEmpty()) {
-                    chemicalHandlerBelow = List.of(Capabilities.CHEMICAL.createCache((ServerLevel) level, worldPosition.below(), Direction.UP, ConstantPredicates.ALWAYS_TRUE, () -> {
-                        //Reset the tank that we know is below this
-                        resolvedBelowTank = false;
-                        belowTank = null;
-                    }));
-                }
-                IChemicalTank below = getBelowTank();
-                if (below == null) {
-                    ChemicalUtil.emit(chemicalHandlerBelow, chemicalTank);
-                } else {
-                    //If the block below this barrel, is also a barrel. Only emit as much as it might be able to accept.
-                    // This prevents it then trying to go up the chain back to this barrel and any ones above it
-                    ChemicalUtil.emit(chemicalHandlerBelow, chemicalTank, Math.min(below.getNeeded(), chemicalTank.getCapacity()));
-                }
-            }
-            //Note: We don't need to do any checking here if the packet needs due to capacity changing as we do it
-            // in TileentityMekanism after this method is called. And given radioactive waste barrels can only contain
-            // radioactive substances the check for radiation scale also will work for syncing capacity for purposes
-            // of when the client sneak right-clicks on the barrel
-        }
-        return sendUpdatePacket;
-    }
-
-    @Nullable
-    private IChemicalTank getBelowTank() {
-        if (!resolvedBelowTank) {
-            resolvedBelowTank = true;
-            IChemicalHandler belowHandler = chemicalHandlerBelow.getFirst().getCapability();
-            if (belowHandler instanceof ProxyChemicalHandler chemicalHandler && chemicalHandler.getInternalHandler() instanceof TileEntityLargeCapRadioactiveWasteBarrel barrel) {
-                //Note: We don't need to bother with weak references as these are vertical so will always be in the same chunk
-                belowTank = barrel.chemicalTank;
+                GasUtils.emit(Collections.singleton(EnumFacing.DOWN), gasTank, this, getDownOutputLimit());
             }
         }
-        return belowTank;
     }
 
-    public StackedLargeCapWasteBarrel getGasTank() {
-        return chemicalTank;
-    }
-
-    public double getGasScale() {
-        return chemicalTank.getStored() / (double) chemicalTank.getCapacity();
-    }
-
-    public ChemicalStack getGas() {
-        return chemicalTank.getStack();
+    private int getDownOutputLimit() {
+        TileEntity below = MekanismUtils.getTileEntity(world, pos.down());
+        if (below instanceof TileEntityLargeCapRadioactiveWasteBarrel) {
+            TileEntityLargeCapRadioactiveWasteBarrel barrel = (TileEntityLargeCapRadioactiveWasteBarrel) below;
+            return Math.min(barrel.gasTank.getNeeded(), gasTank.getCapacity());
+        }
+        return gasTank.getCapacity();
     }
 
     @Override
-    public InteractionResult onSneakRightClick(Player player) {
+    public void writeSustainedData(ItemStack itemStack) {
+        writeSustainedGasTanks(itemStack);
+        ItemDataUtils.setLegacyGas(itemStack, "gasStored", gasTank.getGas());
+    }
+
+    @Override
+    public void readSustainedData(ItemStack itemStack) {
+        if (!readSustainedGasTanks(itemStack)) {
+            gasTank.setStackUnchecked(ItemDataUtils.getLegacyGas(itemStack, "gasStored"));
+        }
+        sanitizeAndClampGasTank();
+    }
+
+    private void sanitizeAndClampGasTank() {
+        GasStack stored = gasTank.getGas();
+        if (stored != null && (stored.amount <= 0 || stored.getGas() == null || !stored.getGas().isRadiation())) {
+            gasTank.setEmpty();
+        } else if (stored != null) {
+            gasTank.setStackSize(stored.amount, Action.EXECUTE);
+        }
+    }
+
+    @Override
+    public Object[] getManagedTanks() {
+        return new Object[]{gasTank};
+    }
+
+    @Override
+    public EnumActionResult onSneakRightClick(EntityPlayer player, EnumFacing side) {
         if (!isRemote()) {
             setActive(!getActive());
-            Level world = getLevel();
-            if (world != null) {
-                world.playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.BLOCKS, 0.3F, 1);
-            }
+            world.playSound(null, getPos().getX(), getPos().getY(), getPos().getZ(), SoundEvents.UI_BUTTON_CLICK, SoundCategory.BLOCKS, 0.3F, 1);
         }
-        return InteractionResult.SUCCESS;
+        return EnumActionResult.SUCCESS;
     }
 
     @Override
-    public InteractionResult onRightClick(Player player) {
-        return InteractionResult.PASS;
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getReducedUpdateTag(@NotNull HolderLookup.Provider provider) {
-        CompoundTag updateTag = super.getReducedUpdateTag(provider);
-        updateTag.put(SerializationConstants.CHEMICAL, chemicalTank.serializeNBT(provider));
-        updateTag.putInt(SerializationConstants.PROGRESS, processTicks);
-        return updateTag;
+    public EnumActionResult onRightClick(EntityPlayer player, EnumFacing side) {
+        return EnumActionResult.PASS;
     }
 
     @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
-        super.handleUpdateTag(tag, provider);
-        NBTUtils.setCompoundIfPresent(tag, SerializationConstants.CHEMICAL, nbt -> chemicalTank.deserializeNBT(provider, nbt));
-        NBTUtils.setIntIfPresent(tag, SerializationConstants.PROGRESS, val -> processTicks = val);
+    public void handlePacketData(ByteBuf dataStream) {
+        super.handlePacketData(dataStream);
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            clientActive = isActive = dataStream.readBoolean();
+            TileUtils.readTankData(dataStream, gasTank);
+        }
+    }
+
+    @Override
+    public TileNetworkList getNetworkedData(TileNetworkList data) {
+        super.getNetworkedData(data);
+        data.add(isActive);
+        TileUtils.addTankData(data, gasTank);
+        return data;
+    }
+
+    @Override
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        RWBTier loaded = nbtTags.hasKey("tier") ? RWBTier.byIndex(nbtTags.getInteger("tier")) : tier;
+        if (loaded != tier) {
+            tier = loaded;
+            //Rebuild the tank holder so that the stored tier's capacity is used.
+            initializeContainerHolders(true);
+        }
+        super.readCustomNBT(nbtTags);
+        securityComponent.read(nbtTags);
+        clientActive = isActive = nbtTags.getBoolean("isActive");
+        processTicks = Math.max(0, nbtTags.getInteger(NBTConstants.PROGRESS));
+        if (!hasStoredGasTanks(nbtTags) && nbtTags.hasKey("gasTank")) {
+            gasTank.read(nbtTags.getCompoundTag("gasTank"));
+        }
+        sanitizeAndClampGasTank();
+    }
+
+    @Override
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        super.writeCustomNBT(nbtTags);
+        securityComponent.write(nbtTags);
+        nbtTags.setBoolean("isActive", isActive);
+        nbtTags.setInteger(NBTConstants.PROGRESS, processTicks);
+        nbtTags.setInteger("tier", tier.ordinal());
+    }
+
+    @Override
+    public boolean supportsAsync() {
+        return false;
+    }
+
+    @Override
+    public boolean getActive() {
+        return isActive;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        isActive = active;
+        if (clientActive != active) {
+            Mekanism.packetHandler.sendUpdatePacket(this);
+            clientActive = active;
+        }
+    }
+
+    @Override
+    public boolean renderUpdate() {
+        return false;
+    }
+
+    @Override
+    public boolean lightUpdate() {
+        return false;
+    }
+
+    @Override
+    public boolean isComparatorInput(mekanism.api.transmitters.TransmissionType type) {
+        return type == mekanism.api.transmitters.TransmissionType.GAS;
     }
 
     @Override
     public int getRedstoneLevel() {
-        return MekanismUtils.redstoneLevelFromContents(chemicalTank.getStored(), chemicalTank.getCapacity());
+        return MekanismUtils.redstoneLevelFromContents(gasTank.getStored(), gasTank.getMaxGas());
     }
 
     @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.CHEMICAL;
+    protected boolean shouldDumpRadiation() {
+        return true;
+    }
+
+    @Override
+    public AdvancedTier getExtraTier() {
+        return tier.getAdvanceTier();
+    }
+
+    @Override
+    public void setExtraTier(AdvancedTier newTier) {
+        //The tier is defined by the block, the machine is replaced when it is upgraded.
+    }
+
+    @Override
+    public Block getBlockForTier(AdvancedTier newTier) {
+        return ExtraBlocks.getWasteBarrelBlock(newTier);
+    }
+    @Override
+    public TileComponentSecurity getSecurity() {
+        return securityComponent;
     }
 }

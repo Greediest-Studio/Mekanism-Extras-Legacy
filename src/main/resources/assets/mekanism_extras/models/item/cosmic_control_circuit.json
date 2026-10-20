@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "item/generated",
   "textures": {
-    "layer0": "mekanism_extras:item/cosmic_control_circuit"
+    "layer0": "mekanism_extras:items/cosmic_control_circuit"
   }
 }

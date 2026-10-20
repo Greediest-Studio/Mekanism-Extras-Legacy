@@ -1,50 +1,57 @@
 package com.jerry.mekextras.client.gui;
 
-import com.jerry.mekextras.common.tile.TileEntityExtraEnergyCube;
-import mekanism.client.SpecialColors;
 import mekanism.client.gui.GuiConfigurableTile;
+import mekanism.common.security.ISecurityTile;
+import com.jerry.mekextras.common.inventory.container.ContainerExtraEnergyCube;
+import com.jerry.mekextras.common.tile.TileEntityExtraEnergyCube;
+
 import mekanism.client.gui.element.GuiSideHolder;
-import mekanism.client.gui.element.gauge.GaugeType;
 import mekanism.client.gui.element.gauge.GuiEnergyGauge;
 import mekanism.client.gui.element.tab.GuiEnergyTab;
-import mekanism.client.gui.element.tab.GuiSecurityTab;
-import mekanism.common.MekanismLang;
-import mekanism.common.inventory.container.tile.MekanismTileContainer;
-import mekanism.common.util.text.EnergyDisplay;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import org.jetbrains.annotations.NotNull;
+import mekanism.common.util.LangUtils;
+import mekanism.common.util.MekanismUtils;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class GuiExtraEnergyCube extends GuiConfigurableTile<TileEntityExtraEnergyCube, MekanismTileContainer<TileEntityExtraEnergyCube>> {
+@SideOnly(Side.CLIENT)
+public class GuiExtraEnergyCube extends GuiConfigurableTile<TileEntityExtraEnergyCube, ContainerExtraEnergyCube> {
 
-    public GuiExtraEnergyCube(MekanismTileContainer<TileEntityExtraEnergyCube> container, Inventory inv, Component title) {
-        super(container, inv, title);
+    public GuiExtraEnergyCube(InventoryPlayer inventory, TileEntityExtraEnergyCube tile) {
+        super(tile, new ContainerExtraEnergyCube(inventory, tile));
         dynamicSlots = true;
     }
 
     @Override
     protected void addSecurityTab() {
-        //Shift if upwards so the armor holder can fit
-        addRenderableWidget(new GuiSecurityTab(this, tile, 6));
+        addSecurityTab((net.minecraft.tileentity.TileEntity & mekanism.common.security.ISecurityTile) tileEntity, 6);
     }
 
     @Override
     protected void addGuiElements() {
-        //Add the side holder before the slots, as it holds a couple of the slots
-        addRenderableWidget(GuiSideHolder.create(this, imageWidth, 36, 98, false, true, SpecialColors.TAB_ARMOR_SLOTS));
+        addButton(GuiSideHolder.rightArmorHolder(this));
         super.addGuiElements();
-        addRenderableWidget(new GuiEnergyGauge(tile.getEnergyContainer(), GaugeType.WIDE, this, 55, 18));
-        addRenderableWidget(new GuiEnergyTab(this, () -> List.of(MekanismLang.MATRIX_INPUT_RATE.translate(EnergyDisplay.of(tile.getInputRate())),
-                MekanismLang.MAX_OUTPUT.translate(EnergyDisplay.of(tile.getAdvanceTier().getOutput())))));
+        addButton(new GuiEnergyGauge(this, tileEntity.getEnergyContainer(), GuiEnergyGauge.Type.WIDE, 55, 18));
+        addButton(new GuiEnergyTab(this, this::getEnergyTabText));
     }
 
     @Override
-    protected void drawForegroundText(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
-        super.drawForegroundText(guiGraphics, mouseX, mouseY);
+    protected void drawForegroundText(int mouseX, int mouseY) {
+        drawTitleText(new TextComponentString(tileEntity.getName()), 4);
+        renderInventoryText();
+        super.drawForegroundText(mouseX, mouseY);
+    }
+
+    private List<ITextComponent> getEnergyTabText() {
+        List<ITextComponent> info = new ArrayList<>();
+        info.add(new TextComponentString(LangUtils.localize("gui.inputRate") + ": " + MekanismUtils.getEnergyDisplay(tileEntity.getInputRate()) + "/t"));
+        info.add(new TextComponentString(LangUtils.localize("gui.maxOutput") + ": " + MekanismUtils.getEnergyDisplay(tileEntity.getMaxOutput()) + "/t"));
+        return info;
     }
 }
+

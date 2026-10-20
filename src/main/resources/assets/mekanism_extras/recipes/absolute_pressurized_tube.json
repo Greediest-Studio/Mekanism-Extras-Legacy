@@ -1,0 +1,25 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "TTT",
+    "TAT",
+    "TTT"
+  ],
+  "key": {
+    "T": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:transmitter",
+      "data": 2,
+      "nbt": {
+        "tier": 3
+      }
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_radiance"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:absolute_pressurized_tube",
+    "count": 8
+  }
+}

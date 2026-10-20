@@ -1,0 +1,14 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "SSS",
+    "SCS",
+    "SSS"
+  ],
+  "key": {
+      "C": {"item": "mekanism_extras:absolute_control_circuit"},
+      "S": {"item": "mekanism_extras:alloy_radiance"}
+  },
+  "result": {"item": "mekanism_extras:upgrade_ionic_membrane", "count": 1}
+}
+

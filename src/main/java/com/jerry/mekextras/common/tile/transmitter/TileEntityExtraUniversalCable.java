@@ -1,61 +1,215 @@
 package com.jerry.mekextras.common.tile.transmitter;
 
-import com.jerry.mekextras.api.tier.AdvancedTier;
-import com.jerry.mekextras.common.content.network.transmitter.ExtraUniversalCable;
-import com.jerry.mekextras.common.registries.ExtraBlocks;
-import mekanism.api.SerializationConstants;
+import mekanism.common.block.states.BlockStateTransmitter;
+import mekanism.common.tile.transmitter.TileEntityTransmitter;
+import mekanism.api.energy.EnergyStack;
+import mekanism.api.energy.IStrictEnergyAcceptor;
+import mekanism.api.energy.IStrictEnergyStorage;
+import mekanism.api.energy.IStrictEnergyOutputter;
 import mekanism.api.energy.IEnergyContainer;
-import mekanism.api.math.MathUtils;
-import mekanism.common.block.states.BlockStateHelper;
-import mekanism.common.block.states.TransmitterType;
+import cofh.redstoneflux.api.IEnergyProvider;
+import cofh.redstoneflux.api.IEnergyReceiver;
+import ic2.api.energy.EnergyNet;
+import ic2.api.energy.tile.IEnergySource;
+import ic2.api.energy.tile.IEnergyTile;
+import io.netty.buffer.ByteBuf;
+import mekanism.api.Action;
+import mekanism.api.AutomationType;
+import mekanism.api.TileNetworkList;
+import mekanism.api.energy.*;
+import mekanism.api.transmitters.TransmissionType;
+import mekanism.common.base.EnergyAcceptorWrapper;
+import mekanism.common.block.states.BlockStateTransmitter.TransmitterType;
+import mekanism.common.capabilities.Capabilities;
+import mekanism.common.capabilities.CapabilityWrapperManager;
 import mekanism.common.capabilities.energy.DynamicStrictEnergyHandler;
+import mekanism.common.capabilities.holder.energy.ProxiedEnergyContainerHolder;
 import mekanism.common.capabilities.resolver.manager.EnergyHandlerManager;
-import mekanism.common.content.network.EnergyNetwork;
-import mekanism.common.integration.computer.IComputerTile;
-import mekanism.common.integration.computer.annotation.ComputerMethod;
-import mekanism.common.integration.energy.EnergyCompatUtils;
-import mekanism.common.lib.transmitter.ConnectionType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.integration.MekanismHooks;
+import mekanism.common.integration.forgeenergy.ForgeEnergyCableIntegration;
+import mekanism.common.integration.forgeenergy.ForgeEnergyIntegration;
+import mekanism.common.integration.ic2.IC2Integration;
+import mekanism.common.integration.redstoneflux.RFIntegration;
+import mekanism.common.integration.tesla.TeslaCableIntegration;
+import mekanism.common.integration.tesla.TeslaIntegration;
+import mekanism.common.tier.AlloyTier;
+import mekanism.common.tier.BaseTier;
+import com.jerry.mekextras.common.tier.ExtraCableTier;
+import mekanism.common.transmitters.grid.EnergyNetwork;
+import mekanism.common.util.CableUtils;
+import mekanism.common.util.CapabilityUtils;
+import mekanism.common.util.MekanismUtils;
+import net.darkhax.tesla.api.ITeslaProducer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fml.common.Optional;
 
-import java.util.Collections;
-import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
-public class TileEntityExtraUniversalCable extends TileEntityExtraTransmitter implements IComputerTile {
+@Optional.InterfaceList({
+        @Optional.Interface(iface = "cofh.redstoneflux.api.IEnergyReceiver", modid = MekanismHooks.REDSTONEFLUX_MOD_ID),
+        @Optional.Interface(iface = "cofh.redstoneflux.api.IEnergyProvider", modid = MekanismHooks.REDSTONEFLUX_MOD_ID)
+})
+public class TileEntityExtraUniversalCable extends TileEntityTransmitter<EnergyAcceptorWrapper, EnergyNetwork, EnergyStack> implements IStrictEnergyAcceptor,
+        IStrictEnergyStorage, IStrictEnergyOutputter, IEnergyReceiver, IEnergyProvider {
 
+    public ExtraCableTier tier = ExtraCableTier.ABSOLUTE;
+
+    public double currentPower = 0;
+    public double lastWrite = 0;
+
+    private int nextTransfer = 0;
+
+    public EnergyStack buffer = new EnergyStack(0);
+    private CapabilityWrapperManager teslaManager = new CapabilityWrapperManager<>(getClass(), TeslaCableIntegration.class);
+    private CapabilityWrapperManager forgeEnergyManager = new CapabilityWrapperManager<>(getClass(), ForgeEnergyCableIntegration.class);
+    private final Map<EnumFacing, UniversalCableEnergyHandler> energyHandlers = new EnumMap<>(EnumFacing.class);
+    private UniversalCableEnergyHandler readOnlyEnergyHandler;
     private final EnergyHandlerManager energyHandlerManager;
-    public TileEntityExtraUniversalCable(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
-        super(blockProvider, pos, state);
-        addCapabilityResolver(energyHandlerManager = new EnergyHandlerManager(direction -> {
-            ExtraUniversalCable cable = getTransmitter();
-            if (direction != null && (cable.getConnectionTypeRaw(direction) == ConnectionType.NONE) || cable.isRedstoneActivated()) {
-                return Collections.emptyList();
+
+    public TileEntityExtraUniversalCable() {
+        addCapabilityResolver(energyHandlerManager = new EnergyHandlerManager(ProxiedEnergyContainerHolder.create(
+                this::canInsertEnergyContainer, this::canExtractEnergyContainer, this::getEnergyContainers
+        ), new DynamicStrictEnergyHandler(this::getEnergyContainers, this::canExtractEnergyContainer, this::canInsertEnergyContainer, null)));
+    }
+
+    public TileEntityExtraUniversalCable(ExtraCableTier tier) {
+        this();
+        this.tier = tier;
+    }
+
+    @Override
+    public BaseTier getBaseTier() {
+        return tier.getBaseTier();
+    }
+
+    @Override
+    public void setBaseTier(BaseTier baseTier) {
+        tier = ExtraCableTier.get(baseTier);
+    }
+
+    @Override
+    public void doRestrictedTick() {
+        super.doRestrictedTick();
+        doCableTick();
+    }
+
+    protected void doCableTick() {
+        if (getWorld().isRemote) {
+            double targetPower = getTransmitter().hasTransmitterNetwork() ? getTransmitter().getTransmitterNetwork().clientEnergyScale : 0;
+            if (Math.abs(currentPower - targetPower) > 0.01) {
+                currentPower = (9 * currentPower + targetPower) / 10;
             }
-            return cable.getEnergyContainers(direction);
-        }, new DynamicStrictEnergyHandler(this::getEnergyContainers, getExtractPredicate(), getInsertPredicate(), null)));
+            return;
+        }
+
+
+        if (nextTransfer > 0) {
+            nextTransfer--;
+            return;
+        }
+
+        byte sides = getPullConnectionMask();
+        if (sides == 0) {
+            nextTransfer = 40;
+            return;
+        }
+
+        boolean successAtLeastOnce = false;
+
+        if (getMaxEnergy() - getEnergy() < 0.0001) return;
+        for (EnumFacing side : EnumFacing.VALUES) {
+            if (!connectionMapContainsSide(sides, side)) continue;
+            double maxDraw = Math.min(tier.getCableCapacity(), getMaxEnergy() - getEnergy());
+            if (maxDraw < 0.0001) break;
+            TileEntity outputter = MekanismUtils.getTileEntity(world, pos.offset(side));
+            if (outputter == null) {
+                continue;
+            }
+
+            //pre declare some variables for inline assignment & checks
+            IStrictEnergyOutputter strictOutputter;
+            ITeslaProducer teslaProducer;//do not assign anything to this here, or classloader issues may happen
+            IEnergyStorage forgeStorage;
+            EnumFacing accessSide = side.getOpposite();
+            if ((strictOutputter = CapabilityUtils.getCapability(outputter, Capabilities.ENERGY_OUTPUTTER_CAPABILITY, accessSide)) != null &&
+                    strictOutputter.canOutputEnergy(accessSide)) {
+                double received = draw(strictOutputter.pullEnergy(accessSide, maxDraw, true));
+                if (received > 0) {
+                    strictOutputter.pullEnergy(accessSide, received, false);
+                    successAtLeastOnce = true;
+                }
+            } else if (MekanismUtils.useTesla() && (teslaProducer = CapabilityUtils.getCapability(outputter, Capabilities.TESLA_PRODUCER_CAPABILITY, accessSide)) != null) {
+                double received = draw(TeslaIntegration.fromTesla(teslaProducer.takePower(TeslaIntegration.toTesla(maxDraw), true)));
+                if (received > 0) {
+                    teslaProducer.takePower(TeslaIntegration.toTesla(received), false);
+                    successAtLeastOnce = true;
+                }
+            } else if (MekanismUtils.useForge() && (forgeStorage = CapabilityUtils.getCapability(outputter, CapabilityEnergy.ENERGY, accessSide)) != null) {
+                double received = draw(ForgeEnergyIntegration.fromForge(forgeStorage.extractEnergy(ForgeEnergyIntegration.toForge(maxDraw), true)));
+                if (received > 0) {
+                    forgeStorage.extractEnergy(ForgeEnergyIntegration.toForge(received), false);
+                    successAtLeastOnce = true;
+                }
+            } else if (MekanismUtils.useRF() && outputter instanceof IEnergyProvider rfProvider) {
+                double received = draw(RFIntegration.fromRF(rfProvider.extractEnergy(side.getOpposite(), RFIntegration.toRF(maxDraw), true)));
+                if (received > 0) {
+                    rfProvider.extractEnergy(side.getOpposite(), RFIntegration.toRF(received), false);
+                    successAtLeastOnce = true;
+                }
+            } else if (MekanismUtils.useIC2()) {
+                IEnergyTile tile = EnergyNet.instance.getSubTile(outputter.getWorld(), outputter.getPos());
+                if (tile instanceof IEnergySource source) {
+                    double received = draw(Math.min(IC2Integration.fromEU(source.getOfferedEnergy()), maxDraw));
+                    if (received > 0) {
+                        source.drawEnergy(IC2Integration.toEU(received));
+                        successAtLeastOnce = true;
+                    }
+                }
+            }
+        }
+
+        if (!successAtLeastOnce) {
+            nextTransfer = 10;
+        }
+    }
+
+    /**
+     * Takes a certain amount of energy and returns how much was actually taken
+     *
+     * @param toDraw Amount to take
+     * @return Amount actually taken
+     */
+    private double draw(double toDraw) {
+        if (toDraw > 0) {
+            toDraw -= takeEnergy(toDraw, true);
+        }
+        return toDraw;
     }
 
     @Override
-    protected ExtraUniversalCable createTransmitter(Holder<Block> blockProvider) {
-        return new ExtraUniversalCable(blockProvider, this);
+    public void updateShare() {
+        if (!unloaded && getTransmitter().hasTransmitterNetwork() && getTransmitter().getTransmitterNetworkSize() > 0) {
+            double last = getSaveShare();
+            if (last != lastWrite) {
+                lastWrite = last;
+            }
+        } else {
+            lastWrite = buffer.amount;
+        }
     }
 
-    @Override
-    public ExtraUniversalCable getTransmitter() {
-        return (ExtraUniversalCable) super.getTransmitter();
-    }
-
-    @Override
-    protected void onUpdateServer() {
-        getTransmitter().pullFromAcceptors();
-        super.onUpdateServer();
+    private double getSaveShare() {
+        if (getTransmitter().hasTransmitterNetwork()) {
+            return getTransmitter().getTransmitterNetwork().getSaveShare(getTransmitter());
+        }
+        return buffer.amount;
     }
 
     @Override
@@ -63,81 +217,359 @@ public class TileEntityExtraUniversalCable extends TileEntityExtraTransmitter im
         return TransmitterType.UNIVERSAL_CABLE;
     }
 
-    @NotNull
     @Override
-    protected BlockState upgradeResult(@NotNull BlockState current, @NotNull AdvancedTier tier) {
-        return BlockStateHelper.copyStateData(current, switch (tier) {
-            case ABSOLUTE -> ExtraBlocks.ABSOLUTE_UNIVERSAL_CABLE;
-            case SUPREME -> ExtraBlocks.SUPREME_UNIVERSAL_CABLE;
-            case COSMIC -> ExtraBlocks.COSMIC_UNIVERSAL_CABLE;
-            case INFINITE -> ExtraBlocks.INFINITE_UNIVERSAL_CABLE;
-        });
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        super.readCustomNBT(nbtTags);
+        if (nbtTags.hasKey("tier")) {
+            tier = MekanismUtils.getByIndex(ExtraCableTier.values(), nbtTags.getInteger("tier"), tier);
+        }
+        setLocalBufferAmount(nbtTags.getDouble("cacheEnergy"));
+        lastWrite = buffer.amount;
     }
 
-    @NotNull
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
-        //Note: We add the stored information to the initial update tag and not to the one we sync on side changes which uses getReducedUpdateTag
-        CompoundTag updateTag = super.getUpdateTag(provider);
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        updateShare();
+        super.writeCustomNBT(nbtTags);
+        nbtTags.setDouble("cacheEnergy", lastWrite);
+        nbtTags.setInteger("tier", tier.ordinal());
+    }
+
+    @Override
+    public TransmissionType getTransmissionType() {
+        return TransmissionType.ENERGY;
+    }
+
+    @Override
+    public EnergyNetwork createNetworkByMerging(Collection<EnergyNetwork> networks) {
+        return new EnergyNetwork(networks);
+    }
+
+    @Override
+    public boolean isValidAcceptor(TileEntity acceptor, EnumFacing side) {
+        return CableUtils.isValidAcceptorOnSide(MekanismUtils.getTileEntity(world, getPos()), acceptor, side);
+    }
+
+    @Override
+    public EnergyNetwork createNewNetwork() {
+        return new EnergyNetwork();
+    }
+
+    @Override
+    public EnergyStack getBuffer() {
+        return buffer;
+    }
+
+    @Override
+    public void clearBuffer() {
+        setLocalBufferAmount(0);
+    }
+
+    @Override
+    public void takeShare() {
+        updateShare();
         if (getTransmitter().hasTransmitterNetwork()) {
-            EnergyNetwork network = getTransmitter().getTransmitterNetwork();
-            updateTag.putLong(SerializationConstants.ENERGY, network.energyContainer.getEnergy());
-            updateTag.putFloat(SerializationConstants.SCALE, network.currentScale);
-        }
-        return updateTag;
-    }
-
-    private List<IEnergyContainer> getEnergyContainers(@Nullable Direction side) {
-        return energyHandlerManager.getContainers(side);
-    }
-
-    @Override
-    public void sideChanged(@NotNull Direction side, @NotNull ConnectionType old, @NotNull ConnectionType type) {
-        super.sideChanged(side, old, type);
-        if (type == ConnectionType.NONE) {
-            //We no longer have a capability, invalidate it, which will also notify the level
-            invalidateCapabilities(EnergyCompatUtils.getLoadedEnergyCapabilities(), side);
-        } else if (old == ConnectionType.NONE) {
-            //Notify any listeners to our position that we now do have a capability
-            //Note: We don't invalidate our impls because we know they are already invalid, so we can short circuit setting them to null from null
-            invalidateCapabilities();
+            lastWrite = getTransmitter().getTransmitterNetwork().shrinkBuffer(lastWrite);
+            setLocalBufferAmount(lastWrite);
         }
     }
 
     @Override
-    public void redstoneChanged(boolean powered) {
-        super.redstoneChanged(powered);
-        if (powered) {
-            invalidateCapabilitiesAll(EnergyCompatUtils.getLoadedEnergyCapabilities());
+    @Optional.Method(modid = MekanismHooks.REDSTONEFLUX_MOD_ID)
+    public int receiveEnergy(EnumFacing from, int maxReceive, boolean simulate) {
+        return RFIntegration.toRF(acceptEnergy(from, RFIntegration.fromRF(maxReceive), simulate));
+    }
+
+    @Override
+    @Optional.Method(modid = MekanismHooks.REDSTONEFLUX_MOD_ID)
+    public int extractEnergy(EnumFacing from, int maxExtract, boolean simulate) {
+        return RFIntegration.toRF(pullEnergy(from, RFIntegration.fromRF(maxExtract), simulate));
+    }
+
+    @Override
+    @Optional.Method(modid = MekanismHooks.REDSTONEFLUX_MOD_ID)
+    public boolean canConnectEnergy(EnumFacing from) {
+        return hasEnergyContainer(from) && (canReceiveEnergy(from) || canOutputEnergy(from));
+    }
+
+    @Override
+    @Optional.Method(modid = MekanismHooks.REDSTONEFLUX_MOD_ID)
+    public int getEnergyStored(EnumFacing from) {
+        return RFIntegration.toRF(getEnergy());
+    }
+
+    @Override
+    @Optional.Method(modid = MekanismHooks.REDSTONEFLUX_MOD_ID)
+    public int getMaxEnergyStored(EnumFacing from) {
+        return RFIntegration.toRF(getMaxEnergy());
+    }
+
+    @Override
+    public int getCapacity() {
+        return tier.getCableCapacity();
+    }
+
+    @Override
+    public double acceptEnergy(EnumFacing side, double amount, boolean simulate) {
+        return amount - insertEnergyToBuffer(amount, side, Action.get(!simulate));
+    }
+
+    @Override
+    public boolean canReceiveEnergy(EnumFacing side) {
+        return hasEnergyContainer(side) && (side == null || getConnectionTypeRaw(side).canAccept());
+    }
+
+    @Override
+    public double pullEnergy(EnumFacing side, double amount, boolean simulate) {
+        return extractEnergyFromBuffer(amount, side, Action.get(!simulate));
+    }
+
+    @Override
+    public boolean canOutputEnergy(EnumFacing side) {
+        return hasEnergyContainer(side) && (side == null || getConnectionTypeRaw(side).canSendTo());
+    }
+
+    public double getMaxOutput() {
+        return tier.getCableCapacity();
+    }
+
+    @Override
+    public double getMaxEnergy() {
+        if (getTransmitter().hasTransmitterNetwork()) {
+            return getTransmitter().getTransmitterNetwork().getCapacityAsDouble();
+        }
+        return getCapacity();
+    }
+
+    @Override
+    public double getEnergy() {
+        if (getTransmitter().hasTransmitterNetwork()) {
+            return getTransmitter().getTransmitterNetwork().getBufferAmount();
+        }
+        return buffer.amount;
+    }
+
+    @Override
+    public void setEnergy(double energy) {
+        if (getTransmitter().hasTransmitterNetwork()) {
+            getTransmitter().getTransmitterNetwork().setBufferAmount(energy);
         } else {
-            invalidateCapabilities();
+            setLocalBufferAmount(energy);
         }
     }
 
-    //Methods relating to IComputerTile
+    /**
+     * @return Amount of left over energy
+     */
+    public double takeEnergy(double energy, boolean doEmit) {
+        return insertEnergyToBuffer(energy, null, Action.get(doEmit));
+    }
+
+    private double insertEnergyToBuffer(double amount, @Nullable EnumFacing side, Action action) {
+        double toUse = Math.min(getMaxEnergy() - getEnergy(), amount);
+        if (toUse < 0.0001 || side != null && !canReceiveEnergy(side)) {
+            return amount;
+        }
+        if (action.execute()) {
+            if (getTransmitter().hasTransmitterNetwork()) {
+                getTransmitter().getTransmitterNetwork().growBuffer(toUse);
+            } else {
+                setLocalBufferAmount(buffer.amount + toUse);
+            }
+        }
+        return amount - toUse;
+    }
+
+    private double extractEnergyFromBuffer(double amount, @Nullable EnumFacing side, Action action) {
+        double toGive = Math.min(Math.min(getEnergy(), amount), getMaxOutput());
+        if (toGive < 0.0001 || side != null && !canOutputEnergy(side)) {
+            return 0;
+        }
+        if (action.execute()) {
+            if (getTransmitter().hasTransmitterNetwork()) {
+                getTransmitter().getTransmitterNetwork().shrinkBuffer(toGive);
+            } else {
+                setLocalBufferAmount(buffer.amount - toGive);
+            }
+        }
+        return toGive;
+    }
+
+    private void setLocalBufferAmount(double energy) {
+        double previous = buffer.amount;
+        buffer.setAmountClamped(energy, getCapacity());
+        if (Double.compare(previous, buffer.amount) != 0) markChunkDirty();
+    }
+
     @Override
-    public String getComputerName() {
-        return getTransmitter().getTier().getBaseTier().getLowerName() + "UniversalCable";
+    public EnergyAcceptorWrapper getCachedAcceptor(EnumFacing side) {
+        return EnergyAcceptorWrapper.get(getCachedTile(side), side.getOpposite());
     }
 
-    @ComputerMethod
-    long getBuffer() {
-        return getTransmitter().getBufferWithFallback();
+    @Override
+    public boolean upgrade(AlloyTier tierOrdinal) {
+        //Mekanism's Basic/Advanced/Elite/Ultimate alloys do not define the Extra tier ladder.
+        return false;
     }
 
-    @ComputerMethod
-    long getCapacity() {
-        ExtraUniversalCable cable = getTransmitter();
-        return cable.hasTransmitterNetwork() ? cable.getTransmitterNetwork().getCapacity() : cable.getCapacity();
+    @Override
+    public void handlePacketData(ByteBuf dataStream) throws Exception {
+        tier = MekanismUtils.getByIndex(ExtraCableTier.values(), dataStream.readInt(), tier);
+        super.handlePacketData(dataStream);
     }
 
-    @ComputerMethod
-    long getNeeded() {
-        return getCapacity() - getBuffer();
+    @Override
+    public TileNetworkList getNetworkedData(TileNetworkList data) {
+        data.add(tier.ordinal());
+        super.getNetworkedData(data);
+        return data;
     }
 
-    @ComputerMethod
-    double getFilledPercentage() {
-        return MathUtils.divideToLevel(getBuffer(), getCapacity());
+    @Override
+    public void refreshConnections() {
+        invalidateEnergyCapabilities(null);
+        super.refreshConnections();
+    }
+
+    @Override
+    public void refreshConnections(EnumFacing side) {
+        invalidateEnergyCapabilities(side);
+        super.refreshConnections(side);
+    }
+
+    @Override
+    protected void onModeChange(EnumFacing side) {
+        invalidateEnergyCapabilities(side);
+        super.onModeChange(side);
+    }
+
+    @Override
+    public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
+        return canResolveTesla(capability, facing) || capability == CapabilityEnergy.ENERGY && hasEnergyContainer(facing) ||
+                super.hasCapability(capability, facing);
+    }
+
+    @Override
+    public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
+        if (canResolveTesla(capability, facing)) {
+            return (T) teslaManager.getWrapper(this, facing);
+        } else if (capability == CapabilityEnergy.ENERGY) {
+            return hasEnergyContainer(facing) ? (T) forgeEnergyManager.getWrapper(this, facing) : null;
+        }
+        return super.getCapability(capability, facing);
+    }
+
+    private boolean hasEnergyContainer(@Nullable EnumFacing side) {
+        return !isRedstoneActivated() && (side == null || canConnect(side));
+    }
+
+    private boolean canResolveTesla(@Nonnull Capability<?> capability, @Nullable EnumFacing side) {
+        return MekanismUtils.useTesla() && (capability == Capabilities.TESLA_HOLDER_CAPABILITY && hasEnergyContainer(side) ||
+                capability == Capabilities.TESLA_CONSUMER_CAPABILITY && side != null && canReceiveEnergy(side) ||
+                capability == Capabilities.TESLA_PRODUCER_CAPABILITY && side != null && canOutputEnergy(side));
+    }
+
+    private boolean canInsertEnergyContainer(@Nullable EnumFacing side) {
+        return side == null || canReceiveEnergy(side);
+    }
+
+    private boolean canExtractEnergyContainer(@Nullable EnumFacing side) {
+        return side == null || canOutputEnergy(side);
+    }
+
+    @Nonnull
+    private List<IEnergyContainer> getEnergyContainers(@Nullable EnumFacing side) {
+        return hasEnergyContainer(side) ? Collections.singletonList(getEnergyContainer(side)) : Collections.emptyList();
+    }
+
+    private UniversalCableEnergyHandler getEnergyContainer(@Nullable EnumFacing side) {
+        if (side == null) {
+            if (readOnlyEnergyHandler == null) {
+                readOnlyEnergyHandler = new UniversalCableEnergyHandler(null);
+            }
+            return readOnlyEnergyHandler;
+        }
+        UniversalCableEnergyHandler handler = energyHandlers.get(side);
+        if (handler == null) {
+            handler = new UniversalCableEnergyHandler(side);
+            energyHandlers.put(side, handler);
+        }
+        return handler;
+    }
+
+    private void invalidateEnergyCapabilities(@Nullable EnumFacing side) {
+        invalidateCapability(Capabilities.STRICT_ENERGY_CAPABILITY, side);
+        invalidateCapability(Capabilities.ENERGY_STORAGE_CAPABILITY, side);
+        invalidateCapability(Capabilities.ENERGY_ACCEPTOR_CAPABILITY, side);
+        invalidateCapability(Capabilities.ENERGY_OUTPUTTER_CAPABILITY, side);
+    }
+
+    private class UniversalCableEnergyHandler implements IEnergyContainer {
+
+        @Nullable
+        private final EnumFacing side;
+
+        private UniversalCableEnergyHandler(@Nullable EnumFacing side) {
+            this.side = side;
+        }
+
+        private EnumFacing sideFor(@Nullable EnumFacing requestedSide) {
+            return side == null ? requestedSide : side;
+        }
+
+        @Override
+        public double getEnergy() {
+            return TileEntityExtraUniversalCable.this.getEnergy();
+        }
+
+        @Override
+        public void setEnergy(double energy) {
+            TileEntityExtraUniversalCable.this.setEnergy(energy);
+        }
+
+        @Override
+        public double getMaxEnergy() {
+            return TileEntityExtraUniversalCable.this.getMaxEnergy();
+        }
+
+        @Override
+        public double acceptEnergy(EnumFacing side, double amount, boolean simulate) {
+            return TileEntityExtraUniversalCable.this.acceptEnergy(sideFor(side), amount, simulate);
+        }
+
+        @Override
+        public double insert(double amount, Action action, AutomationType automationType) {
+            return TileEntityExtraUniversalCable.this.insertEnergyToBuffer(amount, side, action);
+        }
+
+        @Override
+        public double insert(double amount, @Nullable EnumFacing side, Action action, AutomationType automationType) {
+            return TileEntityExtraUniversalCable.this.insertEnergyToBuffer(amount, sideFor(side), action);
+        }
+
+        @Override
+        public boolean canReceiveEnergy(EnumFacing side) {
+            return TileEntityExtraUniversalCable.this.canReceiveEnergy(sideFor(side));
+        }
+
+        @Override
+        public double pullEnergy(EnumFacing side, double amount, boolean simulate) {
+            return TileEntityExtraUniversalCable.this.pullEnergy(sideFor(side), amount, simulate);
+        }
+
+        @Override
+        public double extract(double amount, Action action, AutomationType automationType) {
+            return TileEntityExtraUniversalCable.this.extractEnergyFromBuffer(amount, side, action);
+        }
+
+        @Override
+        public double extract(double amount, @Nullable EnumFacing side, Action action, AutomationType automationType) {
+            return TileEntityExtraUniversalCable.this.extractEnergyFromBuffer(amount, sideFor(side), action);
+        }
+
+        @Override
+        public boolean canOutputEnergy(EnumFacing side) {
+            return TileEntityExtraUniversalCable.this.canOutputEnergy(sideFor(side));
+        }
     }
 }

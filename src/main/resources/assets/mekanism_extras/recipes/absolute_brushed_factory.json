@@ -1,0 +1,31 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_radiance"
+    },
+    "C": {
+      "item": "mekanism_extras:absolute_control_circuit"
+    },
+    "I": {
+      "item": "minecraft:emerald"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:machineblock3",
+      "data": 7,
+      "nbt": {
+        "recipeType": 11
+      }
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:absolute_brushed_factory",
+    "count": 1
+  }
+}

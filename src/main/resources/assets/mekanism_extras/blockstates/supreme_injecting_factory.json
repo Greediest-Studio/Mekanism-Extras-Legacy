@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryback",
+      "west": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryright",
+      "front": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_supreme",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_back_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/supreme"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/supreme",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/supreme/injecting/supremeinjectingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/supreme",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/injecting/supreme",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/supreme"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/supreme",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/supreme",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/injecting/active/supreme",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

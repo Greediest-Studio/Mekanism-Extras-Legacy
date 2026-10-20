@@ -1,10 +1,34 @@
 {
-  "variants": {
-    "active=false": {
-      "model": "mekanism_extras:block/reactor/controller"
-    },
-    "active=true": {
-      "model": "mekanism_extras:block/reactor/controller_on"
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism_extras:naquadah_reactor_controller",
+    "textures": {
+      "sides": "mekanism_extras:blocks/naquadah_reactor_casing",
+      "front": "mekanism_extras:blocks/naquadah_reactor_casing",
+      "up": "mekanism_extras:blocks/naquadah_reactor_controller",
+      "down": "mekanism_extras:blocks/naquadah_reactor_casing",
+      "particle": "mekanism_extras:blocks/naquadah_reactor_casing"
     }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {"y": 90},
+      "south": {"y": 180},
+      "west": {"y": -90},
+      "up": {"x": -90},
+      "down": {"x": 90}
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "up": "mekanism_extras:blocks/naquadah_reactor_controller_on"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
   }
 }

@@ -1,39 +1,41 @@
 package com.jerry.mekextras.common;
 
 import com.jerry.mekextras.MekanismExtras;
-import mekanism.api.text.ILangEntry;
-import net.minecraft.Util;
-import org.jetbrains.annotations.NotNull;
+import com.jerry.mekextras.api.tier.AdvancedTier;
+import mekanism.common.util.LangUtils;
 
-public enum ExtraLang implements ILangEntry {
-    MEK_EXTRAS("constants", "mod_name"),
-    //Pack
-    STOP_FLASHING("pack", "pack_name"),
-//    STOP_FLASHING_DESC("pack", "pack_description"),
+/**
+ * Translation keys used by Mekanism Extras Legacy.
+ */
+public class ExtraLang {
 
-    //JEI
-    RECIPE_VIEWER_INFO_RICH_NAQUADAH_FUEL("info", "jei.rich_naquadah_fuel"),
-    RECIPE_VIEWER_INFO_RICH_URANIUM_FUEL("info", "jei.rich_uranium_fuel"),
+    public static final String MOD_NAME = "constants." + MekanismExtras.MODID + ".mod_name";
 
-    //Upgrades
-    UPGRADES_STACK("gui", "upgrades.stack"),
-    ENERGY_CONSUMPTION("gui", "energy_consumption"),
-
-    //Reinforced Induction Matrix
-    REINFORCED_MATRIX("matrix", "reinforced_induction_matrix"),
-    NAQUADAH_REACTOR("reactor", "naquadah_reactor");
-    private final String key;
-
-    ExtraLang(String type, String path) {
-        this(Util.makeDescriptionId(type, MekanismExtras.rl(path)));
+    public static String tier(AdvancedTier tier) {
+        return "tier." + MekanismExtras.MODID + "." + tier.getLowerName();
     }
 
-    ExtraLang(String key) {
-        this.key = key;
+    public static String item(String name) {
+        return "item." + MekanismExtras.MODID + "." + name;
     }
 
-    @Override
-    public @NotNull String getTranslationKey() {
-        return key;
+    public static String block(String name) {
+        return "tile." + MekanismExtras.MODID + "." + name + ".name";
+    }
+
+    public static String gas(String name) {
+        return "gas." + MekanismExtras.MODID + "." + name;
+    }
+
+    public static String infuse(String name) {
+        return "infuse." + MekanismExtras.MODID + "." + name;
+    }
+
+    public static String oreGas(String name) {
+        return "oregas." + name;
+    }
+
+    public static String localize(String key) {
+        return LangUtils.localize(key);
     }
 }

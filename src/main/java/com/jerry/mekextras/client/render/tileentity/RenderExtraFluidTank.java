@@ -1,97 +1,161 @@
 package com.jerry.mekextras.client.render.tileentity;
 
+import com.jerry.mekextras.common.tier.FTTier;
 import com.jerry.mekextras.common.tile.TileEntityExtraFluidTank;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import mekanism.client.render.FluidRenderMap;
 import mekanism.client.render.MekanismRenderer;
-import mekanism.client.render.ModelRenderer;
-import mekanism.client.render.RenderResizableCuboid;
-import mekanism.client.render.tileentity.MekanismTileEntityRenderer;
-import mekanism.common.base.ProfilerConstants;
-import mekanism.common.util.MekanismUtils;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.Direction;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import mekanism.client.render.MekanismRenderer.DisplayInteger;
+import mekanism.client.render.MekanismRenderer.FluidType;
+import mekanism.client.render.MekanismRenderer.GlowInfo;
+import mekanism.client.render.MekanismRenderer.Model3D;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.init.Blocks;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
-import java.util.HashMap;
-import java.util.Map;
+@SideOnly(Side.CLIENT)
+public class RenderExtraFluidTank extends TileEntitySpecialRenderer<TileEntityExtraFluidTank> {
 
-public class RenderExtraFluidTank extends MekanismTileEntityRenderer<TileEntityExtraFluidTank> {
-    private static final Map<FluidStack, Int2ObjectMap<MekanismRenderer.Model3D>> cachedCenterFluids = new HashMap<>();
-    private static final Map<FluidStack, Int2ObjectMap<MekanismRenderer.Model3D>> cachedValveFluids = new HashMap<>();
+    public static final RenderExtraFluidTank INSTANCE = new RenderExtraFluidTank();
 
-    private static final int stages = 1_400;
+    private static FluidRenderMap<DisplayInteger[]> cachedCenterFluids = new FluidRenderMap<>();
+    private static FluidRenderMap<DisplayInteger[]> cachedValveFluids = new FluidRenderMap<>();
 
-    public RenderExtraFluidTank(BlockEntityRendererProvider.Context context) {
-        super(context);
-    }
+    private static final int stages = 64;
 
-    public static void resetCachedModels() {
+    public static void resetDisplayInts() {
+        cachedCenterFluids.values().forEach(DisplayInteger::deleteAll);
+        cachedValveFluids.values().forEach(DisplayInteger::deleteAll);
         cachedCenterFluids.clear();
         cachedValveFluids.clear();
     }
 
     @Override
-    protected void render(TileEntityExtraFluidTank tile, float partialTick, @NotNull PoseStack matrix, @NotNull MultiBufferSource renderer, int light, int overlayLight, @NotNull ProfilerFiller profiler) {
-        FluidStack fluid = tile.fluidTank.getFluid();
-        float fluidScale = tile.prevScale;
-        VertexConsumer buffer = null;
-        if (!fluid.isEmpty() && fluidScale > 0) {
-            buffer = renderer.getBuffer(Sheets.translucentCullBlockSheet());
-            MekanismRenderer.renderObject(getFluidModel(fluid, fluidScale), matrix, buffer, MekanismRenderer.getColorARGB(fluid, fluidScale),
-                    MekanismRenderer.calculateGlowLight(light, fluid), overlayLight, RenderResizableCuboid.FaceDisplay.FRONT, getCamera(), tile.getBlockPos());
-        }
-        if (!tile.valveFluid.isEmpty() && !MekanismUtils.lighterThanAirGas(tile.valveFluid)) {
-            if (buffer == null) {
-                buffer = renderer.getBuffer(Sheets.translucentCullBlockSheet());
+    public void render(TileEntityExtraFluidTank tileEntity, double x, double y, double z, float partialTick, int destroyStage, float alpha) {
+        FluidStack fluid = tileEntity.fluidTank.getFluid();
+        render(tileEntity.tier, fluid, tileEntity.prevScale, tileEntity.isActive, tileEntity.valve > 0 ? tileEntity.valveFluid : null, x, y, z);
+    }
+
+    public void render(FTTier tier, FluidStack fluid, float fluidScale, boolean active, FluidStack valveFluid, double x, double y, double z) {
+        boolean glChanged = false;
+        if (fluid != null && fluidScale > 0) {
+            GlStateManager.pushMatrix();
+            glChanged = enableGL();
+            bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            GlStateManager.translate((float) x, (float) y, (float) z);
+            GlowInfo glowInfo = MekanismRenderer.enableGlow(fluid);
+
+            DisplayInteger[] displayList = getListAndRender(fluid);
+
+            MekanismRenderer.color(fluid, fluidScale);
+            if (fluid.getFluid().isGaseous(fluid)) {
+                displayList[stages - 1].render();
+            } else {
+                displayList[Math.min(stages - 1, (int) (fluidScale * ((float) stages - 1)))].render();
             }
-            MekanismRenderer.renderObject(getValveModel(tile.valveFluid, fluidScale), matrix, buffer,
-                    MekanismRenderer.getColorARGB(tile.valveFluid), MekanismRenderer.calculateGlowLight(light, tile.valveFluid), overlayLight, RenderResizableCuboid.FaceDisplay.FRONT,
-                    getCamera(), tile.getBlockPos());
+            MekanismRenderer.resetColor();
+            MekanismRenderer.disableGlow(glowInfo);
+            GlStateManager.popMatrix();
+        }
+
+        if (valveFluid != null && !valveFluid.getFluid().isGaseous(valveFluid)) {
+            GlStateManager.pushMatrix();
+            glChanged = enableGL();
+            bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            GlStateManager.translate((float) x, (float) y, (float) z);
+            GlowInfo glowInfo = MekanismRenderer.enableGlow(valveFluid);
+            MekanismRenderer.color(valveFluid);
+            DisplayInteger[] valveList = getValveRender(valveFluid);
+            valveList[Math.min(stages - 1, (int) (fluidScale * ((float) stages - 1)))].render();
+            MekanismRenderer.resetColor();
+            MekanismRenderer.disableGlow(glowInfo);
+            GlStateManager.popMatrix();
+        }
+
+        if (glChanged) {
+            MekanismRenderer.resetBlockRenderState();
         }
     }
 
-    @Override
-    protected @NotNull String getProfilerSection() {
-        return ProfilerConstants.FLUID_TANK;
+    private boolean enableGL() {
+        GlStateManager.enableCull();
+        GlStateManager.disableLighting();
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        GlStateManager.disableAlpha();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+        return true;
     }
 
-    private MekanismRenderer.Model3D getValveModel(@NotNull FluidStack fluid, float fluidScale) {
-        Int2ObjectMap<MekanismRenderer.Model3D> modelMap = cachedValveFluids.computeIfAbsent(fluid, f -> new Int2ObjectOpenHashMap<>());
-        int stage = Math.min(stages - 1, (int) (fluidScale * (stages - 1)));
-        MekanismRenderer.Model3D model = modelMap.get(stage);
-        if (model == null) {
-            model = new MekanismRenderer.Model3D()
-                    .setSideRender(side -> side.getAxis().isHorizontal())
-                    .prepFlowing(fluid)
-                    .xBounds(0.3225F, 0.6775F)
-                    .yBounds(0.12375F + 0.7525F * (stage / (float) stages), 0.87625F)
-                    .zBounds(0.3225F, 0.6775F);
-            modelMap.put(stage, model);
+    private DisplayInteger[] getValveRender(FluidStack fluid) {
+        if (cachedValveFluids.containsKey(fluid)) {
+            return cachedValveFluids.get(fluid);
         }
-        return model;
+
+        Model3D toReturn = new Model3D();
+        toReturn.baseBlock = Blocks.WATER;
+        MekanismRenderer.prepFlowing(toReturn, fluid);
+
+        DisplayInteger[] displays = new DisplayInteger[stages];
+        cachedValveFluids.put(fluid, displays);
+
+        for (int i = 0; i < stages; i++) {
+            displays[i] = DisplayInteger.createAndStart();
+
+            if (fluid.getFluid().getStill(fluid) != null) {
+                toReturn.minX = 0.3125 + .01;
+                toReturn.minY = 0.0625 + ((float) i / (float) stages) * 0.875;
+                toReturn.minZ = 0.3125 + .01;
+
+                toReturn.maxX = 0.6875 - .01;
+                toReturn.maxY = 0.9375 - .01;
+                toReturn.maxZ = 0.6875 - .01;
+
+                MekanismRenderer.renderObject(toReturn);
+            }
+
+            DisplayInteger.endList();
+        }
+
+        return displays;
     }
 
-    public static MekanismRenderer.Model3D getFluidModel(@NotNull FluidStack fluid, float fluidScale) {
-        Int2ObjectMap<MekanismRenderer.Model3D> modelMap = cachedCenterFluids.computeIfAbsent(fluid, f -> new Int2ObjectOpenHashMap<>());
-        int stage = ModelRenderer.getStage(fluid, stages, fluidScale);
-        MekanismRenderer.Model3D model = modelMap.get(stage);
-        if (model == null) {
-            model = new MekanismRenderer.Model3D()
-                    .setTexture(MekanismRenderer.getFluidTexture(fluid, MekanismRenderer.FluidTextureType.STILL))
-                    .setSideRender(Direction.DOWN, false)
-                    .setSideRender(Direction.UP, stage < stages)
-                    .xBounds(0.135F, 0.865F)
-                    .yBounds(0.12375F, 0.124F + 0.75225F * (stage / (float) stages))
-                    .zBounds(0.135F, 0.865F);
-            modelMap.put(stage, model);
+    private DisplayInteger[] getListAndRender(FluidStack fluid) {
+        if (cachedCenterFluids.containsKey(fluid)) {
+            return cachedCenterFluids.get(fluid);
         }
-        return model;
+
+        Model3D toReturn = new Model3D();
+        toReturn.baseBlock = Blocks.WATER;
+        toReturn.setTexture(MekanismRenderer.getFluidTexture(fluid, FluidType.STILL));
+
+        DisplayInteger[] displays = new DisplayInteger[stages];
+        cachedCenterFluids.put(fluid, displays);
+
+        for (int i = 0; i < stages; i++) {
+            displays[i] = DisplayInteger.createAndStart();
+
+            if (fluid.getFluid().getStill(fluid) != null) {
+                toReturn.minX = 0.125 + .01;
+                toReturn.minY = 0.0625 + .01;
+                toReturn.minZ = 0.125 + .01;
+
+                toReturn.maxX = 0.875 - .01;
+                toReturn.maxY = 0.0625 + ((float) i / (float) stages) * 0.875 - .01;
+                toReturn.maxZ = 0.875 - .01;
+
+                MekanismRenderer.renderObject(toReturn);
+            }
+
+            DisplayInteger.endList();
+        }
+
+        return displays;
     }
 }

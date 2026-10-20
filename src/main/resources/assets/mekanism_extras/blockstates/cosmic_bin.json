@@ -1,34 +1,45 @@
 {
-  "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/bin/cosmic"
-    },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/bin/cosmic",
-      "y": 180
-    },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/bin/cosmic",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/bin/cosmic",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/bin/active/cosmic"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/bin/active/cosmic",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/bin/active/cosmic",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/bin/active/cosmic",
-      "y": -90
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism:machine",
+    "textures": {
+      "front": "mekanism_extras:blocks/bin/cosmic_front",
+      "sides": "mekanism_extras:blocks/bin/cosmic_side",
+      "up": "mekanism_extras:blocks/bin/cosmic_top",
+      "down": "mekanism_extras:blocks/bin/bottom",
+      "particle": "mekanism_extras:blocks/bin/cosmic_side"
     }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "up": "mekanism_extras:blocks/bin/cosmic_top_active",
+          "down": "mekanism_extras:blocks/bin/bottom_active"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
   }
 }

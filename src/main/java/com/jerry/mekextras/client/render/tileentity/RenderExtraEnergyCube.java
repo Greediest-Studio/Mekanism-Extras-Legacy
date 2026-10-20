@@ -1,83 +1,111 @@
 package com.jerry.mekextras.client.render.tileentity;
 
-import com.jerry.mekextras.client.model.ColorModelEnergyCore;
+import mekanism.api.transmitters.TransmissionType;
 import com.jerry.mekextras.api.tier.AdvancedTier;
+import com.jerry.mekextras.common.tier.ECTier;
 import com.jerry.mekextras.common.tile.TileEntityExtraEnergyCube;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
-import mekanism.api.annotations.NothingNullByDefault;
-import mekanism.client.render.RenderTickHandler;
-import mekanism.client.render.tileentity.ModelTileEntityRenderer;
-import mekanism.common.base.ProfilerConstants;
+import mekanism.client.MekanismClient;
+import com.jerry.mekextras.client.model.ExtraModelEnergyCube;
+import com.jerry.mekextras.client.model.ExtraModelEnergyCube.EnergyCubeSideState;
+import mekanism.client.model.ModelEnergyCube.ModelEnergyCore;
+import mekanism.client.render.MekanismRenderer;
+import mekanism.client.render.MekanismRenderer.GlowInfo;
+
+import mekanism.common.tile.component.config.DataType;
 import mekanism.common.util.MekanismUtils;
-import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
+import mekanism.common.util.MekanismUtils.ResourceType;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
-@NothingNullByDefault
-public class RenderExtraEnergyCube extends ModelTileEntityRenderer<TileEntityExtraEnergyCube, ColorModelEnergyCore> {
+@SideOnly(Side.CLIENT)
+public class RenderExtraEnergyCube extends TileEntitySpecialRenderer<TileEntityExtraEnergyCube> {
 
-    public static final Axis coreVec = Axis.of(new Vector3f(0.0F, MekanismUtils.ONE_OVER_ROOT_TWO, MekanismUtils.ONE_OVER_ROOT_TWO));
+    private static final ResourceLocation BASE_TEXTURE = MekanismUtils.getResource(ResourceType.RENDER, "EnergyCube.png");
+    public static ResourceLocation coreTexture = MekanismUtils.getResource(ResourceType.RENDER, "EnergyCore.png");
 
-    public RenderExtraEnergyCube(BlockEntityRendererProvider.Context context) {
-        super(context, ColorModelEnergyCore::new);
+    public static ResourceLocation getBaseTexture(AdvancedTier tier) {
+        return BASE_TEXTURE;
     }
+    private ExtraModelEnergyCube model = new ExtraModelEnergyCube();
+    private ModelEnergyCore core = new ModelEnergyCore();
 
     @Override
-    protected void render(@NotNull TileEntityExtraEnergyCube tile, float partialTick, @NotNull PoseStack matrix, MultiBufferSource renderer, int light, int overlayLight, ProfilerFiller profiler) {
-        float energyScale = tile.getEnergyScale();
-        Vec3 renderPos = tile.getBlockPos().getCenter();
-        AdvancedTier advancedTier = tile.getAdvanceTier().getAdvanceTier();
-        RenderTickHandler.addTransparentRenderer(new RenderTickHandler.LazyRender() {
-            @Override
-            public void render(Camera camera, VertexConsumer buffer, PoseStack poseStack, int renderTick, float partialTick, ProfilerFiller profiler) {
-                float ticks = renderTick + partialTick;
-                float scaledTicks = 4 * ticks;
-                poseStack.pushPose();
-                Vec3 offset = renderPos.subtract(camera.getPosition());
-                poseStack.translate(offset.x, offset.y, offset.z);
-                poseStack.scale(0.4F, 0.4F, 0.4F);
-                poseStack.translate(0, Math.sin(Math.toRadians(3 * ticks)) / 7, 0);
-                poseStack.mulPose(Axis.YP.rotationDegrees(scaledTicks));
-                poseStack.mulPose(coreVec.rotationDegrees(36F + scaledTicks));
-                model.render(poseStack, buffer, LightTexture.FULL_BRIGHT, overlayLight, advancedTier, energyScale);
-                poseStack.popPose();
-            }
+    public void render(TileEntityExtraEnergyCube tileEntity, double x, double y, double z, float partialTick, int destroyStage, float alpha) {
+        GlStateManager.pushMatrix();
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        GlStateManager.disableAlpha();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.translate((float) x + 0.5F, (float) y + 1.5F, (float) z + 0.5F);
 
-            @Override
-            @NotNull
-            public Vec3 getCenterPos(float partialTick) {
-                return renderPos;
+        GlStateManager.pushMatrix();
+        switch (tileEntity.facing) {
+            case DOWN -> {
+                GlStateManager.rotate(90, -1, 0, 0);
+                GlStateManager.translate(0, 1.0F, -1.0F);
             }
+            case UP -> {
+                GlStateManager.rotate(90, 1, 0, 0);
+                GlStateManager.translate(0, 1.0F, 1.0F);
+            }
+            default ->
+                //Otherwise use the helper method for handling different face options because it is one of them
+                    MekanismRenderer.rotate(tileEntity.facing, 0, 180, 90, 270);
+        }
 
-            @Override
-            @NotNull
-            public String getProfilerSection() {
-                return ProfilerConstants.ENERGY_CUBE_CORE;
-            }
+        GlStateManager.rotate(180, 0, 0, 1);
+        float ticks = MekanismClient.ticksPassed + partialTick;
+        AdvancedTier tier = tileEntity.getExtraTier();
+        int tierColor = tier.getDisplayColor(ticks);
+        ResourceLocation baseTexture = getBaseTexture(tier);
+        model.render(0.0625F, tierColor, rendererDispatcher.renderEngine, false);
 
-            @Override
-            @NotNull
-            public RenderType getRenderType() {
-                return ColorModelEnergyCore.BATCHED_RENDER_TYPE;
-            }
-        });
+        setLightmapDisabled(true);
+        for (EnumFacing side : EnumFacing.VALUES) {
+            bindTexture(baseTexture);
+            model.renderSide(0.0625F, side, getSideState(tileEntity.configComponent.getDataType(TransmissionType.ENERGY, side)), tierColor, rendererDispatcher.renderEngine);
+        }
+        setLightmapDisabled(false);
+        GlStateManager.popMatrix();
+
+        double energyPercentage = tileEntity.getEnergy() / tileEntity.getMaxEnergy();
+        if (energyPercentage > 0.1) {
+            GlStateManager.translate(0, -1.0F, 0);
+            bindTexture(coreTexture);
+            GlowInfo glowInfo = MekanismRenderer.enableGlow();
+            GlStateManager.scale(0.4F, 0.4F, 0.4F);
+            MekanismRenderer.color(((int) (energyPercentage * 255) << 24) | tierColor);
+            GlStateManager.translate(0, (float) Math.sin(Math.toRadians(3 * ticks)) / 7, 0);
+            GlStateManager.rotate(4 * ticks, 0, 1, 0);
+            GlStateManager.rotate(36F + 4 * ticks, 0, 1, 1);
+            core.render(0.0625F);
+            MekanismRenderer.resetColor();
+            MekanismRenderer.disableGlow(glowInfo);
+        }
+
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlpha();
+        MekanismRenderer.resetBlockRenderState();
+        GlStateManager.popMatrix();
+        MekanismRenderer.machineRenderer().render(tileEntity, x, y, z, partialTick, destroyStage, alpha);
     }
 
-    @Override
-    protected String getProfilerSection() {
-        return ProfilerConstants.ENERGY_CUBE;
+    private EnergyCubeSideState getSideState(DataType dataType) {
+        if (dataType.canOutput()) {
+            return EnergyCubeSideState.OUTPUT;
+        }
+        return dataType.canInput() ? EnergyCubeSideState.INPUT : EnergyCubeSideState.OFF;
     }
 
-    @Override
-    public boolean shouldRender(TileEntityExtraEnergyCube tile, Vec3 camera) {
-        return tile.getEnergyScale() > 0 && super.shouldRender(tile, camera);
-    }
+    /**
+     * The energy cube model of Mekanism tints its ports and LEDs with the tier colour, so map our tier onto the closest
+     * Mekanism tier for the model itself. The core colour uses our own tier colour.
+     */
 }

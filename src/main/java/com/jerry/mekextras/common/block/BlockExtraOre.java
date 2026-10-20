@@ -1,28 +1,43 @@
 package com.jerry.mekextras.common.block;
 
-import mekanism.api.text.ILangEntry;
-import mekanism.common.block.interfaces.IHasDescription;
-import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.NotNull;
+import com.jerry.mekextras.common.registries.ExtraItems;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
-public class BlockExtraOre extends Block implements IHasDescription {
+import java.util.Random;
 
-    private String descriptionTranslationKey;
+public class BlockExtraOre extends BlockExtraResource {
 
-    public BlockExtraOre(Properties properties) {
-        super(properties);
-    }
+    private final Item drop;
 
-    @NotNull
-    public String getDescriptionTranslationKey() {
-        if (descriptionTranslationKey == null) {
-//            descriptionTranslationKey = Util.makeDescriptionId("description", MekanismExtras.rl(ore.getResource().getRegistrySuffix() + "_ore"));
-        }
-        return descriptionTranslationKey;
+    public BlockExtraOre(Item drop, float hardness, float resistance, int harvestLevel) {
+        super(hardness, resistance);
+        this.drop = drop;
+        setHarvestLevel("pickaxe", harvestLevel);
     }
 
     @Override
-    public @NotNull ILangEntry getDescription() {
-        return this::getDescriptionTranslationKey;
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+        return drop;
+    }
+
+    @Override
+    public int quantityDroppedWithBonus(int fortune, Random random) {
+        if (fortune > 0 && drop != null) {
+            return 1 + random.nextInt(fortune + 1);
+        }
+        return quantityDropped(random);
+    }
+
+    @Override
+    public int quantityDropped(Random random) {
+        return 1;
+    }
+
+    @Override
+    public int getExpDrop(IBlockState state, IBlockAccess world, BlockPos pos, int fortune) {
+        return 3 + fortune;
     }
 }

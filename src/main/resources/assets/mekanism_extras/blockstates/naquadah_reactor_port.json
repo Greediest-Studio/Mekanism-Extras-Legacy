@@ -1,10 +1,41 @@
 {
-  "variants": {
-    "active=false": {
-      "model": "mekanism_extras:block/reactor/port"
-    },
-    "active=true": {
-      "model": "mekanism_extras:block/reactor/port_output"
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism:basic_cube",
+    "textures": {
+      "all": "mekanism_extras:blocks/naquadah_reactor_port",
+      "particle": "mekanism_extras:blocks/naquadah_reactor_port"
     }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "all": "mekanism_extras:blocks/naquadah_reactor_port_output"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
   }
 }

@@ -2,24 +2,34 @@ package com.jerry.mekextras.common.tier;
 
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.common.config.value.CachedIntValue;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
-public enum FTTier implements IAdvancedTier {
-    ABSOLUTE(AdvancedTier.ABSOLUTE, 4_096_000, 2_048_000),// x16
-    SUPREME(AdvancedTier.SUPREME, 32_768_000, 16_384_000),// x8
-    COSMIC(AdvancedTier.COSMIC, 262_144_000, 131_072_000),// x8
-    INFINITE(AdvancedTier.INFINITE, 2_097_152_000, 1_048_576_000);// x8
+import java.util.Locale;
 
-    private final int advanceStorage;
-    private final int advanceOutput;
+public enum FTTier implements IAdvancedTier, IStringSerializable {
+
+    ABSOLUTE(AdvancedTier.ABSOLUTE, 4_096_000, 2_048_000),
+    SUPREME(AdvancedTier.SUPREME, 32_768_000, 16_384_000),
+    COSMIC(AdvancedTier.COSMIC, 262_144_000, 131_072_000),
+    INFINITE(AdvancedTier.INFINITE, 2_097_152_000, 1_048_576_000);
+
     private final AdvancedTier advancedTier;
-    private CachedIntValue storageReference;
-    private CachedIntValue outputReference;
+    private final int storage;
+    private final int output;
 
-    FTTier(AdvancedTier tier, int s, int o) {
-        advanceStorage = s;
-        advanceOutput = o;
-        advancedTier = tier;
+    FTTier(AdvancedTier advancedTier, int storage, int output) {
+        this.advancedTier = advancedTier;
+        this.storage = storage;
+        this.output = output;
+    }
+
+    public int getStorage() {
+        return storage;
+    }
+
+    public int getOutput() {
+        return output;
     }
 
     @Override
@@ -27,27 +37,18 @@ public enum FTTier implements IAdvancedTier {
         return advancedTier;
     }
 
-    public int getStorage() {
-        return storageReference == null ? getAdvanceStorage() : storageReference.getOrDefault();
+    @Override
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
     }
 
-    public int getOutput() {
-        return outputReference == null ? getAdvanceOutput() : outputReference.getOrDefault();
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT);
     }
 
-    public int getAdvanceStorage() {
-        return advanceStorage;
-    }
-
-    public int getAdvanceOutput() {
-        return advanceOutput;
-    }
-
-    /**
-     * ONLY CALL THIS FROM TierConfig. It is used to give the FluidTankTier a reference to the actual config value object
-     */
-    public void setConfigReference(CachedIntValue storageReference, CachedIntValue outputReference) {
-        this.storageReference = storageReference;
-        this.outputReference = outputReference;
+    public static FTTier byIndex(int index) {
+        FTTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
     }
 }

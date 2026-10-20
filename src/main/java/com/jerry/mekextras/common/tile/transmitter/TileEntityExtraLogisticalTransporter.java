@@ -1,51 +1,49 @@
 package com.jerry.mekextras.common.tile.transmitter;
 
-import com.jerry.mekextras.api.tier.AdvancedTier;
-import com.jerry.mekextras.common.content.network.transmitter.ExtraLogisticalTransporter;
-import mekanism.client.model.data.TransmitterModelData;
-import mekanism.common.block.states.BlockStateHelper;
-import mekanism.common.block.states.TransmitterType;
-import com.jerry.mekextras.common.registries.ExtraBlocks;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import com.jerry.mekextras.common.tier.ExtraTransporterTier;
+import com.jerry.mekextras.common.transmitters.ExtraTransporterImpl;
+import mekanism.api.TileNetworkList;
+import mekanism.common.tier.AlloyTier;
+import mekanism.common.tile.transmitter.TileEntityLogisticalTransporter;
+import net.minecraft.nbt.NBTTagCompound;
 
-public class TileEntityExtraLogisticalTransporter extends TileEntityExtraLogisticalTransporterBase {
-    public TileEntityExtraLogisticalTransporter(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
-        super(blockProvider, pos, state);
+/**
+ * Extra tier logistical transporter. Uses our own transmitter delegate so that speed and throughput scale with our tier.
+ */
+public class TileEntityExtraLogisticalTransporter extends TileEntityLogisticalTransporter {
+
+    private ExtraTransporterTier tier = ExtraTransporterTier.ABSOLUTE;
+
+    public TileEntityExtraLogisticalTransporter() {
+    }
+
+    public TileEntityExtraLogisticalTransporter(ExtraTransporterTier tier) {
+        this.tier = tier;
+        this.transmitterDelegate = new ExtraTransporterImpl(this, tier);
     }
 
     @Override
-    protected ExtraLogisticalTransporter createTransmitter(Holder<Block> blockProvider) {
-        return new ExtraLogisticalTransporter(blockProvider, this);
+    public void readCustomNBT(NBTTagCompound nbtTags) {
+        if (nbtTags.hasKey("extraTransporterTier")) {
+            tier = ExtraTransporterTier.byIndex(nbtTags.getInteger("extraTransporterTier"));
+            transmitterDelegate = new ExtraTransporterImpl(this, tier);
+        }
+        super.readCustomNBT(nbtTags);
     }
 
     @Override
-    public ExtraLogisticalTransporter getTransmitter() {
-        return (ExtraLogisticalTransporter) super.getTransmitter();
+    public void writeCustomNBT(NBTTagCompound nbtTags) {
+        super.writeCustomNBT(nbtTags);
+        nbtTags.setInteger("extraTransporterTier", tier.ordinal());
+    }
+
+    public ExtraTransporterTier getTransporterTier() {
+        return tier;
     }
 
     @Override
-    public TransmitterType getTransmitterType() {
-        return TransmitterType.LOGISTICAL_TRANSPORTER;
-    }
-
-    @Override
-    protected void updateModelData(TransmitterModelData modelData) {
-        super.updateModelData(modelData);
-        modelData.setHasColor(getTransmitter().getColor() != null);
-    }
-
-    @NotNull
-    @Override
-    protected BlockState upgradeResult(@NotNull BlockState current, @NotNull AdvancedTier tier) {
-        return BlockStateHelper.copyStateData(current, switch (tier) {
-            case ABSOLUTE -> ExtraBlocks.ABSOLUTE_LOGISTICAL_TRANSPORTER;
-            case SUPREME -> ExtraBlocks.SUPREME_LOGISTICAL_TRANSPORTER;
-            case COSMIC -> ExtraBlocks.COSMIC_LOGISTICAL_TRANSPORTER;
-            case INFINITE -> ExtraBlocks.INFINITE_LOGISTICAL_TRANSPORTER;
-        });
+    public boolean upgrade(AlloyTier tierOrdinal) {
+        //Mekanism's Basic/Advanced/Elite/Ultimate alloys do not define the Extra tier ladder.
+        return false;
     }
 }

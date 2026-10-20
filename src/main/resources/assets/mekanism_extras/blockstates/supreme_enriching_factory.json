@@ -1,34 +1,52 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryback",
+      "west": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryright",
+      "front": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_supreme",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_enriching_led_overlay"
+  },
   "variants": {
-    "facing=north,active=false": {
-      "model": "mekanism_extras:block/factory/enriching/supreme"
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
     },
-    "facing=south,active=false": {
-      "model": "mekanism_extras:block/factory/enriching/supreme",
-      "y": 180
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/supreme/enriching/supremeenrichingfactorytopon"
+        }
+      },
+      "false": {}
     },
-    "facing=east,active=false": {
-      "model": "mekanism_extras:block/factory/enriching/supreme",
-      "y": 90
-    },
-    "facing=west,active=false": {
-      "model": "mekanism_extras:block/factory/enriching/supreme",
-      "y": -90
-    },
-    "facing=north,active=true": {
-      "model": "mekanism_extras:block/factory/enriching/active/supreme"
-    },
-    "facing=south,active=true": {
-      "model": "mekanism_extras:block/factory/enriching/active/supreme",
-      "y": 180
-    },
-    "facing=east,active=true": {
-      "model": "mekanism_extras:block/factory/enriching/active/supreme",
-      "y": 90
-    },
-    "facing=west,active=true": {
-      "model": "mekanism_extras:block/factory/enriching/active/supreme",
-      "y": -90
-    }
+    "inventory": [
+      {}
+    ]
   }
 }

@@ -2,25 +2,28 @@ package com.jerry.mekextras.common.tier;
 
 import com.jerry.mekextras.api.tier.AdvancedTier;
 import com.jerry.mekextras.api.tier.IAdvancedTier;
-import mekanism.api.annotations.NothingNullByDefault;
-import mekanism.common.config.value.CachedLongValue;
-import org.jetbrains.annotations.Nullable;
+import mekanism.common.tier.BaseTier;
+import net.minecraft.util.IStringSerializable;
 
-@NothingNullByDefault
-public enum ICTier implements IAdvancedTier {
+import java.util.Locale;
+
+public enum ICTier implements IAdvancedTier, IStringSerializable {
+
     ABSOLUTE(AdvancedTier.ABSOLUTE, 32_768_000_000_000L),
     SUPREME(AdvancedTier.SUPREME, 262_144_000_000_000L),
     COSMIC(AdvancedTier.COSMIC, 2_097_152_000_000_000L),
     INFINITE(AdvancedTier.INFINITE, Long.MAX_VALUE);
 
-    private final long advanceMaxEnergy;
     private final AdvancedTier advancedTier;
-    @Nullable
-    private CachedLongValue storageReference;
+    private final long maxEnergy;
 
-    ICTier(AdvancedTier tier, long max) {
-        advanceMaxEnergy = max;
-        advancedTier = tier;
+    ICTier(AdvancedTier advancedTier, long maxEnergy) {
+        this.advancedTier = advancedTier;
+        this.maxEnergy = maxEnergy;
+    }
+
+    public long getMaxEnergy() {
+        return maxEnergy;
     }
 
     @Override
@@ -28,18 +31,18 @@ public enum ICTier implements IAdvancedTier {
         return advancedTier;
     }
 
-    public long getMaxEnergy() {
-        return storageReference == null ? getAdvanceMaxEnergy() : storageReference.getOrDefault();
+    @Override
+    public BaseTier getBaseTier() {
+        return advancedTier.getBaseTier();
     }
 
-    public long getAdvanceMaxEnergy() {
-        return advanceMaxEnergy;
+    @Override
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT);
     }
 
-    /**
-     * ONLY CALL THIS FROM TierConfig. It is used to give the InductionCellTier a reference to the actual config value object
-     */
-    public void setConfigReference(CachedLongValue storageReference) {
-        this.storageReference = storageReference;
+    public static ICTier byIndex(int index) {
+        ICTier[] values = values();
+        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
     }
 }

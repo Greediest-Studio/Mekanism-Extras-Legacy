@@ -1,7 +1,5 @@
 {
   "variants": {
-    "": {
-      "model": "mekanism_extras:block/storage/raw_naquadah"
-    }
+    "normal": { "model": "mekanism_extras:block_raw_naquadah" }
   }
 }

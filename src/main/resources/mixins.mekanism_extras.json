@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.jerry.mekextras.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinTileEntityChemicalDissolutionChamber",
+    "MixinShapedMekanismRecipe"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

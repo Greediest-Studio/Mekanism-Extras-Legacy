@@ -1,0 +1,24 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "AIA",
+    "IPI",
+    "AIA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_spectrum"
+    },
+    "I": {
+      "ore": "ingotIron",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "item": "mekanism_extras:cosmic_fluid_tank"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:infinite_fluid_tank",
+    "count": 1
+  }
+}

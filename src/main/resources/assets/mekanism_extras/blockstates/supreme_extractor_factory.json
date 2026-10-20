@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryleft",
+      "south": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryback",
+      "west": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryright",
+      "sides": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryright",
+      "front": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryfront",
+      "up": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_supreme",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_back_led_overlay"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactorylefton",
+          "south": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactorybackon",
+          "west": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryrighton",
+          "front": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactoryfronton",
+          "up": "mekanism_extras:blocks/factory/supreme/purifying/supremepurifyingfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "_C_",
+    "APA",
+    "___"
+  ],
+  "key": {
+    "_": {
+      "item": "minecraft:stone",
+      "data": 0
+    },
+    "C": {
+      "item": "mekanism_extras:supreme_control_circuit"
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_thermonuclear"
+    },
+    "P": {
+      "item": "mekanism_extras:absolute_bin"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:supreme_bin",
+    "count": 1
+  }
+}

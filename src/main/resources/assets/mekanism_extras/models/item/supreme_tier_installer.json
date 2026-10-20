@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "item/generated",
   "textures": {
-    "layer0": "mekanism_extras:item/supreme_tier_installer"
+    "layer0": "mekanism_extras:items/supreme_tier_installer"
   }
 }

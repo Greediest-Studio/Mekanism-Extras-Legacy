@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "mekanism_extras:blocks/block_raw_naquadah",
+    "particle": "mekanism_extras:blocks/block_raw_naquadah"
+  }
+}

@@ -1,7 +1,37 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "all": "mekanism_extras:blocks/supreme_induction_provider",
+      "particle": "mekanism_extras:blocks/supreme_induction_provider"
+    },
+    "model": "mekanism:basic_cube"
+  },
   "variants": {
-    "": {
-      "model": "mekanism_extras:block/induction/provider/supreme"
-    }
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {},
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
   }
 }

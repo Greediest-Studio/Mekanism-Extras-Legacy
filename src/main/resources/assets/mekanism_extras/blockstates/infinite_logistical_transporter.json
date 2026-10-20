@@ -1,7 +1,24 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "#center_opaque": "mekanism_extras:blocks/models/multipart/infinite_logistical_transporter",
+      "#center": "mekanism_extras:blocks/models/multipart/infinite_logistical_transporter",
+      "#side": "mekanism_extras:blocks/models/multipart/infinite_logistical_transporter_vertical",
+      "#side_opaque": "mekanism_extras:blocks/models/multipart/infinite_logistical_transporter_vertical",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "custom": {
+      "flip-v": true
+    },
+    "model": "mekanism:transmitter_large.obj.mek"
+  },
   "variants": {
-    "": {
-      "model": "mekanism_extras:block/transmitter/large/logistical_transporter/infinite"
-    }
+    "normal": [
+      {}
+    ],
+    "inventory": [
+      {}
+    ]
   }
 }
