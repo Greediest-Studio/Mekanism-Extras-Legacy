@@ -30,8 +30,6 @@ public class RenderExtraFluidTank extends TileEntitySpecialRenderer<TileEntityEx
     private static final int stages = 64;
 
     public static void resetDisplayInts() {
-        cachedCenterFluids.values().forEach(DisplayInteger::deleteAll);
-        cachedValveFluids.values().forEach(DisplayInteger::deleteAll);
         cachedCenterFluids.clear();
         cachedValveFluids.clear();
     }

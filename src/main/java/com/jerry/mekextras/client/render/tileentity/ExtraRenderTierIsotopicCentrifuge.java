@@ -22,7 +22,6 @@ public class ExtraRenderTierIsotopicCentrifuge extends TileEntitySpecialRenderer
     private final ModelTierIsotopicCentrifuge model = new ModelTierIsotopicCentrifuge();
 
     public static void resetDisplayInts() {
-        CACHED_GAS.values().forEach(MekanismRenderer.DisplayInteger::deleteAll);
         CACHED_GAS.clear();
     }
 

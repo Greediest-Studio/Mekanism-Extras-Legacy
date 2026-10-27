@@ -46,7 +46,6 @@ public class RenderExtraFluidTankItem extends MekanismItemStackRenderer {
     }
 
     public static void resetDisplayInts() {
-        cachedCenterFluids.values().forEach(DisplayInteger::deleteAll);
         cachedCenterFluids.clear();
     }
 

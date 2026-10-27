@@ -29,7 +29,6 @@ public class ExtraRenderTierNutritionalLiquifier extends TileEntitySpecialRender
     private ExtraModelTierNutritionalLiquifier model = new ExtraModelTierNutritionalLiquifier();
 
     public static void resetDisplayInts() {
-        cachedCenterGas.values().forEach(MekanismRenderer.DisplayInteger::deleteAll);
         cachedCenterGas.clear();
     }
 

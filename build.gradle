@@ -122,3 +122,5 @@ if (propertyBool('use_tags')) {
 }
 
 apply from: 'gradle/scripts/extra.gradle'
+
+apply from: 'gradle/scripts/legacy-sources.gradle'

@@ -1,7 +1,6 @@
 package com.jerry.mekextras.common.tile.multiblock;
 
 import mekanism.api.IConfigurable;
-import mekanism.common.base.IWholeEnergyTransfer;
 import mekanism.api.IContentsListener;
 import mekanism.api.Coord4D;
 import mekanism.api.energy.IStrictEnergyStorage;
@@ -54,7 +53,7 @@ import java.util.Collections;
         @Interface(iface = "ic2.api.energy.tile.IEnergySource", modid = MekanismHooks.IC2_MOD_ID),
         @Interface(iface = "ic2.api.tile.IEnergyStorage", modid = MekanismHooks.IC2_MOD_ID)
 })
-public class TileEntityExtraInductionPort extends TileEntityExtraInductionCasing implements IEnergyWrapper, IConfigurable, IActiveState, IComparatorSupport, mekanism.common.base.IWholeEnergyTransfer {
+public class TileEntityExtraInductionPort extends TileEntityExtraInductionCasing implements IEnergyWrapper, IConfigurable, IActiveState, IComparatorSupport {
 
     private boolean ic2Registered = false;
 
@@ -228,7 +227,6 @@ public class TileEntityExtraInductionPort extends TileEntityExtraInductionCasing
         return (int) transferEnergyUnits(from, maxExtract, 1 / RFIntegration.toRFAsDouble(1), false, simulate);
     }
 
-    @Override
     public long transferEnergyUnits(EnumFacing side, long maximum, double factor, boolean input, boolean simulate) {
         if (structure == null || !(input ? sideIsConsumer(side) : sideIsOutput(side))) return 0;
         return structure.transferWholeUnits(maximum, factor, input, simulate);

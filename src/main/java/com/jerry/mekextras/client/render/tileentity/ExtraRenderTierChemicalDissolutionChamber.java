@@ -24,7 +24,6 @@ public class ExtraRenderTierChemicalDissolutionChamber extends TileEntitySpecial
     private ExtraModelTierChemicalDissolutionChamber model = new ExtraModelTierChemicalDissolutionChamber();
 
     public static void resetDisplayInts() {
-        cachedCenterGas.values().forEach(MekanismRenderer.DisplayInteger::deleteAll);
         cachedCenterGas.clear();
     }
 
