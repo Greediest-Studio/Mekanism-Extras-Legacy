@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "forge:ore_shaped",
   "pattern": [
     "SIS",
@@ -14,8 +14,7 @@
       "data": 11
     },
     "T": {
-      "item": "mekanism:machineblock4",
-      "data": 12
+      "item": "mekanism_extras:arcane_radioactive_waste_barrel"
     }
   },
   "result": {

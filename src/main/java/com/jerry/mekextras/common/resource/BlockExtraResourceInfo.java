@@ -8,8 +8,7 @@ import net.minecraft.world.level.material.PushReaction;
 import org.jetbrains.annotations.Nullable;
 
 public enum BlockExtraResourceInfo implements IResource {
-    NAQUADAH("naquadah", 7.5F, 12, MapColor.COLOR_GREEN),
-    RAW_NAQUADAH("raw_naquadah", 7.5F, 12, MapColor.COLOR_GREEN, NoteBlockInstrument.BASEDRUM);
+    NAQUADAH("naquadah", 7.5F, 12, MapColor.COLOR_GREEN);
 
     private final String registrySuffix;
     private final MapColor mapColor;

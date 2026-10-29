@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryleft",
+      "south": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryback",
+      "west": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryright",
+      "sides": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryright",
+      "front": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryfront",
+      "up": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_arcane",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_back_led_overlay_arcane"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactorylefton",
+          "south": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactorybackon",
+          "west": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryrighton",
+          "front": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactoryfronton",
+          "up": "mekanism:blocks/factory/advanced/infusing/advancedinfusingfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

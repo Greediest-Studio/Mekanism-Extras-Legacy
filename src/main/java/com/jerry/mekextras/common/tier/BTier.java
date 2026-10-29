@@ -9,6 +9,8 @@ import java.util.Locale;
 
 public enum BTier implements IAdvancedTier, IStringSerializable {
 
+    FINAL(AdvancedTier.FINAL, 16_384),
+    ARCANE(AdvancedTier.ARCANE, 131_072),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 1_048_576),
     SUPREME(AdvancedTier.SUPREME, 8_388_608),
     COSMIC(AdvancedTier.COSMIC, 134_217_728),
@@ -43,6 +45,6 @@ public enum BTier implements IAdvancedTier, IStringSerializable {
 
     public static BTier byIndex(int index) {
         BTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

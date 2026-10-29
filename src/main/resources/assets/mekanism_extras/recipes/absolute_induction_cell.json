@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "EPE",
@@ -10,12 +10,7 @@
       "item": "mekanism:energytablet"
     },
     "P": {
-      "type": "mekanism:item_nbt",
-      "item": "mekanism:basicblock2",
-      "data": 3,
-      "nbt": {
-        "tier": 3
-      }
+      "item": "mekanism_extras:arcane_induction_cell"
     },
     "#": {
       "item": "mekanism_extras:absolute_energy_cube"

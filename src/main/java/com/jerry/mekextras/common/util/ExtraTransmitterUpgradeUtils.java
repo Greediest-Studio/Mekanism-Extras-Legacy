@@ -137,7 +137,7 @@ public final class ExtraTransmitterUpgradeUtils {
             AdvancedTier currentTier = ((BlockExtraTransmitter) currentBlock).getExtraTier();
             return currentTier.ordinal() + 1 == targetTier.ordinal();
         }
-        return targetTier == AdvancedTier.ABSOLUTE && transmitter.getBaseTier() == BaseTier.ULTIMATE;
+        return targetTier == AdvancedTier.FINAL && transmitter.getBaseTier() == BaseTier.ULTIMATE;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

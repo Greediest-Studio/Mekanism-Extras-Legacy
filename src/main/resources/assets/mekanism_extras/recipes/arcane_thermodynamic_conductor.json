@@ -1,0 +1,20 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "TTT",
+    "TAT",
+    "TTT"
+  ],
+  "key": {
+    "T": {
+      "item": "mekanism_extras:final_thermodynamic_conductor"
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_phantom"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:arcane_thermodynamic_conductor",
+    "count": 8
+  }
+}

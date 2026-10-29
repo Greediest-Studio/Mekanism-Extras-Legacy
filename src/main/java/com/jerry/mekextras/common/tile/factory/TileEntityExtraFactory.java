@@ -48,6 +48,7 @@ import mekanism.common.recipe.cache.inputs.IInputHandler;
 import mekanism.common.recipe.cache.inputs.InputHelper;
 import mekanism.common.recipe.cache.outputs.IOutputHandler;
 import mekanism.common.recipe.cache.outputs.OutputHelper;
+import com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage;
 import mekanism.common.recipe.inputs.*;
 import mekanism.common.recipe.machines.*;
 import mekanism.common.recipe.outputs.ChanceOutput;
@@ -208,8 +209,6 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
     /**
      * One probability source per process, so that lanes no longer share a process-wide source.
      */
-    private java.util.Random[] processRecipeRandoms;
-    private boolean processRecipeRandomsSeeded;
     private IOutputHandler<GasStack> gasOutputHandler;
     private IOutputHandler<PressurizedOutput>[] pressurizedOutputHandlers;
 
@@ -251,7 +250,7 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
             if (usesStatisticalSecondaryFuel()) {
                 return gasUsageSampler.sample(gasPerTickMeanMultiplier);
             }
-            return SecondaryFuelUsage.constantUse(baseTotalUsage, usedSoFar, getTicksRequired(null), operatingTicks);
+            return ExtraSecondaryFuelUsage.constantUse(baseTotalUsage, usedSoFar, getTicksRequired(null), operatingTicks);
         };
         initializeRecipeTypeState(recipeType);
         configComponent = new TileComponentConfig(this, TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.GAS, TransmissionType.FLUID);
@@ -383,10 +382,6 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
         chanceOutputHandlers = new IOutputHandler[processCount];
         chance2OutputHandlers = new IOutputHandler[processCount];
         pressurizedOutputHandlers = new IOutputHandler[processCount];
-        processRecipeRandoms = new java.util.Random[processCount];
-        for (int process = 0; process < processCount; process++) {
-            processRecipeRandoms[process] = new java.util.Random();
-        }
         gasInputHandler = InputHelper.getGasInputHandler(gasTank, RecipeError.NOT_ENOUGH_INPUT, this::depleteRecipeInput);
         secondaryGasInputHandler = InputHelper.getGasInputHandler(gasTank, RecipeError.NOT_ENOUGH_SECONDARY_INPUT, this::depleteRecipeInput);
         constantGasInputHandler = InputHelper.getConstantGasInputHandler(gasTank, RecipeError.NOT_ENOUGH_SECONDARY_INPUT, false, this::depleteRecipeInput);
@@ -443,29 +438,14 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
             processOutputSlots.add(secondaryOutputSlot);
             itemInputHandlers[processNumber] = InputHelper.getInputHandler(inputSlot, RecipeError.NOT_ENOUGH_INPUT, this::depleteRecipeInput);
             itemOutputHandlers[processNumber] = OutputHelper.getOutputHandler(outputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
-            chanceOutputHandlers[processNumber] = OutputHelper.getOutputHandler(outputSlot, secondaryOutputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE,
-                    processRecipeRandom(processNumber));
-            chance2OutputHandlers[processNumber] = OutputHelper.getOutputHandlerChance2(outputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE,
-                    processRecipeRandom(processNumber));
+            // Mekanism CE 1.12.2 exposes the four-argument overload with
+            // separate errors. Newer builds added a Random parameter, but
+            // linking that overload breaks on the legacy runtime.
+            chanceOutputHandlers[processNumber] = OutputHelper.getOutputHandler(outputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE,
+                    secondaryOutputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
+            chance2OutputHandlers[processNumber] = OutputHelper.getOutputHandlerChance2(outputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
             pressurizedOutputHandlers[processNumber] = OutputHelper.getOutputHandler(outputSlot, gasOutTank, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
         }
-    }
-
-    /**
-     * Returns the probability source for one process. Each process gets its own source, seeded from the machine
-     * position, so that lanes replay deterministically and no longer share a process-wide source.
-     */
-    private java.util.Random processRecipeRandom(int process) {
-        if (!processRecipeRandomsSeeded) {
-            if (world != null && processRecipeRandoms != null) {
-                for (int lane = 0; lane < processRecipeRandoms.length; lane++) {
-                    processRecipeRandoms[lane].setSeed(mekanism.common.recipe.cache.RecipeRandom.deriveSeed(pos.toLong(), lane));
-                }
-                processRecipeRandomsSeeded = true;
-            }
-        }
-        return processRecipeRandoms == null || process < 0 || process >= processRecipeRandoms.length
-                ? new java.util.Random() : processRecipeRandoms[process];
     }
 
     private int getProcessOutputSlotY(boolean secondary) {
@@ -2773,7 +2753,7 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
 
             @Override
             boolean usesStatisticalSecondaryFuel(TileEntityExtraFactory factory) {
-                return supportsGasUpgrade(factory) && SecondaryFuelUsage.isRandomized(factory);
+                return supportsGasUpgrade(factory) && ExtraSecondaryFuelUsage.isRandomized(factory);
             }
 
             @Override
@@ -4019,7 +3999,7 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
             // Used both on recipe-type initialization and on speed/gas upgrade changes.
             // Keep the actual sampler aligned with the upgraded secondary-fuel checks.
             factory.gasPerTickMeanMultiplier = MekanismUtils.getGasPerTickMeanMultiplier(factory);
-            factory.baseTotalUsage = SecondaryFuelUsage.fixedTotal(factory, factory.BASE_TICKS_REQUIRED);
+            factory.baseTotalUsage = ExtraSecondaryFuelUsage.fixedTotal(factory, factory.BASE_TICKS_REQUIRED);
         }
 
         boolean hasRecipeForItemInput(TileEntityExtraFactory factory, @Nonnull ItemStack stack) {

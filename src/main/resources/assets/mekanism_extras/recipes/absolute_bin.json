@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "_C_",
@@ -17,12 +17,7 @@
       "item": "mekanism_extras:alloy_radiance"
     },
     "P": {
-      "type": "mekanism:item_nbt",
-      "item": "mekanism:basicblock",
-      "data": 6,
-      "nbt": {
-        "tier": 3
-      }
+      "item": "mekanism_extras:arcane_bin"
     }
   },
   "result": {

@@ -10,6 +10,8 @@ import mekanism.common.tier.BaseTier;
  */
 public enum ExtraCableTier implements IAdvancedTier {
 
+    FINAL(AdvancedTier.FINAL, 64_000),
+    ARCANE(AdvancedTier.ARCANE, 320_000),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 1_600_000),
     SUPREME(AdvancedTier.SUPREME, 8_000_000),
     COSMIC(AdvancedTier.COSMIC, 40_000_000),
@@ -43,7 +45,7 @@ public enum ExtraCableTier implements IAdvancedTier {
 
     public static ExtraCableTier byIndex(int index) {
         ExtraCableTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 
     public static ExtraCableTier get(BaseTier tier) {
@@ -52,6 +54,6 @@ public enum ExtraCableTier implements IAdvancedTier {
         }
         ExtraCableTier[] values = values();
         int index = tier.ordinal() - BaseTier.ULTIMATE.ordinal();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "ACA",
@@ -13,15 +13,10 @@
       "item": "mekanism_extras:absolute_control_circuit"
     },
     "I": {
-      "item": "minecraft:emerald"
+      "item": "minecraft:redstone_block"
     },
     "P": {
-      "type": "mekanism:item_nbt",
-      "item": "mekanism:machineblock3",
-      "data": 7,
-      "nbt": {
-        "recipeType": 0
-      }
+      "item": "mekanism_extras:arcane_smelting_factory"
     }
   },
   "result": {

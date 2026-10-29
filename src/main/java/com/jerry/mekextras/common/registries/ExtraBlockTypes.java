@@ -136,9 +136,9 @@ public class ExtraBlockTypes {
             .build();
 
     // Bins
-    public static final Machine<TileEntityExtraBin> ABSOLUTE_BIN = createBin(BTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_BIN, () -> ExtraBlocks.SUPREME_BIN);
-    public static final Machine<TileEntityExtraBin> SUPREME_BIN = createBin(BTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_BIN, () -> ExtraBlocks.COSMIC_BIN);
-    public static final Machine<TileEntityExtraBin> COSMIC_BIN = createBin(BTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_BIN, () -> ExtraBlocks.INFINITE_BIN);
+    public static final Machine<TileEntityExtraBin> ABSOLUTE_BIN = createBin(BTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_BIN, () -> ExtraBlocks.ARCANE_BIN);
+    public static final Machine<TileEntityExtraBin> SUPREME_BIN = createBin(BTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_BIN, () -> ExtraBlocks.ABSOLUTE_BIN);
+    public static final Machine<TileEntityExtraBin> COSMIC_BIN = createBin(BTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_BIN, () -> ExtraBlocks.SUPREME_BIN);
     public static final Machine<TileEntityExtraBin> INFINITE_BIN = createBin(BTier.INFINITE, () -> ExtraTileEntityTypes.INFINITE_BIN, null);
 
     // Induction Casing
@@ -170,26 +170,26 @@ public class ExtraBlockTypes {
     public static final BlockTypeTile<TileEntityExtraInductionProvider> INFINITE_INDUCTION_PROVIDER = createInductionProvider(IPTier.INFINITE, () -> ExtraTileEntityTypes.INFINITE_INDUCTION_PROVIDER);
 
     // Energy Cubes
-    public static final Machine<TileEntityExtraEnergyCube> ABSOLUTE_ENERGY_CUBE = createEnergyCube(ECTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_ENERGY_CUBE, () -> ExtraBlocks.SUPREME_ENERGY_CUBE);
-    public static final Machine<TileEntityExtraEnergyCube> SUPREME_ENERGY_CUBE = createEnergyCube(ECTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_ENERGY_CUBE, () -> ExtraBlocks.COSMIC_ENERGY_CUBE);
-    public static final Machine<TileEntityExtraEnergyCube> COSMIC_ENERGY_CUBE = createEnergyCube(ECTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_ENERGY_CUBE, () -> ExtraBlocks.INFINITE_ENERGY_CUBE);
+    public static final Machine<TileEntityExtraEnergyCube> ABSOLUTE_ENERGY_CUBE = createEnergyCube(ECTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_ENERGY_CUBE, () -> ExtraBlocks.ARCANE_ENERGY_CUBE);
+    public static final Machine<TileEntityExtraEnergyCube> SUPREME_ENERGY_CUBE = createEnergyCube(ECTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_ENERGY_CUBE, () -> ExtraBlocks.ABSOLUTE_ENERGY_CUBE);
+    public static final Machine<TileEntityExtraEnergyCube> COSMIC_ENERGY_CUBE = createEnergyCube(ECTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_ENERGY_CUBE, () -> ExtraBlocks.SUPREME_ENERGY_CUBE);
     public static final Machine<TileEntityExtraEnergyCube> INFINITE_ENERGY_CUBE = createEnergyCube(ECTier.INFINITE, () -> ExtraTileEntityTypes.INFINITE_ENERGY_CUBE, null);
 
     // Fluid Tanks
-    public static final Machine<TileEntityExtraFluidTank> ABSOLUTE_FLUID_TANK = createFluidTank(FTTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_FLUID_TANK, () -> ExtraBlocks.SUPREME_FLUID_TANK);
-    public static final Machine<TileEntityExtraFluidTank> SUPREME_FLUID_TANK = createFluidTank(FTTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_FLUID_TANK, () -> ExtraBlocks.COSMIC_FLUID_TANK);
-    public static final Machine<TileEntityExtraFluidTank> COSMIC_FLUID_TANK = createFluidTank(FTTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_FLUID_TANK, () -> ExtraBlocks.INFINITE_FLUID_TANK);
+    public static final Machine<TileEntityExtraFluidTank> ABSOLUTE_FLUID_TANK = createFluidTank(FTTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_FLUID_TANK, () -> ExtraBlocks.ARCANE_FLUID_TANK);
+    public static final Machine<TileEntityExtraFluidTank> SUPREME_FLUID_TANK = createFluidTank(FTTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_FLUID_TANK, () -> ExtraBlocks.ABSOLUTE_FLUID_TANK);
+    public static final Machine<TileEntityExtraFluidTank> COSMIC_FLUID_TANK = createFluidTank(FTTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_FLUID_TANK, () -> ExtraBlocks.SUPREME_FLUID_TANK);
     public static final Machine<TileEntityExtraFluidTank> INFINITE_FLUID_TANK = createFluidTank(FTTier.INFINITE, () -> ExtraTileEntityTypes.INFINITE_FLUID_TANK, null);
 
     // Chemical Tanks
-    public static final Machine<TileEntityExtraChemicalTank> ABSOLUTE_CHEMICAL_TANK = createChemicalTank(CTTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_CHEMICAL_TANK, () -> ExtraBlocks.SUPREME_CHEMICAL_TANK);
-    public static final Machine<TileEntityExtraChemicalTank> SUPREME_CHEMICAL_TANK = createChemicalTank(CTTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_CHEMICAL_TANK, () -> ExtraBlocks.COSMIC_CHEMICAL_TANK);
-    public static final Machine<TileEntityExtraChemicalTank> COSMIC_CHEMICAL_TANK = createChemicalTank(CTTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_CHEMICAL_TANK, () -> ExtraBlocks.INFINITE_CHEMICAL_TANK);
+    public static final Machine<TileEntityExtraChemicalTank> ABSOLUTE_CHEMICAL_TANK = createChemicalTank(CTTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_CHEMICAL_TANK, () -> ExtraBlocks.ARCANE_CHEMICAL_TANK);
+    public static final Machine<TileEntityExtraChemicalTank> SUPREME_CHEMICAL_TANK = createChemicalTank(CTTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_CHEMICAL_TANK, () -> ExtraBlocks.ABSOLUTE_CHEMICAL_TANK);
+    public static final Machine<TileEntityExtraChemicalTank> COSMIC_CHEMICAL_TANK = createChemicalTank(CTTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_CHEMICAL_TANK, () -> ExtraBlocks.SUPREME_CHEMICAL_TANK);
     public static final Machine<TileEntityExtraChemicalTank> INFINITE_CHEMICAL_TANK = createChemicalTank(CTTier.INFINITE, () -> ExtraTileEntityTypes.INFINITE_CHEMICAL_TANK, null);
 
-    public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> ABSOLUTE_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_RADIOACTIVE_WASTE_BARREL, () -> ExtraBlocks.SUPREME_RADIOACTIVE_WASTE_BARREL);
-    public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> SUPREME_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_RADIOACTIVE_WASTE_BARREL, () -> ExtraBlocks.COSMIC_RADIOACTIVE_WASTE_BARREL);
-    public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> COSMIC_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_RADIOACTIVE_WASTE_BARREL, () -> ExtraBlocks.INFINITE_RADIOACTIVE_WASTE_BARREL);
+    public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> ABSOLUTE_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.ABSOLUTE, () -> ExtraTileEntityTypes.ABSOLUTE_RADIOACTIVE_WASTE_BARREL, () -> ExtraBlocks.ARCANE_RADIOACTIVE_WASTE_BARREL);
+    public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> SUPREME_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.SUPREME, () -> ExtraTileEntityTypes.SUPREME_RADIOACTIVE_WASTE_BARREL, () -> ExtraBlocks.ABSOLUTE_RADIOACTIVE_WASTE_BARREL);
+    public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> COSMIC_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.COSMIC, () -> ExtraTileEntityTypes.COSMIC_RADIOACTIVE_WASTE_BARREL, () -> ExtraBlocks.SUPREME_RADIOACTIVE_WASTE_BARREL);
     public static final BlockTypeTile<TileEntityLargeCapRadioactiveWasteBarrel> INFINITE_RADIOACTIVE_WASTE_BARREL = createWasteBarrel(RWBTier.INFINITE, () -> ExtraTileEntityTypes.INFINITE_RADIOACTIVE_WASTE_BARREL, null);
 
     //Transmitters

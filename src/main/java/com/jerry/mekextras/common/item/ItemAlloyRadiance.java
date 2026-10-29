@@ -11,18 +11,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * Radiance alloy bridges an upstream Ultimate transmitter network to the Absolute tier.
+ * Radiance alloy upgrades an Arcane transmitter network to the Supreme tier.
  */
 public class ItemAlloyRadiance extends ItemMekanism {
 
     @Override
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side,
                                            float hitX, float hitY, float hitZ, EnumHand hand) {
-        if (!ExtraTransmitterUpgradeUtils.canUpgrade(world, pos, AdvancedTier.ABSOLUTE)) {
+        if (!ExtraTransmitterUpgradeUtils.canUpgrade(world, pos, AdvancedTier.SUPREME)) {
             return EnumActionResult.PASS;
         }
         if (!world.isRemote && !ExtraTransmitterUpgradeUtils.tryUpgrade(
-              player, world, pos, player.getHeldItem(hand), AdvancedTier.ABSOLUTE)) {
+              player, world, pos, player.getHeldItem(hand), AdvancedTier.SUPREME)) {
             return EnumActionResult.PASS;
         }
         return EnumActionResult.SUCCESS;

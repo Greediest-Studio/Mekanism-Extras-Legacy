@@ -54,7 +54,11 @@ public final class ExtraSupremeRecipes {
             Item target = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MekanismExtras.MODID, targetName));
             Item previous = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MekanismExtras.MODID, previousName));
             if (target == null || previous == null) {
-                throw new IllegalStateException("Missing Supreme recipe item: " + targetName + " -> " + previousName);
+                // The corresponding Mekanism machine may be disabled in its config. In that case
+                // ExtraBlocks deliberately does not register either tier, so there is no recipe
+                // to add. Never abort mod initialization for an optional machine family.
+                MekanismExtras.logger.info("Skipping Supreme recipe {} because {} or {} is not registered", targetName, targetName, previousName);
+                continue;
             }
             IRecipe recipe = new ShapedOreRecipe(new ResourceLocation(MekanismExtras.MODID, "supreme_dynamic"),
                   new ItemStack(target), "ACA", "IPI", "ACA",
@@ -72,14 +76,15 @@ public final class ExtraSupremeRecipes {
     private static void registerSupremeTierInstaller(IForgeRegistry<IRecipe> registry, NetheriteOrOsmiumIngredient ingot) {
         Item target = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MekanismExtras.MODID, "supreme_tier_installer"));
         if (target == null) {
-            throw new IllegalStateException("Missing Supreme tier installer item");
+            MekanismExtras.logger.info("Skipping Supreme tier installer recipe because the item is not registered");
+            return;
         }
         IRecipe recipe = new ShapedOreRecipe(new ResourceLocation(MekanismExtras.MODID, "supreme_dynamic"),
               new ItemStack(target), "ACA", "IPI", "ACA",
               'A', ExtraItems.THERMONUCLEAR_ALLOY,
               'C', ExtraItems.SUPREME_CONTROL_CIRCUIT,
               'I', ingot,
-              'P', "plankWood");
+              'P', new ItemStack(ExtraItems.ABSOLUTE_TIER_INSTALLER));
         recipe.setRegistryName(new ResourceLocation(MekanismExtras.MODID, "supreme_tier_installer"));
         registry.register(recipe);
     }
@@ -87,7 +92,8 @@ public final class ExtraSupremeRecipes {
         Item target = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MekanismExtras.MODID, "supreme_energy_cube"));
         Item previous = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MekanismExtras.MODID, "absolute_energy_cube"));
         if (target == null || previous == null) {
-            throw new IllegalStateException("Missing Supreme energy cube recipe items");
+            MekanismExtras.logger.info("Skipping Supreme energy cube recipe because one of its tier items is not registered");
+            return;
         }
         IRecipe recipe = new ShapedOreRecipe(new ResourceLocation(MekanismExtras.MODID, "supreme_dynamic"),
               new ItemStack(target), "AEA", "IPI", "AEA",

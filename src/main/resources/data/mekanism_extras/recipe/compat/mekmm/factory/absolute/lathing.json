@@ -1,4 +1,4 @@
-{
+﻿{
   "neoforge:conditions": [
     {
       "type": "neoforge:mod_loaded",
@@ -15,7 +15,7 @@
       "tag": "c:circuits/absolute"
     },
     "I": {
-      "tag": "c:gems/emerald"
+      "item": "minecraft:redstone_block"
     },
     "P": {
       "item": "mekmm:ultimate_lathing_factory"

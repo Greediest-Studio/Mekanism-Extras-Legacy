@@ -1,0 +1,27 @@
+{
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "ACA",
+                    "IPI",
+                    "ACA"
+                ],
+    "key":  {
+                "A":  {
+                          "item":  "mekanism_extras:alloy_phantom"
+                      },
+                "C":  {
+                          "item":  "mekanism_extras:arcane_control_circuit"
+                      },
+                "I":  {
+                          "item":  "minecraft:dye",
+                          "data":  4
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:final_organic_farm"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:arcane_organic_farm",
+                   "count":  1
+               }
+}

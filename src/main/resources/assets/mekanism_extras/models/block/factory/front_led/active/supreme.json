@@ -19,9 +19,9 @@
         "north": {
           "uv": [
             0,
-            1,
+            0,
             6,
-            2
+            1
           ],
           "texture": "#led",
           "cullface": "north"
@@ -29,9 +29,9 @@
         "up": {
           "uv": [
             0,
-            1,
+            0,
             6,
-            2
+            1
           ],
           "rotation": 180,
           "texture": "#led",

@@ -384,7 +384,7 @@ public class TileEntityExtraOrganicFarm extends TileEntityMachine implements IEx
 
     public int getRecipeGasUsagePerOperation() {
         return mekanism.common.recipe.cache.ItemStackConstantGasCachedRecipe.getGasUsagePerOperation(
-              mekanism.common.recipe.cache.SecondaryFuelUsage.isRandomized(this),
+              com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.isRandomized(this),
               baseTotalUsage,
               gasPerTickMeanMultiplier, ticksRequired);
     }
@@ -518,9 +518,9 @@ public class TileEntityExtraOrganicFarm extends TileEntityMachine implements IEx
             return null;
         }
         GasUsageMultiplier usage = (used, operatingTicks) ->
-              mekanism.common.recipe.cache.SecondaryFuelUsage.isRandomized(this)
+              com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.isRandomized(this)
                     ? secondaryUsageSamplers[cacheIndex].sample(gasPerTickMeanMultiplier)
-                    : mekanism.common.recipe.cache.SecondaryFuelUsage.constantUse(
+                    : com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.constantUse(
                           baseTotalUsage,
                           used, ticksRequired, operatingTicks);
         if (outputRandoms[cacheIndex] == null) {
@@ -713,7 +713,7 @@ public class TileEntityExtraOrganicFarm extends TileEntityMachine implements IEx
     private void recalculateSecondaryUsage() {
         secondaryEnergyPerTick = MekanismUtils.getSecondaryEnergyPerTickMean(this, BASE_SECONDARY_PER_TICK);
         gasPerTickMeanMultiplier = MekanismUtils.getGasPerTickMeanMultiplier(this);
-        baseTotalUsage = mekanism.common.recipe.cache.SecondaryFuelUsage.fixedTotal(this, BASE_TICKS_REQUIRED);
+        baseTotalUsage = com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.fixedTotal(this, BASE_TICKS_REQUIRED);
     }
 
     @Override

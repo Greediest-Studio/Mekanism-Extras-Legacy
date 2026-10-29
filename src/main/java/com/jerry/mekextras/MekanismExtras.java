@@ -107,7 +107,6 @@ public class MekanismExtras implements IModule {
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new ExtraGuiHandler());
 
         ExtraItems.registerOreDict();
-        ExtraItems.registerAlloyRecipes();
         ExtraItems.registerAdvancedRecipes();
         ExtraItems.registerNaquadahProcessing();
         ExtraItems.registerInfuseObjects();

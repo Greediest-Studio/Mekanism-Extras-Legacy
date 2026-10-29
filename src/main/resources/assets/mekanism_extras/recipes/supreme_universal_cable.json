@@ -7,8 +7,12 @@
   ],
   "key": {
     "T": {
-      "item": "mekanism_extras:absolute_universal_cable",
-      "data": 0
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:transmitter",
+      "data": 0,
+      "nbt": {
+        "tier": 3
+      }
     },
     "A": {
       "item": "mekanism_extras:alloy_thermonuclear"

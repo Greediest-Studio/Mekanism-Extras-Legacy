@@ -1,27 +1,27 @@
 {
-  "type": "mekanism:ore_shaped",
-  "pattern": [
-    "_C_",
-    "APA",
-    "___"
-  ],
-  "key": {
-    "_": {
-      "item": "minecraft:stone",
-      "data": 0
-    },
-    "C": {
-      "item": "mekanism_extras:infinite_control_circuit"
-    },
-    "A": {
-      "item": "mekanism_extras:alloy_spectrum"
-    },
-    "P": {
-      "item": "mekanism_extras:cosmic_bin"
-    }
-  },
-  "result": {
-    "item": "mekanism_extras:infinite_bin",
-    "count": 1
-  }
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "_C_",
+                    "APA",
+                    "___"
+                ],
+    "key":  {
+                "_":  {
+                          "item":  "minecraft:stone",
+                          "data":  0
+                      },
+                "C":  {
+                          "item":  "mekanism_extras:infinite_control_circuit"
+                      },
+                "A":  {
+                          "item":  "mekanism_extras:alloy_spectrum"
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:cosmic_bin"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:infinite_bin",
+                   "count":  1
+               }
 }

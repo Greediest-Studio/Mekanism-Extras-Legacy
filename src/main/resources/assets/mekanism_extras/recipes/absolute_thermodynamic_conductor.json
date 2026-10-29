@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "TTT",
@@ -7,12 +7,8 @@
   ],
   "key": {
     "T": {
-      "type": "mekanism:item_nbt",
-      "item": "mekanism:transmitter",
-      "data": 6,
-      "nbt": {
-        "tier": 3
-      }
+      "item": "mekanism_extras:arcane_thermodynamic_conductor",
+      "data": 0
     },
     "A": {
       "item": "mekanism_extras:alloy_radiance"

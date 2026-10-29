@@ -1,23 +1,23 @@
 {
-  "type": "mekanism:ore_shaped",
-  "pattern": [
-    "CPC",
-    "P#P",
-    "CPC"
-  ],
-  "key": {
-    "C": {
-      "item": "mekanism_extras:infinite_control_circuit"
-    },
-    "P": {
-      "item": "mekanism_extras:cosmic_induction_provider"
-    },
-    "#": {
-      "item": "mekanism_extras:infinite_energy_cube"
-    }
-  },
-  "result": {
-    "item": "mekanism_extras:infinite_induction_provider",
-    "count": 1
-  }
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "CPC",
+                    "P#P",
+                    "CPC"
+                ],
+    "key":  {
+                "C":  {
+                          "item":  "mekanism_extras:infinite_control_circuit"
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:cosmic_induction_provider"
+                      },
+                "#":  {
+                          "item":  "mekanism_extras:infinite_energy_cube"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:infinite_induction_provider",
+                   "count":  1
+               }
 }

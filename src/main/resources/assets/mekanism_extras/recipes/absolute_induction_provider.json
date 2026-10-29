@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "CPC",
@@ -10,12 +10,7 @@
       "item": "mekanism_extras:absolute_control_circuit"
     },
     "P": {
-      "type": "mekanism:item_nbt",
-      "item": "mekanism:basicblock2",
-      "data": 4,
-      "nbt": {
-        "tier": 3
-      }
+      "item": "mekanism_extras:arcane_induction_provider"
     },
     "#": {
       "item": "mekanism_extras:absolute_energy_cube"

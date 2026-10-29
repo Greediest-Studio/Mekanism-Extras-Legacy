@@ -1,12 +1,4 @@
 {
   "sources": [
-    {
-      "type": "minecraft:single",
-      "resource": "mekanism_extras:infuse_type/shining"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "mekanism_extras:infuse_type/spectrum"
-    }
   ]
 }

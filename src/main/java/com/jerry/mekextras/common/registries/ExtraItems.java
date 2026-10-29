@@ -19,13 +19,9 @@ import mekanism.common.item.ItemMekanism;
 import mekanism.common.content.qio.QIODriveDefinition;
 import mekanism.common.item.ItemQIODrive;
 import mekanism.common.recipe.RecipeHandler;
-import mekanism.common.recipe.inputs.AdvancedMachineInput;
-import mekanism.common.recipe.machines.OsmiumCompressorRecipe;
-import mekanism.common.recipe.outputs.ItemStackOutput;
 import com.jerry.mekextras.common.recipe.ExtraDissolutionRecipe;
 import mekanism.api.infuse.InfuseObject;
 import mekanism.api.infuse.InfuseRegistry;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -70,12 +66,16 @@ public class ExtraItems {
     public static final Item CREATIVE_UPGRADE = new ItemExtraUpgrade(ExtraUpgrade.CREATIVE, EnumRarity.EPIC);
 
     //Tier installers
-    public static final Item ABSOLUTE_TIER_INSTALLER = new ItemExtraTierInstaller(null, AdvancedTier.ABSOLUTE);
+    public static final Item FINAL_TIER_INSTALLER = new ItemExtraTierInstaller(null, AdvancedTier.FINAL);
+    public static final Item ARCANE_TIER_INSTALLER = new ItemExtraTierInstaller(AdvancedTier.FINAL, AdvancedTier.ARCANE);
+    public static final Item ABSOLUTE_TIER_INSTALLER = new ItemExtraTierInstaller(AdvancedTier.ARCANE, AdvancedTier.ABSOLUTE);
     public static final Item SUPREME_TIER_INSTALLER = new ItemExtraTierInstaller(AdvancedTier.ABSOLUTE, AdvancedTier.SUPREME);
     public static final Item COSMIC_TIER_INSTALLER = new ItemExtraTierInstaller(AdvancedTier.SUPREME, AdvancedTier.COSMIC);
     public static final Item INFINITE_TIER_INSTALLER = new ItemExtraTierInstaller(AdvancedTier.COSMIC, AdvancedTier.INFINITE);
 
     //Control circuits
+    public static final Item FINAL_CONTROL_CIRCUIT = circuit(AdvancedTier.FINAL);
+    public static final Item ARCANE_CONTROL_CIRCUIT = circuit(AdvancedTier.ARCANE);
     public static final Item ABSOLUTE_CONTROL_CIRCUIT = circuit(AdvancedTier.ABSOLUTE);
     public static final Item SUPREME_CONTROL_CIRCUIT = circuit(AdvancedTier.SUPREME);
     public static final Item COSMIC_CONTROL_CIRCUIT = circuit(AdvancedTier.COSMIC);
@@ -83,6 +83,8 @@ public class ExtraItems {
 
     //Alloys
     public static final Item RADIANCE_ALLOY = new ItemAlloyRadiance().setRarity(EnumRarity.COMMON);
+    public static final Item FANTASY_ALLOY = new ItemExtraAlloy(ExtraAlloyTier.FANTASY, EnumRarity.COMMON);
+    public static final Item PHANTOM_ALLOY = new ItemExtraAlloy(ExtraAlloyTier.PHANTOM, EnumRarity.UNCOMMON);
     public static final Item THERMONUCLEAR_ALLOY = new ItemExtraAlloy(ExtraAlloyTier.THERMONUCLEAR, EnumRarity.UNCOMMON);
     public static final Item SHINING_ALLOY = new ItemExtraAlloy(ExtraAlloyTier.SHINING, EnumRarity.RARE);
     public static final Item SPECTRUM_ALLOY = new ItemExtraAlloy(ExtraAlloyTier.SPECTRUM, EnumRarity.EPIC);
@@ -90,16 +92,7 @@ public class ExtraItems {
     //Enriched materials
     public static final Item ENRICHED_OSMIUM = new ItemMekanism();
     public static final Item ENRICHED_LEAD = new ItemMekanism();
-    public static final Item ENRICHED_RADIANCE = new ItemMekanism();
-    public static final Item ENRICHED_THERMONUCLEAR = new ItemMekanism().setRarity(EnumRarity.UNCOMMON);
-    public static final Item ENRICHED_SHINING = new ItemMekanism().setRarity(EnumRarity.RARE);
-    public static final Item ENRICHED_SPECTRUM = new ItemMekanism().setRarity(EnumRarity.EPIC);
-
-    //Misc materials
-    public static final Item RADIANCE_DUST = new ItemMekanism();
-
     //Naquadah processing chain
-    public static final Item RAW_NAQUADAH = new ItemMekanism();
     public static final Item CLUMP_NAQUADAH = new ItemMekanism();
     public static final Item DIRTY_DUST_NAQUADAH = new ItemMekanism();
     public static final Item DUST_NAQUADAH = new ItemMekanism();
@@ -125,31 +118,29 @@ public class ExtraItems {
         register(registry, IONIC_MEMBRANE_UPGRADE, "upgrade_" + ExtraUpgrade.IONIC_MEMBRANE.getName());
         register(registry, CREATIVE_UPGRADE, "upgrade_" + ExtraUpgrade.CREATIVE.getName());
 
+        register(registry, FINAL_TIER_INSTALLER, AdvancedTier.FINAL.getLowerName() + "_tier_installer");
+        register(registry, ARCANE_TIER_INSTALLER, AdvancedTier.ARCANE.getLowerName() + "_tier_installer");
         register(registry, ABSOLUTE_TIER_INSTALLER, AdvancedTier.ABSOLUTE.getLowerName() + "_tier_installer");
         register(registry, SUPREME_TIER_INSTALLER, AdvancedTier.SUPREME.getLowerName() + "_tier_installer");
         register(registry, COSMIC_TIER_INSTALLER, AdvancedTier.COSMIC.getLowerName() + "_tier_installer");
         register(registry, INFINITE_TIER_INSTALLER, AdvancedTier.INFINITE.getLowerName() + "_tier_installer");
 
+        register(registry, FINAL_CONTROL_CIRCUIT, AdvancedTier.FINAL.getLowerName() + "_control_circuit");
+        register(registry, ARCANE_CONTROL_CIRCUIT, AdvancedTier.ARCANE.getLowerName() + "_control_circuit");
         register(registry, ABSOLUTE_CONTROL_CIRCUIT, AdvancedTier.ABSOLUTE.getLowerName() + "_control_circuit");
         register(registry, SUPREME_CONTROL_CIRCUIT, AdvancedTier.SUPREME.getLowerName() + "_control_circuit");
         register(registry, COSMIC_CONTROL_CIRCUIT, AdvancedTier.COSMIC.getLowerName() + "_control_circuit");
         register(registry, INFINITE_CONTROL_CIRCUIT, AdvancedTier.INFINITE.getLowerName() + "_control_circuit");
 
         register(registry, RADIANCE_ALLOY, "alloy_radiance");
+        register(registry, FANTASY_ALLOY, "alloy_" + ExtraAlloyTier.FANTASY.getName());
+        register(registry, PHANTOM_ALLOY, "alloy_" + ExtraAlloyTier.PHANTOM.getName());
         register(registry, THERMONUCLEAR_ALLOY, "alloy_" + ExtraAlloyTier.THERMONUCLEAR.getName());
         register(registry, SHINING_ALLOY, "alloy_" + ExtraAlloyTier.SHINING.getName());
         register(registry, SPECTRUM_ALLOY, "alloy_" + ExtraAlloyTier.SPECTRUM.getName());
 
         register(registry, ENRICHED_OSMIUM, "enriched_osmium");
         register(registry, ENRICHED_LEAD, "enriched_lead");
-        register(registry, ENRICHED_RADIANCE, "enriched_radiance");
-        register(registry, ENRICHED_THERMONUCLEAR, "enriched_thermonuclear");
-        register(registry, ENRICHED_SHINING, "enriched_shining");
-        register(registry, ENRICHED_SPECTRUM, "enriched_spectrum");
-
-        register(registry, RADIANCE_DUST, "dust_radiance");
-
-        register(registry, RAW_NAQUADAH, "raw_naquadah");
         register(registry, CLUMP_NAQUADAH, "clump_naquadah");
         register(registry, DIRTY_DUST_NAQUADAH, "dirty_dust_naquadah");
         register(registry, DUST_NAQUADAH, "dust_naquadah");
@@ -169,20 +160,8 @@ public class ExtraItems {
     }
 
     public static void registerOreDict() {
-        OreDictionary.registerOre("alloyRadiance", RADIANCE_ALLOY);
-        OreDictionary.registerOre("alloyThermonuclear", THERMONUCLEAR_ALLOY);
-        OreDictionary.registerOre("alloyShining", SHINING_ALLOY);
-        OreDictionary.registerOre("alloySpectrum", SPECTRUM_ALLOY);
-
         OreDictionary.registerOre("enrichedOsmium", ENRICHED_OSMIUM);
         OreDictionary.registerOre("enrichedLead", ENRICHED_LEAD);
-        OreDictionary.registerOre("enrichedRadiance", ENRICHED_RADIANCE);
-        OreDictionary.registerOre("enrichedThermonuclear", ENRICHED_THERMONUCLEAR);
-        OreDictionary.registerOre("enrichedShining", ENRICHED_SHINING);
-        OreDictionary.registerOre("enrichedSpectrum", ENRICHED_SPECTRUM);
-
-        OreDictionary.registerOre("dustRadiance", RADIANCE_DUST);
-        OreDictionary.registerOre("rawNaquadah", RAW_NAQUADAH);
         OreDictionary.registerOre("clumpNaquadah", CLUMP_NAQUADAH);
         OreDictionary.registerOre("dirtyDustNaquadah", DIRTY_DUST_NAQUADAH);
         OreDictionary.registerOre("dustNaquadah", DUST_NAQUADAH);
@@ -191,11 +170,9 @@ public class ExtraItems {
         OreDictionary.registerOre("ingotNaquadah", INGOT_NAQUADAH);
         OreDictionary.registerOre("nuggetNaquadah", NUGGET_NAQUADAH);
         OreDictionary.registerOre("blockNaquadah", ExtraBlocks.NAQUADAH_BLOCK);
-        OreDictionary.registerOre("blockRawNaquadah", ExtraBlocks.RAW_NAQUADAH_BLOCK);
         OreDictionary.registerOre("oreNaquadah", ExtraBlocks.NAQUADAH_ORE);
         OreDictionary.registerOre("oreNaquadah", ExtraBlocks.END_NAQUADAH_ORE);
 
-        OreDictionary.registerOre("ingotRadiant", RADIANCE_ALLOY);
     }
 
     /**
@@ -203,15 +180,10 @@ public class ExtraItems {
      * conversion recipes.
      */
     public static void registerInfuseObjects() {
-        InfuseRegistry.registerInfuseObject(new ItemStack(RADIANCE_DUST), new InfuseObject(ExtraFluids.RADIANCE, 10));
-        InfuseRegistry.registerInfuseObject(new ItemStack(ENRICHED_RADIANCE), new InfuseObject(ExtraFluids.RADIANCE, 80));
         InfuseRegistry.registerInfuseObject(new ItemStack(ENRICHED_LEAD), new InfuseObject(ExtraFluids.LEAD, 80));
         for (ItemStack leadDust : OreDictionary.getOres("dustLead", false)) {
             InfuseRegistry.registerInfuseObject(leadDust, new InfuseObject(ExtraFluids.LEAD, 10));
         }
-        InfuseRegistry.registerInfuseObject(new ItemStack(ENRICHED_THERMONUCLEAR), new InfuseObject(ExtraFluids.THERMONUCLEAR, 40));
-        InfuseRegistry.registerInfuseObject(new ItemStack(ENRICHED_SHINING), new InfuseObject(ExtraFluids.SHINING, 40));
-        InfuseRegistry.registerInfuseObject(new ItemStack(ENRICHED_SPECTRUM), new InfuseObject(ExtraFluids.SPECTRUM, 50));
     }
 
     public static ItemStack stack(Item item) {
@@ -225,14 +197,6 @@ public class ExtraItems {
             RecipeHandler.addChemicalDissolutionChamberRecipe(ore, new GasStack(ExtraFluids.DIRTY_NAQUADAH, 1000));
             RecipeHandler.addEnrichmentChamberRecipe(ore, new ItemStack(DUST_NAQUADAH, 2));
         }
-        RecipeHandler.addPurificationChamberRecipe(new ItemStack(RAW_NAQUADAH), new ItemStack(CLUMP_NAQUADAH, 2));
-        RecipeHandler.addChemicalInjectionChamberRecipe(new ItemStack(RAW_NAQUADAH, 3), MekanismFluids.HydrogenChloride, new ItemStack(SHARD_NAQUADAH, 8));
-        RecipeHandler.addChemicalDissolutionChamberRecipe(new ItemStack(RAW_NAQUADAH, 3), new GasStack(ExtraFluids.DIRTY_NAQUADAH, 2000));
-        RecipeHandler.addEnrichmentChamberRecipe(new ItemStack(RAW_NAQUADAH), new ItemStack(DUST_NAQUADAH, 4));
-        RecipeHandler.addPurificationChamberRecipe(new ItemStack(ExtraBlocks.RAW_NAQUADAH_BLOCK), new ItemStack(CLUMP_NAQUADAH, 18));
-        RecipeHandler.addChemicalInjectionChamberRecipe(new ItemStack(ExtraBlocks.RAW_NAQUADAH_BLOCK), MekanismFluids.HydrogenChloride, new ItemStack(SHARD_NAQUADAH, 24));
-        RecipeHandler.addChemicalDissolutionChamberRecipe(new ItemStack(ExtraBlocks.RAW_NAQUADAH_BLOCK), new GasStack(ExtraFluids.DIRTY_NAQUADAH, 6000));
-        RecipeHandler.addEnrichmentChamberRecipe(new ItemStack(ExtraBlocks.RAW_NAQUADAH_BLOCK), new ItemStack(DUST_NAQUADAH, 12));
         RecipeHandler.addPurificationChamberRecipe(new ItemStack(SHARD_NAQUADAH), new ItemStack(CLUMP_NAQUADAH));
         RecipeHandler.addChemicalInjectionChamberRecipe(new ItemStack(CRYSTAL_NAQUADAH), MekanismFluids.HydrogenChloride, new ItemStack(SHARD_NAQUADAH));
         RecipeHandler.addChemicalCrystallizerRecipe(new GasStack(ExtraFluids.CLEAN_NAQUADAH, 200), new ItemStack(CRYSTAL_NAQUADAH));
@@ -241,8 +205,6 @@ public class ExtraItems {
         RecipeHandler.addCrusherRecipe(new ItemStack(INGOT_NAQUADAH), new ItemStack(DUST_NAQUADAH));
         RecipeHandler.addChemicalWasherRecipe(new GasStack(ExtraFluids.DIRTY_NAQUADAH, 1),
               new FluidStack(FluidRegistry.WATER, 1), new GasStack(ExtraFluids.CLEAN_NAQUADAH, 1));
-        RecipeHandler.addCombinerRecipe(new ItemStack(RAW_NAQUADAH, 12), new ItemStack(Blocks.END_STONE),
-              new ItemStack(ExtraBlocks.END_NAQUADAH_ORE));
     }
 
     /**
@@ -252,16 +214,10 @@ public class ExtraItems {
         net.minecraft.item.crafting.FurnaceRecipes recipes = net.minecraft.item.crafting.FurnaceRecipes.instance();
         ItemStack ingot = new ItemStack(INGOT_NAQUADAH);
         recipes.addSmeltingRecipe(new ItemStack(DUST_NAQUADAH), ingot, 0.3F);
-        recipes.addSmeltingRecipe(new ItemStack(RAW_NAQUADAH), ingot, 0.3F);
         recipes.addSmeltingRecipe(new ItemStack(ExtraBlocks.NAQUADAH_ORE), ingot, 0.3F);
         recipes.addSmeltingRecipe(new ItemStack(ExtraBlocks.END_NAQUADAH_ORE), ingot, 0.3F);
     }
     public static void registerAdvancedRecipes() {
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.RADIANCE, 240, new ItemStack(MekanismItems.ControlCircuit, 1, 3), new ItemStack(ABSOLUTE_CONTROL_CIRCUIT));
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.THERMONUCLEAR, 720, new ItemStack(ABSOLUTE_CONTROL_CIRCUIT), new ItemStack(SUPREME_CONTROL_CIRCUIT));
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.SHINING, 1120, new ItemStack(SUPREME_CONTROL_CIRCUIT), new ItemStack(COSMIC_CONTROL_CIRCUIT));
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.SPECTRUM, 1400, new ItemStack(COSMIC_CONTROL_CIRCUIT), new ItemStack(INFINITE_CONTROL_CIRCUIT));
-
         RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.LEAD, 40,
               new ItemStack(mekanism.generators.common.GeneratorsBlocks.ReactorGlass, 1, 1),
               new ItemStack(ExtraBlocks.LEAD_COATED_LASER_FOCUS_MATRIX));
@@ -272,31 +228,15 @@ public class ExtraItems {
 
         addEnrichingOreRecipe("dustOsmium", new ItemStack(ENRICHED_OSMIUM));
         addEnrichingOreRecipe("dustLead", new ItemStack(ENRICHED_LEAD));
-        RecipeHandler.addEnrichmentChamberRecipe(new ItemStack(RADIANCE_DUST), new ItemStack(ENRICHED_RADIANCE));
-
         addChemicalOxidizerRecipes();
-        for (ItemStack glowstone : OreDictionary.getOres("dustGlowstone", false)) {
-            addGasCompressionRecipe(glowstone, MekanismFluids.Uraniumoxide, new ItemStack(RADIANCE_DUST));
-        }
-        RecipeHandler.addPRCRecipe(new ItemStack(ENRICHED_RADIANCE), new FluidStack(FluidRegistry.LAVA, 120),
-              new GasStack(ExtraFluids.MOLTEN_THERMONUCLEAR, 120), new ItemStack(ENRICHED_THERMONUCLEAR), null, 0, 60);
-        RecipeHandler.addNucleosynthesizerRecipe(new ItemStack(ENRICHED_THERMONUCLEAR),
-              new GasStack(MekanismFluids.Antimatter, 1), new ItemStack(ENRICHED_SHINING), 0, 2000);
-        addGasCompressionRecipe(new ItemStack(ENRICHED_SHINING), MekanismFluids.Antimatter,
-              new ItemStack(ENRICHED_SPECTRUM));
         addNaquadahAdvancedRecipes();
     }
 
     private static void addChemicalOxidizerRecipes() {
-        // 1.12.2's chemical conversion is expressed as an oxidizer recipe for osmium. The other upstream
-        // conversions are infuse types and are registered through InfuseRegistry below.
+        // 1.12.2's chemical conversion is expressed as an oxidizer recipe for osmium. The former
+        // progression infuse types were removed together with their unused circuit recipes.
         RecipeHandler.addChemicalOxidizerRecipe(new ItemStack(ENRICHED_OSMIUM), new GasStack(MekanismFluids.LiquidOsmium, 1600));
     }
-    private static void addGasCompressionRecipe(ItemStack input, Gas gas, ItemStack output) {
-        RecipeHandler.addRecipe(RecipeHandler.Recipe.OSMIUM_COMPRESSOR,
-              new OsmiumCompressorRecipe(new AdvancedMachineInput(input, gas), new ItemStackOutput(output)));
-    }
-
     private static void addNaquadahAdvancedRecipes() {
         RecipeHandler.addChemicalInfuserRecipe(new GasStack(MekanismFluids.UraniumHexafluoride, 1),
               new GasStack(ExtraFluids.NAQUADAH_HEXAFLUORIDE, 1),
@@ -351,13 +291,4 @@ public class ExtraItems {
         }
     }
 
-    /**
-     * The four extra alloys are Metallurgic Infuser recipes in the upstream mod, not crafting table recipes.
-     */
-    public static void registerAlloyRecipes() {
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.RADIANCE, 40, new ItemStack(MekanismItems.AtomicAlloy), new ItemStack(RADIANCE_ALLOY));
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.THERMONUCLEAR, 120, new ItemStack(RADIANCE_ALLOY), new ItemStack(THERMONUCLEAR_ALLOY));
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.SHINING, 160, new ItemStack(THERMONUCLEAR_ALLOY), new ItemStack(SHINING_ALLOY));
-        RecipeHandler.addMetallurgicInfuserRecipe(ExtraFluids.SPECTRUM, 200, new ItemStack(SHINING_ALLOY), new ItemStack(SPECTRUM_ALLOY));
-    }
 }

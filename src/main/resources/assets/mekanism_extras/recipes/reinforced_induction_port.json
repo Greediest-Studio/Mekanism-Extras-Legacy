@@ -10,8 +10,8 @@
       "item": "mekanism_extras:reinforced_induction_casing"
     },
     "C": {
-      "ore": "circuitElite",
-      "type": "forge:ore_dict"
+      "item": "mekanism:controlcircuit",
+      "data": 2
     }
   },
   "result": {

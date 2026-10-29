@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryleft",
+      "south": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryback",
+      "west": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryright",
+      "sides": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryright",
+      "front": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryfront",
+      "up": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_final",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_led_overlay_final"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactorylefton",
+          "south": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactorybackon",
+          "west": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryrighton",
+          "front": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactoryfronton",
+          "up": "mekanism:blocks/factory/advanced/smelting/advancedsmeltingfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

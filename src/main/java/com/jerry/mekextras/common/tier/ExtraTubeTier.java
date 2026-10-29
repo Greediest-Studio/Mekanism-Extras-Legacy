@@ -9,6 +9,8 @@ import mekanism.common.tier.BaseTier;
  */
 public enum ExtraTubeTier implements IAdvancedTier {
 
+    FINAL(AdvancedTier.FINAL, 4_096, 1_024),
+    ARCANE(AdvancedTier.ARCANE, 16_384, 4_096),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 65_536, 16_384),
     SUPREME(AdvancedTier.SUPREME, 262_144, 65_536),
     COSMIC(AdvancedTier.COSMIC, 1_048_576, 262_144),
@@ -52,7 +54,7 @@ public enum ExtraTubeTier implements IAdvancedTier {
 
     public static ExtraTubeTier byIndex(int index) {
         ExtraTubeTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 
     public static ExtraTubeTier get(BaseTier tier) {
@@ -61,6 +63,6 @@ public enum ExtraTubeTier implements IAdvancedTier {
         }
         ExtraTubeTier[] values = values();
         int index = tier.ordinal() - BaseTier.ULTIMATE.ordinal();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

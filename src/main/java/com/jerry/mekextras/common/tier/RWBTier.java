@@ -9,6 +9,8 @@ import java.util.Locale;
 
 public enum RWBTier implements IAdvancedTier, IStringSerializable {
 
+    FINAL(AdvancedTier.FINAL, 128_000L, 40, 1),
+    ARCANE(AdvancedTier.ARCANE, 512_000L, 30, 2),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 2_048_000L, 20, 4),
     SUPREME(AdvancedTier.SUPREME, 8_192_000L, 10, 16),
     COSMIC(AdvancedTier.COSMIC, 32_768_000L, 5, 64),
@@ -55,6 +57,6 @@ public enum RWBTier implements IAdvancedTier, IStringSerializable {
 
     public static RWBTier byIndex(int index) {
         RWBTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

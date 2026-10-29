@@ -9,6 +9,8 @@ import mekanism.common.tier.BaseTier;
  */
 public enum ExtraPipeTier implements IAdvancedTier {
 
+    FINAL(AdvancedTier.FINAL, 16_000, 1_600),
+    ARCANE(AdvancedTier.ARCANE, 64_000, 6_400),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 256_000, 25_600),
     SUPREME(AdvancedTier.SUPREME, 1_024_000, 102_400),
     COSMIC(AdvancedTier.COSMIC, 4_096_000, 409_600),
@@ -52,7 +54,7 @@ public enum ExtraPipeTier implements IAdvancedTier {
 
     public static ExtraPipeTier byIndex(int index) {
         ExtraPipeTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 
     public static ExtraPipeTier get(BaseTier tier) {
@@ -61,6 +63,6 @@ public enum ExtraPipeTier implements IAdvancedTier {
         }
         ExtraPipeTier[] values = values();
         int index = tier.ordinal() - BaseTier.ULTIMATE.ordinal();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

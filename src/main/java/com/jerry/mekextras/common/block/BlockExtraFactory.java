@@ -37,13 +37,14 @@ public class BlockExtraFactory extends BlockExtraMachine {
 
     private static MachineType machineTypeFor(ExtraFactoryTier tier) {
         switch (tier) {
-            case SUPREME:
+            case ARCANE:
                 return MachineType.ADVANCED_FACTORY;
-            case COSMIC:
+            case SUPREME:
                 return MachineType.ELITE_FACTORY;
+            case ABSOLUTE:
+            case COSMIC:
             case INFINITE:
                 return MachineType.ULTIMATE_FACTORY;
-            case ABSOLUTE:
             default:
                 return MachineType.BASIC_FACTORY;
         }

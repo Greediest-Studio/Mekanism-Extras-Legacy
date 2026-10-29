@@ -13,10 +13,12 @@ import java.util.Locale;
  */
 public enum ExtraMachineTier implements IAdvancedTier {
 
-    ABSOLUTE(AdvancedTier.ABSOLUTE, 11),
-    SUPREME(AdvancedTier.SUPREME, 13),
-    COSMIC(AdvancedTier.COSMIC, 15),
-    INFINITE(AdvancedTier.INFINITE, 17);
+    FINAL(AdvancedTier.FINAL, 11),
+    ARCANE(AdvancedTier.ARCANE, 13),
+    ABSOLUTE(AdvancedTier.ABSOLUTE, 15),
+    SUPREME(AdvancedTier.SUPREME, 17),
+    COSMIC(AdvancedTier.COSMIC, 19),
+    INFINITE(AdvancedTier.INFINITE, 21);
 
     public final int processes;
     private final AdvancedTier advancedTier;
@@ -53,12 +55,16 @@ public enum ExtraMachineTier implements IAdvancedTier {
      */
     public String getDetailTextureSuffix() {
         switch (this) {
-            case ABSOLUTE:
+            case FINAL:
                 return "basic";
-            case SUPREME:
+            case ARCANE:
                 return "advanced";
-            case COSMIC:
+            case SUPREME:
                 return "elite";
+            case ABSOLUTE:
+                return "ultimate";
+            case COSMIC:
+                return "ultimate";
             case INFINITE:
                 return "ultimate";
             default:
@@ -78,6 +84,6 @@ public enum ExtraMachineTier implements IAdvancedTier {
 
     public static ExtraMachineTier byIndex(int index) {
         ExtraMachineTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

@@ -52,6 +52,7 @@ import com.jerry.mekextras.common.tile.moremachine.ExtraMoreMachineTiles;
 import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraLogisticalTransporter;
 import com.jerry.mekextras.common.tile.transmitter.TileEntityExtraUniversalCable;
 import com.jerry.mekextras.common.tier.RWBTier;
+import com.jerry.mekextras.common.util.MekanismMachineConfig;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -65,32 +66,41 @@ import java.util.Map;
 public class ExtraBlocks {
 
     //Ores and storage blocks
-    public static final Block NAQUADAH_ORE = new BlockExtraOre(ExtraItems.RAW_NAQUADAH, 3.0F, 5.0F, 2);
-    public static final Block END_NAQUADAH_ORE = new BlockExtraOre(ExtraItems.RAW_NAQUADAH, 4.0F, 6.0F, 2);
+    public static final Block NAQUADAH_ORE = new BlockExtraOre(null, 3.0F, 5.0F, 2);
+    public static final Block END_NAQUADAH_ORE = new BlockExtraOre(null, 4.0F, 6.0F, 2);
     public static final Block NAQUADAH_BLOCK = new BlockExtraResource(5.0F, 10.0F);
-    public static final Block RAW_NAQUADAH_BLOCK = new BlockExtraResource(5.0F, 10.0F);
 
     //Storage machines
+    public static final Block FINAL_BIN = new BlockExtraBin(BTier.FINAL);
+    public static final Block ARCANE_BIN = new BlockExtraBin(BTier.ARCANE);
     public static final Block ABSOLUTE_BIN = new BlockExtraBin(BTier.ABSOLUTE);
     public static final Block SUPREME_BIN = new BlockExtraBin(BTier.SUPREME);
     public static final Block COSMIC_BIN = new BlockExtraBin(BTier.COSMIC);
     public static final Block INFINITE_BIN = new BlockExtraBin(BTier.INFINITE);
 
+    public static final Block FINAL_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.FINAL);
+    public static final Block ARCANE_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.ARCANE);
     public static final Block ABSOLUTE_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.ABSOLUTE);
     public static final Block SUPREME_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.SUPREME);
     public static final Block COSMIC_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.COSMIC);
     public static final Block INFINITE_ENERGY_CUBE = new BlockExtraEnergyCube(ECTier.INFINITE);
 
+    public static final Block FINAL_FLUID_TANK = new BlockExtraFluidTank(FTTier.FINAL);
+    public static final Block ARCANE_FLUID_TANK = new BlockExtraFluidTank(FTTier.ARCANE);
     public static final Block ABSOLUTE_FLUID_TANK = new BlockExtraFluidTank(FTTier.ABSOLUTE);
     public static final Block SUPREME_FLUID_TANK = new BlockExtraFluidTank(FTTier.SUPREME);
     public static final Block COSMIC_FLUID_TANK = new BlockExtraFluidTank(FTTier.COSMIC);
     public static final Block INFINITE_FLUID_TANK = new BlockExtraFluidTank(FTTier.INFINITE);
 
+    public static final Block FINAL_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.FINAL);
+    public static final Block ARCANE_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.ARCANE);
     public static final Block ABSOLUTE_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.ABSOLUTE);
     public static final Block SUPREME_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.SUPREME);
     public static final Block COSMIC_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.COSMIC);
     public static final Block INFINITE_CHEMICAL_TANK = new BlockExtraChemicalTank(CTTier.INFINITE);
 
+    public static final Block FINAL_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.FINAL);
+    public static final Block ARCANE_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.ARCANE);
     public static final Block ABSOLUTE_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.ABSOLUTE);
     public static final Block SUPREME_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.SUPREME);
     public static final Block COSMIC_RADIOACTIVE_WASTE_BARREL = new BlockExtraWasteBarrel(RWBTier.COSMIC);
@@ -98,11 +108,15 @@ public class ExtraBlocks {
     public static final Block REINFORCED_INDUCTION_CASING = new BlockExtraInductionCasing(false);
     public static final Block REINFORCED_INDUCTION_PORT = new BlockExtraInductionCasing(true);
 
+    public static final Block FINAL_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.FINAL);
+    public static final Block ARCANE_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.ARCANE);
     public static final Block ABSOLUTE_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.ABSOLUTE);
     public static final Block SUPREME_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.SUPREME);
     public static final Block COSMIC_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.COSMIC);
     public static final Block INFINITE_INDUCTION_CELL = new BlockExtraInductionCell(ICTier.INFINITE);
 
+    public static final Block FINAL_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.FINAL);
+    public static final Block ARCANE_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.ARCANE);
     public static final Block ABSOLUTE_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.ABSOLUTE);
     public static final Block SUPREME_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.SUPREME);
     public static final Block COSMIC_INDUCTION_PROVIDER = new BlockExtraInductionProvider(IPTier.COSMIC);
@@ -193,28 +207,37 @@ public class ExtraBlocks {
         registry.register(init(NAQUADAH_ORE, "naquadah_ore"));
         registry.register(init(END_NAQUADAH_ORE, "end_naquadah_ore"));
         registry.register(init(NAQUADAH_BLOCK, "block_naquadah"));
-        registry.register(init(RAW_NAQUADAH_BLOCK, "block_raw_naquadah"));
 
+        registry.register(init(FINAL_BIN, "final_bin"));
+        registry.register(init(ARCANE_BIN, "arcane_bin"));
         registry.register(init(ABSOLUTE_BIN, "absolute_bin"));
         registry.register(init(SUPREME_BIN, "supreme_bin"));
         registry.register(init(COSMIC_BIN, "cosmic_bin"));
         registry.register(init(INFINITE_BIN, "infinite_bin"));
 
+        registry.register(init(FINAL_ENERGY_CUBE, "final_energy_cube"));
+        registry.register(init(ARCANE_ENERGY_CUBE, "arcane_energy_cube"));
         registry.register(init(ABSOLUTE_ENERGY_CUBE, "absolute_energy_cube"));
         registry.register(init(SUPREME_ENERGY_CUBE, "supreme_energy_cube"));
         registry.register(init(COSMIC_ENERGY_CUBE, "cosmic_energy_cube"));
         registry.register(init(INFINITE_ENERGY_CUBE, "infinite_energy_cube"));
 
+        registry.register(init(FINAL_FLUID_TANK, "final_fluid_tank"));
+        registry.register(init(ARCANE_FLUID_TANK, "arcane_fluid_tank"));
         registry.register(init(ABSOLUTE_FLUID_TANK, "absolute_fluid_tank"));
         registry.register(init(SUPREME_FLUID_TANK, "supreme_fluid_tank"));
         registry.register(init(COSMIC_FLUID_TANK, "cosmic_fluid_tank"));
         registry.register(init(INFINITE_FLUID_TANK, "infinite_fluid_tank"));
 
+        registry.register(init(FINAL_CHEMICAL_TANK, "final_chemical_tank"));
+        registry.register(init(ARCANE_CHEMICAL_TANK, "arcane_chemical_tank"));
         registry.register(init(ABSOLUTE_CHEMICAL_TANK, "absolute_chemical_tank"));
         registry.register(init(SUPREME_CHEMICAL_TANK, "supreme_chemical_tank"));
         registry.register(init(COSMIC_CHEMICAL_TANK, "cosmic_chemical_tank"));
         registry.register(init(INFINITE_CHEMICAL_TANK, "infinite_chemical_tank"));
 
+        registry.register(init(FINAL_RADIOACTIVE_WASTE_BARREL, "final_radioactive_waste_barrel"));
+        registry.register(init(ARCANE_RADIOACTIVE_WASTE_BARREL, "arcane_radioactive_waste_barrel"));
         registry.register(init(ABSOLUTE_RADIOACTIVE_WASTE_BARREL, "absolute_radioactive_waste_barrel"));
         registry.register(init(SUPREME_RADIOACTIVE_WASTE_BARREL, "supreme_radioactive_waste_barrel"));
         registry.register(init(COSMIC_RADIOACTIVE_WASTE_BARREL, "cosmic_radioactive_waste_barrel"));
@@ -225,20 +248,28 @@ public class ExtraBlocks {
         registry.register(init(NAQUADAH_REACTOR_CONTROLLER, "naquadah_reactor_controller"));
         registry.register(init(NAQUADAH_REACTOR_LOGIC_ADAPTER, "naquadah_reactor_logic_adapter"));
         registry.register(init(LEAD_COATED_LASER_FOCUS_MATRIX, "lead_coated_laser_focus_matrix"));
-        registry.register(init(ADVANCED_ELECTRIC_PUMP, "advanced_electric_pump"));
+        if (MekanismMachineConfig.isEnabled(mekanism.common.block.states.BlockStateMachine.MachineType.ELECTRIC_PUMP)) {
+            registry.register(init(ADVANCED_ELECTRIC_PUMP, "advanced_electric_pump"));
+        }
         registry.register(init(REINFORCED_INDUCTION_CASING, "reinforced_induction_casing"));
         registry.register(init(REINFORCED_INDUCTION_PORT, "reinforced_induction_port"));
+        registry.register(init(FINAL_INDUCTION_CELL, "final_induction_cell"));
+        registry.register(init(ARCANE_INDUCTION_CELL, "arcane_induction_cell"));
         registry.register(init(ABSOLUTE_INDUCTION_CELL, "absolute_induction_cell"));
         registry.register(init(SUPREME_INDUCTION_CELL, "supreme_induction_cell"));
         registry.register(init(COSMIC_INDUCTION_CELL, "cosmic_induction_cell"));
         registry.register(init(INFINITE_INDUCTION_CELL, "infinite_induction_cell"));
+        registry.register(init(FINAL_INDUCTION_PROVIDER, "final_induction_provider"));
+        registry.register(init(ARCANE_INDUCTION_PROVIDER, "arcane_induction_provider"));
         registry.register(init(ABSOLUTE_INDUCTION_PROVIDER, "absolute_induction_provider"));
         registry.register(init(SUPREME_INDUCTION_PROVIDER, "supreme_induction_provider"));
         registry.register(init(COSMIC_INDUCTION_PROVIDER, "cosmic_induction_provider"));
         registry.register(init(INFINITE_INDUCTION_PROVIDER, "infinite_induction_provider"));
         for (Block[] tiers : FACTORIES.values()) {
-            for (Block block : tiers) {
-                registry.register(block);
+            if (MekanismMachineConfig.isFactoryEnabled(recipeTypeFor(tiers))) {
+                for (Block block : tiers) {
+                    registry.register(block);
+                }
             }
         }
         for (Block[] tiers : TRANSMITTERS.values()) {
@@ -247,8 +278,10 @@ public class ExtraBlocks {
             }
         }
         for (Block[] tiers : MORE_MACHINES.values()) {
-            for (Block block : tiers) {
-                registry.register(block);
+            if (MekanismMachineConfig.isMoreMachineEnabled(machineNameFor(tiers))) {
+                for (Block block : tiers) {
+                    registry.register(block);
+                }
             }
         }
     }
@@ -257,28 +290,37 @@ public class ExtraBlocks {
         registerItemBlock(registry, NAQUADAH_ORE);
         registerItemBlock(registry, END_NAQUADAH_ORE);
         registerItemBlock(registry, NAQUADAH_BLOCK);
-        registerItemBlock(registry, RAW_NAQUADAH_BLOCK);
 
+        registerMachineItemBlock(registry, FINAL_BIN);
+        registerMachineItemBlock(registry, ARCANE_BIN);
         registerMachineItemBlock(registry, ABSOLUTE_BIN);
         registerMachineItemBlock(registry, SUPREME_BIN);
         registerMachineItemBlock(registry, COSMIC_BIN);
         registerMachineItemBlock(registry, INFINITE_BIN);
 
+        registerMachineItemBlock(registry, FINAL_ENERGY_CUBE);
+        registerMachineItemBlock(registry, ARCANE_ENERGY_CUBE);
         registerMachineItemBlock(registry, ABSOLUTE_ENERGY_CUBE);
         registerMachineItemBlock(registry, SUPREME_ENERGY_CUBE);
         registerMachineItemBlock(registry, COSMIC_ENERGY_CUBE);
         registerMachineItemBlock(registry, INFINITE_ENERGY_CUBE);
 
+        registerMachineItemBlock(registry, FINAL_FLUID_TANK);
+        registerMachineItemBlock(registry, ARCANE_FLUID_TANK);
         registerMachineItemBlock(registry, ABSOLUTE_FLUID_TANK);
         registerMachineItemBlock(registry, SUPREME_FLUID_TANK);
         registerMachineItemBlock(registry, COSMIC_FLUID_TANK);
         registerMachineItemBlock(registry, INFINITE_FLUID_TANK);
 
+        registerMachineItemBlock(registry, FINAL_CHEMICAL_TANK);
+        registerMachineItemBlock(registry, ARCANE_CHEMICAL_TANK);
         registerMachineItemBlock(registry, ABSOLUTE_CHEMICAL_TANK);
         registerMachineItemBlock(registry, SUPREME_CHEMICAL_TANK);
         registerMachineItemBlock(registry, COSMIC_CHEMICAL_TANK);
         registerMachineItemBlock(registry, INFINITE_CHEMICAL_TANK);
 
+        registerMachineItemBlock(registry, FINAL_RADIOACTIVE_WASTE_BARREL);
+        registerMachineItemBlock(registry, ARCANE_RADIOACTIVE_WASTE_BARREL);
         registerMachineItemBlock(registry, ABSOLUTE_RADIOACTIVE_WASTE_BARREL);
         registerMachineItemBlock(registry, SUPREME_RADIOACTIVE_WASTE_BARREL);
         registerMachineItemBlock(registry, COSMIC_RADIOACTIVE_WASTE_BARREL);
@@ -289,20 +331,28 @@ public class ExtraBlocks {
         registerMachineItemBlock(registry, NAQUADAH_REACTOR_CONTROLLER);
         registerMachineItemBlock(registry, NAQUADAH_REACTOR_LOGIC_ADAPTER);
         registerMachineItemBlock(registry, LEAD_COATED_LASER_FOCUS_MATRIX);
-        registerMachineItemBlock(registry, ADVANCED_ELECTRIC_PUMP);
+        if (MekanismMachineConfig.isEnabled(mekanism.common.block.states.BlockStateMachine.MachineType.ELECTRIC_PUMP)) {
+            registerMachineItemBlock(registry, ADVANCED_ELECTRIC_PUMP);
+        }
         registerMachineItemBlock(registry, REINFORCED_INDUCTION_CASING);
         registerMachineItemBlock(registry, REINFORCED_INDUCTION_PORT);
+        registerMachineItemBlock(registry, FINAL_INDUCTION_CELL);
+        registerMachineItemBlock(registry, ARCANE_INDUCTION_CELL);
         registerMachineItemBlock(registry, ABSOLUTE_INDUCTION_CELL);
         registerMachineItemBlock(registry, SUPREME_INDUCTION_CELL);
         registerMachineItemBlock(registry, COSMIC_INDUCTION_CELL);
         registerMachineItemBlock(registry, INFINITE_INDUCTION_CELL);
+        registerMachineItemBlock(registry, FINAL_INDUCTION_PROVIDER);
+        registerMachineItemBlock(registry, ARCANE_INDUCTION_PROVIDER);
         registerMachineItemBlock(registry, ABSOLUTE_INDUCTION_PROVIDER);
         registerMachineItemBlock(registry, SUPREME_INDUCTION_PROVIDER);
         registerMachineItemBlock(registry, COSMIC_INDUCTION_PROVIDER);
         registerMachineItemBlock(registry, INFINITE_INDUCTION_PROVIDER);
         for (Block[] tiers : FACTORIES.values()) {
-            for (Block block : tiers) {
-                registerMachineItemBlock(registry, block);
+            if (MekanismMachineConfig.isFactoryEnabled(recipeTypeFor(tiers))) {
+                for (Block block : tiers) {
+                    registerMachineItemBlock(registry, block);
+                }
             }
         }
         for (Block[] tiers : TRANSMITTERS.values()) {
@@ -311,8 +361,10 @@ public class ExtraBlocks {
             }
         }
         for (Block[] tiers : MORE_MACHINES.values()) {
-            for (Block block : tiers) {
-                registerMachineItemBlock(registry, block);
+            if (MekanismMachineConfig.isMoreMachineEnabled(machineNameFor(tiers))) {
+                for (Block block : tiers) {
+                    registerMachineItemBlock(registry, block);
+                }
             }
         }
     }
@@ -340,6 +392,24 @@ public class ExtraBlocks {
         registry.register(item);
     }
 
+    private static RecipeType recipeTypeFor(Block[] tiers) {
+        for (Map.Entry<RecipeType, Block[]> entry : FACTORIES.entrySet()) {
+            if (entry.getValue() == tiers) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    private static String machineNameFor(Block[] tiers) {
+        for (Map.Entry<String, Block[]> entry : MORE_MACHINES.entrySet()) {
+            if (entry.getValue() == tiers) {
+                return entry.getKey();
+            }
+        }
+        return "";
+    }
+
     public static void registerWorldGenerators() {
         GameRegistry.registerWorldGenerator(new ExtraWorldGenerator(), 0);
     }
@@ -349,10 +419,14 @@ public class ExtraBlocks {
      */
     public static Block getBinBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_BIN;
+            case FINAL:
+                return FINAL_BIN;
+            case ARCANE:
+                return ARCANE_BIN;
             case SUPREME:
                 return SUPREME_BIN;
+            case ABSOLUTE:
+                return ABSOLUTE_BIN;
             case COSMIC:
                 return COSMIC_BIN;
             case INFINITE:
@@ -363,6 +437,9 @@ public class ExtraBlocks {
     }
 
     public static Block getFactoryBlock(RecipeType recipeType, ExtraFactoryTier tier) {
+        if (!MekanismMachineConfig.isFactoryEnabled(recipeType) || tier == null) {
+            return null;
+        }
         Block[] tiers = FACTORIES.get(recipeType);
         return tiers == null ? null : tiers[tier.ordinal()];
     }
@@ -385,10 +462,14 @@ public class ExtraBlocks {
     }
     public static Block getInductionCellBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_INDUCTION_CELL;
+            case FINAL:
+                return FINAL_INDUCTION_CELL;
+            case ARCANE:
+                return ARCANE_INDUCTION_CELL;
             case SUPREME:
                 return SUPREME_INDUCTION_CELL;
+            case ABSOLUTE:
+                return ABSOLUTE_INDUCTION_CELL;
             case COSMIC:
                 return COSMIC_INDUCTION_CELL;
             case INFINITE:
@@ -400,10 +481,14 @@ public class ExtraBlocks {
 
     public static Block getInductionProviderBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_INDUCTION_PROVIDER;
+            case FINAL:
+                return FINAL_INDUCTION_PROVIDER;
+            case ARCANE:
+                return ARCANE_INDUCTION_PROVIDER;
             case SUPREME:
                 return SUPREME_INDUCTION_PROVIDER;
+            case ABSOLUTE:
+                return ABSOLUTE_INDUCTION_PROVIDER;
             case COSMIC:
                 return COSMIC_INDUCTION_PROVIDER;
             case INFINITE:
@@ -414,10 +499,14 @@ public class ExtraBlocks {
     }
     public static Block getEnergyCubeBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_ENERGY_CUBE;
+            case FINAL:
+                return FINAL_ENERGY_CUBE;
+            case ARCANE:
+                return ARCANE_ENERGY_CUBE;
             case SUPREME:
                 return SUPREME_ENERGY_CUBE;
+            case ABSOLUTE:
+                return ABSOLUTE_ENERGY_CUBE;
             case COSMIC:
                 return COSMIC_ENERGY_CUBE;
             case INFINITE:
@@ -429,10 +518,14 @@ public class ExtraBlocks {
 
     public static Block getFluidTankBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_FLUID_TANK;
+            case FINAL:
+                return FINAL_FLUID_TANK;
+            case ARCANE:
+                return ARCANE_FLUID_TANK;
             case SUPREME:
                 return SUPREME_FLUID_TANK;
+            case ABSOLUTE:
+                return ABSOLUTE_FLUID_TANK;
             case COSMIC:
                 return COSMIC_FLUID_TANK;
             case INFINITE:
@@ -444,10 +537,14 @@ public class ExtraBlocks {
 
     public static Block getChemicalTankBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_CHEMICAL_TANK;
+            case FINAL:
+                return FINAL_CHEMICAL_TANK;
+            case ARCANE:
+                return ARCANE_CHEMICAL_TANK;
             case SUPREME:
                 return SUPREME_CHEMICAL_TANK;
+            case ABSOLUTE:
+                return ABSOLUTE_CHEMICAL_TANK;
             case COSMIC:
                 return COSMIC_CHEMICAL_TANK;
             case INFINITE:
@@ -459,10 +556,14 @@ public class ExtraBlocks {
 
     public static Block getWasteBarrelBlock(AdvancedTier tier) {
         switch (tier) {
-            case ABSOLUTE:
-                return ABSOLUTE_RADIOACTIVE_WASTE_BARREL;
+            case FINAL:
+                return FINAL_RADIOACTIVE_WASTE_BARREL;
+            case ARCANE:
+                return ARCANE_RADIOACTIVE_WASTE_BARREL;
             case SUPREME:
                 return SUPREME_RADIOACTIVE_WASTE_BARREL;
+            case ABSOLUTE:
+                return ABSOLUTE_RADIOACTIVE_WASTE_BARREL;
             case COSMIC:
                 return COSMIC_RADIOACTIVE_WASTE_BARREL;
             case INFINITE:
@@ -484,6 +585,9 @@ public class ExtraBlocks {
     }
 
     public static Block getMoreMachineBlock(String name, AdvancedTier tier) {
+        if (!MekanismMachineConfig.isMoreMachineEnabled(name) || tier == null) {
+            return null;
+        }
         Block[] tiers = MORE_MACHINES.get(name);
         return tiers == null ? null : tiers[tier.ordinal()];
     }

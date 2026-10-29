@@ -7,6 +7,8 @@ import java.util.Locale;
 
 public enum AdvancedTier implements IAdvancedTier {
 
+    FINAL("Final", 0x004E00, EnumColor.DARK_GREEN),
+    ARCANE("Arcane", 0x012579, EnumColor.DARK_BLUE),
     ABSOLUTE("Absolute", 0xE8E983, EnumColor.BRIGHT_GREEN),
     SUPREME("Supreme", 0xE65249, EnumColor.DARK_RED),
     COSMIC("Cosmic", 0xFACEF7, EnumColor.AQUA),
@@ -84,11 +86,12 @@ public enum AdvancedTier implements IAdvancedTier {
 
     @Override
     public BaseTier getBaseTier() {
-        return BaseTier.values()[ordinal()];
+        // Every AdvancedTier is beyond Mekanism's Ultimate tier.
+        return BaseTier.ULTIMATE;
     }
 
     public static AdvancedTier byIndex(int index) {
-        return index >= 0 && index < TIERS.length ? TIERS[index] : ABSOLUTE;
+        return index >= 0 && index < TIERS.length ? TIERS[index] : FINAL;
     }
 
     public static AdvancedTier byName(String name) {
@@ -97,7 +100,7 @@ public enum AdvancedTier implements IAdvancedTier {
                 return tier;
             }
         }
-        return ABSOLUTE;
+        return FINAL;
     }
 }
 

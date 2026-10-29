@@ -34,14 +34,6 @@ public class ExtraFluids {
     public static final Gas POLONIUM208 = new Gas(PREFIX + "polonium208", 0x1B9E7B);
 
     //Infuse types
-    public static final InfuseType RADIANCE = new InfuseType("MEKANISM_EXTRAS_RADIANCE", new ResourceLocation(MekanismExtras.MODID, "blocks/infuse/radiance"))
-            .setTranslationKey(MekanismExtras.MODID + ".radiance");
-    public static final InfuseType THERMONUCLEAR = new InfuseType("MEKANISM_EXTRAS_THERMONUCLEAR", new ResourceLocation(MekanismExtras.MODID, "blocks/infuse/thermonuclear"))
-            .setTranslationKey(MekanismExtras.MODID + ".thermonuclear");
-    public static final InfuseType SHINING = new InfuseType("MEKANISM_EXTRAS_SHINING", new ResourceLocation(MekanismExtras.MODID, "blocks/infuse/shining"))
-            .setTranslationKey(MekanismExtras.MODID + ".shining");
-    public static final InfuseType SPECTRUM = new InfuseType("MEKANISM_EXTRAS_SPECTRUM", new ResourceLocation(MekanismExtras.MODID, "blocks/infuse/spectrum"))
-            .setTranslationKey(MekanismExtras.MODID + ".spectrum");
     public static final InfuseType LEAD = new InfuseType("MEKANISM_EXTRAS_LEAD", new ResourceLocation(MekanismExtras.MODID, "blocks/infuse/lead"))
             .setTranslationKey(MekanismExtras.MODID + ".lead");
 
@@ -69,10 +61,6 @@ public class ExtraFluids {
         GasRegistry.register(POLONIUM_CONTAINING_STEAM);
         GasRegistry.register(POLONIUM208).setRadiation(0.05);
 
-        InfuseRegistry.registerInfuseType(RADIANCE);
-        InfuseRegistry.registerInfuseType(THERMONUCLEAR);
-        InfuseRegistry.registerInfuseType(SHINING);
-        InfuseRegistry.registerInfuseType(SPECTRUM);
         InfuseRegistry.registerInfuseType(LEAD);
 
         GasRegistry.register(CLEAN_NAQUADAH);

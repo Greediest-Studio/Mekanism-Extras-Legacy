@@ -9,6 +9,8 @@ import java.util.Locale;
 
 public enum FTTier implements IAdvancedTier, IStringSerializable {
 
+    FINAL(AdvancedTier.FINAL, 64_000, 32_000),
+    ARCANE(AdvancedTier.ARCANE, 512_000, 256_000),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 4_096_000, 2_048_000),
     SUPREME(AdvancedTier.SUPREME, 32_768_000, 16_384_000),
     COSMIC(AdvancedTier.COSMIC, 262_144_000, 131_072_000),
@@ -49,6 +51,6 @@ public enum FTTier implements IAdvancedTier, IStringSerializable {
 
     public static FTTier byIndex(int index) {
         FTTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

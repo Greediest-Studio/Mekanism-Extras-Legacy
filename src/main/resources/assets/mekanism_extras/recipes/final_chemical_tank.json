@@ -1,0 +1,29 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "AOA",
+    "OPO",
+    "AOA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_fantasy"
+    },
+    "O": {
+      "ore": "ingotOsmium",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:gastank",
+      "data": 0,
+      "nbt": {
+        "tier": 3
+      }
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:final_chemical_tank",
+    "count": 1
+  }
+}

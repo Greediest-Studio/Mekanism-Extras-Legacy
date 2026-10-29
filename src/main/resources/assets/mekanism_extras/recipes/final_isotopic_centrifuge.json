@@ -1,0 +1,30 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_fantasy"
+    },
+    "C": {
+      "item": "mekanism_extras:final_control_circuit"
+    },
+    "I": {
+      "item": "minecraft:emerald"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekceumoremachine:TierIsotopicCentrifuge",
+      "nbt": {
+        "tier": 3
+      }
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:final_isotopic_centrifuge",
+    "count": 1
+  }
+}

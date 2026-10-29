@@ -1,0 +1,38 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "body": "mekanism:blocks/models/gas_tank",
+      "valve": "mekanism_extras:blocks/models/chemical_tank_arcane_valve",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism:gas_tank"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {},
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

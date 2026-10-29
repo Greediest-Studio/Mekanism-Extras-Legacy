@@ -1,0 +1,24 @@
+{
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "AIA",
+                    "IPI",
+                    "AIA"
+                ],
+    "key":  {
+                "A":  {
+                          "item":  "mekanism_extras:alloy_phantom"
+                      },
+                "I":  {
+                          "ore":  "ingotIron",
+                          "type":  "forge:ore_dict"
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:final_fluid_tank"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:arcane_fluid_tank",
+                   "count":  1
+               }
+}

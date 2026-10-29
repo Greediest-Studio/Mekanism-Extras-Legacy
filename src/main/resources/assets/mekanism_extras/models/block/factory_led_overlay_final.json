@@ -1,0 +1,105 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "east": "#sides",
+    "south": "#sides",
+    "north": "#front",
+    "west": "#sides",
+    "particle": "#sides",
+    "up": "#sides",
+    "down": "#sides",
+    "led": "mekanism_extras:blocks/factory/led_final"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#east"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#south"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#north"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#west"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#up",
+          "rotation": 180
+        },
+        "down": {
+          "cullface": "down",
+          "texture": "#down"
+        }
+      }
+    },
+    {
+      "name": "extra_tier_front_led",
+      "from": [
+        5,
+        14.99,
+        -0.01
+      ],
+      "to": [
+        11,
+        16.0,
+        1.01
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            6,
+            1
+          ],
+          "texture": "#led",
+          "cullface": "north"
+        }
+      }
+    },
+    {
+      "name": "extra_tier_top_front_led",
+      "from": [
+        5,
+        16.01,
+        -0.01
+      ],
+      "to": [
+        11,
+        16.03,
+        1.01
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            6,
+            1
+          ],
+          "rotation": 180,
+          "texture": "#led",
+          "shade": false
+        }
+      }
+    }
+  ]
+}

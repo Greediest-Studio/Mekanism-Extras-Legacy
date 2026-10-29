@@ -1,0 +1,25 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "SIS",
+    "ITI",
+    "SIS"
+  ],
+  "key": {
+    "S": {
+      "item": "mekanism_extras:alloy_fantasy"
+    },
+    "I": {
+      "item": "mekanism:basicblock2",
+      "data": 11
+    },
+    "T": {
+      "item": "mekanism:machineblock4",
+      "data": 12
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:final_radioactive_waste_barrel",
+    "count": 1
+  }
+}

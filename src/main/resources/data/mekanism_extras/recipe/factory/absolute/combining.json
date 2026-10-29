@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:mek_data",
   "category": "misc",
   "key": {
@@ -9,7 +9,7 @@
       "tag": "c:circuits/absolute"
     },
     "I": {
-      "tag": "c:gems/emerald"
+      "item": "minecraft:redstone_block"
     },
     "P": {
       "item": "mekanism:ultimate_combining_factory"

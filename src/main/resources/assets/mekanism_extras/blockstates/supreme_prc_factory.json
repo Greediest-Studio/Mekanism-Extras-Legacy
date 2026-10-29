@@ -2,7 +2,7 @@
   "forge_marker": 1,
   "defaults": {
     "textures": {
-      "valve": "mekanism:blocks/models/factory/prc/advanced_valve",
+      "valve": "mekanism:blocks/models/factory/prc/basic_valve",
       "led": "mekanism_extras:blocks/factory/led_supreme",
       "particle": "mekanism:blocks/SteelCasing"
     },
@@ -30,7 +30,7 @@
     "active": {
       "true": {
         "textures": {
-          "valve": "mekanism:blocks/models/factory/prc/advanced_valve_on"
+          "valve": "mekanism:blocks/models/factory/prc/basic_valve_on"
         }
       },
       "false": {}

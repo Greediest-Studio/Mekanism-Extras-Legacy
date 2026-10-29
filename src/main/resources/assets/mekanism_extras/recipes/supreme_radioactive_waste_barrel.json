@@ -14,7 +14,8 @@
       "data": 11
     },
     "T": {
-      "item": "mekanism_extras:absolute_radioactive_waste_barrel"
+      "item": "mekanism:machineblock4",
+      "data": 12
     }
   },
   "result": {

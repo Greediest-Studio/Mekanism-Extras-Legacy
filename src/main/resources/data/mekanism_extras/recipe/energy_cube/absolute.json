@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:mek_data",
   "key": {
     "A": {
@@ -8,7 +8,7 @@
       "item": "mekanism:energy_tablet"
     },
     "I": {
-      "tag": "c:gems/emerald"
+      "item": "minecraft:redstone_block"
     },
     "P": {
       "item": "mekanism:ultimate_energy_cube"

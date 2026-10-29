@@ -1,0 +1,42 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism:factory_nucleosynthesizer",
+    "textures": {
+      "led": "mekanism_extras:blocks/factory/led_final",
+      "particle": "mekanism:blocks/SteelCasing"
+    }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "led": "mekanism_extras:blocks/factory/led_final",
+          "front": "mekanism:blocks/factory/nucleosynthesizer/front_active"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

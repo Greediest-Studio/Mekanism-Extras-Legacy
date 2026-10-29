@@ -1,0 +1,52 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "east": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryleft",
+      "south": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryback",
+      "west": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryright",
+      "sides": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryright",
+      "front": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryfront",
+      "up": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactorytop",
+      "down": "mekanism:blocks/factory/factory_bottom",
+      "led": "mekanism_extras:blocks/factory/led_arcane",
+      "particle": "mekanism:blocks/SteelCasing"
+    },
+    "model": "mekanism_extras:factory_crushing_led_overlay_arcane"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "east": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactorylefton",
+          "south": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactorybackon",
+          "west": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryrighton",
+          "front": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactoryfronton",
+          "up": "mekanism:blocks/factory/advanced/crushing/advancedcrushingfactorytopon"
+        }
+      },
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

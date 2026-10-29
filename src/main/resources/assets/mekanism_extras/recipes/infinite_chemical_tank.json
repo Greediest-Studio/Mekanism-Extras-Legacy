@@ -1,24 +1,24 @@
 {
-  "type": "mekanism:ore_shaped",
-  "pattern": [
-    "AOA",
-    "OPO",
-    "AOA"
-  ],
-  "key": {
-    "A": {
-      "item": "mekanism_extras:alloy_spectrum"
-    },
-    "O": {
-      "ore": "ingotOsmium",
-      "type": "forge:ore_dict"
-    },
-    "P": {
-      "item": "mekanism_extras:cosmic_chemical_tank"
-    }
-  },
-  "result": {
-    "item": "mekanism_extras:infinite_chemical_tank",
-    "count": 1
-  }
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "AOA",
+                    "OPO",
+                    "AOA"
+                ],
+    "key":  {
+                "A":  {
+                          "item":  "mekanism_extras:alloy_spectrum"
+                      },
+                "O":  {
+                          "ore":  "ingotOsmium",
+                          "type":  "forge:ore_dict"
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:cosmic_chemical_tank"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:infinite_chemical_tank",
+                   "count":  1
+               }
 }

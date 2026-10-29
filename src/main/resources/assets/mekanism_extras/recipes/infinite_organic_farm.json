@@ -1,29 +1,29 @@
 {
-  "type": "mekanism:ore_shaped",
-  "pattern": [
-    "ACA",
-    "IPJ",
-    "ACA"
-  ],
-  "key": {
-    "A": {
-      "item": "mekanism_extras:alloy_spectrum"
-    },
-    "C": {
-      "item": "mekanism_extras:infinite_control_circuit"
-    },
-    "I": {
-      "item": "mekanism:PlutoniumPellet"
-    },
-    "J": {
-      "item": "mekanism:PoloniumPellet"
-    },
-    "P": {
-      "item": "mekanism_extras:cosmic_organic_farm"
-    }
-  },
-  "result": {
-    "item": "mekanism_extras:infinite_organic_farm",
-    "count": 1
-  }
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "ACA",
+                    "IPJ",
+                    "ACA"
+                ],
+    "key":  {
+                "A":  {
+                          "item":  "mekanism_extras:alloy_spectrum"
+                      },
+                "C":  {
+                          "item":  "mekanism_extras:infinite_control_circuit"
+                      },
+                "I":  {
+                          "item":  "mekanism:PlutoniumPellet"
+                      },
+                "J":  {
+                          "item":  "mekanism:PoloniumPellet"
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:cosmic_organic_farm"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:infinite_organic_farm",
+                   "count":  1
+               }
 }

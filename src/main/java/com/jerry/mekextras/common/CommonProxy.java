@@ -53,6 +53,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import com.jerry.mekextras.common.util.MekanismMachineConfig;
 
 public class CommonProxy implements IGuiProvider {
 
@@ -85,50 +86,88 @@ public class CommonProxy implements IGuiProvider {
         registerTileEntity(TileEntityExtraReactorLogicAdapter.class, "extra_reactor_logic_adapter");
         registerTileEntity(TileEntityExtraReactorLaserFocusMatrix.class, "extra_laser_focus_matrix");
         //MoreMachine based machines: one tile entity class per (machine, tier) pair so that chunks can create them.
-        registerTileEntity(ExtraMoreMachineTiles.CrystallizerAbsolute.class, "absolute_crystallizer");
-        registerTileEntity(ExtraMoreMachineTiles.CrystallizerSupreme.class, "supreme_crystallizer");
-        registerTileEntity(ExtraMoreMachineTiles.CrystallizerCosmic.class, "cosmic_crystallizer");
-        registerTileEntity(ExtraMoreMachineTiles.CrystallizerInfinite.class, "infinite_crystallizer");
-        registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberAbsolute.class, "absolute_dissolution_chamber");
-        registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberSupreme.class, "supreme_dissolution_chamber");
-        registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberCosmic.class, "cosmic_dissolution_chamber");
-        registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberInfinite.class, "infinite_dissolution_chamber");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerAbsolute.class, "absolute_chemical_oxidizer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerSupreme.class, "supreme_chemical_oxidizer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerCosmic.class, "cosmic_chemical_oxidizer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerInfinite.class, "infinite_chemical_oxidizer");
-        registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierAbsolute.class, "absolute_nutritional_liquifier");
-        registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierSupreme.class, "supreme_nutritional_liquifier");
-        registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierCosmic.class, "cosmic_nutritional_liquifier");
-        registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierInfinite.class, "infinite_nutritional_liquifier");
-        registerTileEntity(ExtraMoreMachineTiles.OrganicFarmAbsolute.class, "absolute_organic_farm");
-        registerTileEntity(ExtraMoreMachineTiles.OrganicFarmSupreme.class, "supreme_organic_farm");
-        registerTileEntity(ExtraMoreMachineTiles.OrganicFarmCosmic.class, "cosmic_organic_farm");
-        registerTileEntity(ExtraMoreMachineTiles.OrganicFarmInfinite.class, "infinite_organic_farm");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherAbsolute.class, "absolute_chemical_washer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherSupreme.class, "supreme_chemical_washer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherCosmic.class, "cosmic_chemical_washer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherInfinite.class, "infinite_chemical_washer");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserAbsolute.class, "absolute_chemical_infuser");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserSupreme.class, "supreme_chemical_infuser");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserCosmic.class, "cosmic_chemical_infuser");
-        registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserInfinite.class, "infinite_chemical_infuser");
-        registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeAbsolute.class, "absolute_isotopic_centrifuge");
-        registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeSupreme.class, "supreme_isotopic_centrifuge");
-        registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeCosmic.class, "cosmic_isotopic_centrifuge");
-        registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeInfinite.class, "infinite_isotopic_centrifuge");
+        if (MekanismMachineConfig.isMoreMachineEnabled("crystallizer")) {
+            registerTileEntity(ExtraMoreMachineTiles.CrystallizerFinal.class, "final_crystallizer");
+            registerTileEntity(ExtraMoreMachineTiles.CrystallizerArcane.class, "arcane_crystallizer");
+            registerTileEntity(ExtraMoreMachineTiles.CrystallizerSupreme.class, "supreme_crystallizer");
+            registerTileEntity(ExtraMoreMachineTiles.CrystallizerAbsolute.class, "absolute_crystallizer");
+            registerTileEntity(ExtraMoreMachineTiles.CrystallizerCosmic.class, "cosmic_crystallizer");
+            registerTileEntity(ExtraMoreMachineTiles.CrystallizerInfinite.class, "infinite_crystallizer");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("dissolution_chamber")) {
+            registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberFinal.class, "final_dissolution_chamber");
+            registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberArcane.class, "arcane_dissolution_chamber");
+            registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberSupreme.class, "supreme_dissolution_chamber");
+            registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberAbsolute.class, "absolute_dissolution_chamber");
+            registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberCosmic.class, "cosmic_dissolution_chamber");
+            registerTileEntity(ExtraMoreMachineTiles.DissolutionChamberInfinite.class, "infinite_dissolution_chamber");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("chemical_oxidizer")) {
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerFinal.class, "final_chemical_oxidizer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerArcane.class, "arcane_chemical_oxidizer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerSupreme.class, "supreme_chemical_oxidizer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerAbsolute.class, "absolute_chemical_oxidizer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerCosmic.class, "cosmic_chemical_oxidizer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalOxidizerInfinite.class, "infinite_chemical_oxidizer");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("nutritional_liquifier")) {
+            registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierFinal.class, "final_nutritional_liquifier");
+            registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierArcane.class, "arcane_nutritional_liquifier");
+            registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierSupreme.class, "supreme_nutritional_liquifier");
+            registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierAbsolute.class, "absolute_nutritional_liquifier");
+            registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierCosmic.class, "cosmic_nutritional_liquifier");
+            registerTileEntity(ExtraMoreMachineTiles.NutritionalLiquifierInfinite.class, "infinite_nutritional_liquifier");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("organic_farm")) {
+            registerTileEntity(ExtraMoreMachineTiles.OrganicFarmFinal.class, "final_organic_farm");
+            registerTileEntity(ExtraMoreMachineTiles.OrganicFarmArcane.class, "arcane_organic_farm");
+            registerTileEntity(ExtraMoreMachineTiles.OrganicFarmSupreme.class, "supreme_organic_farm");
+            registerTileEntity(ExtraMoreMachineTiles.OrganicFarmAbsolute.class, "absolute_organic_farm");
+            registerTileEntity(ExtraMoreMachineTiles.OrganicFarmCosmic.class, "cosmic_organic_farm");
+            registerTileEntity(ExtraMoreMachineTiles.OrganicFarmInfinite.class, "infinite_organic_farm");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("chemical_washer")) {
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherFinal.class, "final_chemical_washer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherArcane.class, "arcane_chemical_washer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherSupreme.class, "supreme_chemical_washer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherAbsolute.class, "absolute_chemical_washer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherCosmic.class, "cosmic_chemical_washer");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalWasherInfinite.class, "infinite_chemical_washer");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("chemical_infuser")) {
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserFinal.class, "final_chemical_infuser");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserArcane.class, "arcane_chemical_infuser");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserSupreme.class, "supreme_chemical_infuser");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserAbsolute.class, "absolute_chemical_infuser");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserCosmic.class, "cosmic_chemical_infuser");
+            registerTileEntity(ExtraMoreMachineTiles.ChemicalInfuserInfinite.class, "infinite_chemical_infuser");
+        }
+        if (MekanismMachineConfig.isMoreMachineEnabled("isotopic_centrifuge")) {
+            registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeFinal.class, "final_isotopic_centrifuge");
+            registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeArcane.class, "arcane_isotopic_centrifuge");
+            registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeSupreme.class, "supreme_isotopic_centrifuge");
+            registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeAbsolute.class, "absolute_isotopic_centrifuge");
+            registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeCosmic.class, "cosmic_isotopic_centrifuge");
+            registerTileEntity(ExtraMoreMachineTiles.IsotopicCentrifugeInfinite.class, "infinite_isotopic_centrifuge");
+        }
         registerTileEntity(TileEntityExtraUniversalCable.class, "extra_universal_cable");
         registerTileEntity(TileEntityExtraMechanicalPipe.class, "extra_mechanical_pipe");
         registerTileEntity(TileEntityExtraPressurizedTube.class, "extra_pressurized_tube");
         registerTileEntity(TileEntityExtraThermodynamicConductor.class, "extra_thermodynamic_conductor");
         registerTileEntity(TileEntityExtraLogisticalTransporter.class, "extra_logistical_transporter");
-        registerTileEntity(TileEntityAdvancedElectricPump.class, "advanced_electric_pump");
+        if (MekanismMachineConfig.isEnabled(mekanism.common.block.states.BlockStateMachine.MachineType.ELECTRIC_PUMP)) {
+            registerTileEntity(TileEntityAdvancedElectricPump.class, "advanced_electric_pump");
+        }
         //Factories: one tile entity class per tier, plus the legacy untiered name.
-        registerTileEntity(ExtraFactoryTiles.Absolute.class, "extra_factory_absolute");
-        registerTileEntity(ExtraFactoryTiles.Supreme.class, "extra_factory_supreme");
-        registerTileEntity(ExtraFactoryTiles.Cosmic.class, "extra_factory_cosmic");
-        registerTileEntity(ExtraFactoryTiles.Infinite.class, "extra_factory_infinite");
-        registerTileEntity(TileEntityExtraFactory.class, "extra_factory");
+        if (MekanismMachineConfig.anyFactoryEnabled()) {
+            registerTileEntity(ExtraFactoryTiles.Final.class, "extra_factory_final");
+            registerTileEntity(ExtraFactoryTiles.Arcane.class, "extra_factory_arcane");
+            registerTileEntity(ExtraFactoryTiles.Supreme.class, "extra_factory_supreme");
+            registerTileEntity(ExtraFactoryTiles.Absolute.class, "extra_factory_absolute");
+            registerTileEntity(ExtraFactoryTiles.Cosmic.class, "extra_factory_cosmic");
+            registerTileEntity(ExtraFactoryTiles.Infinite.class, "extra_factory_infinite");
+            registerTileEntity(TileEntityExtraFactory.class, "extra_factory");
+        }
     }
 
     public void registerTESRs() {

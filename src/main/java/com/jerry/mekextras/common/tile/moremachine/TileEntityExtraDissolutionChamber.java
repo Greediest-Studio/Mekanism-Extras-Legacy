@@ -481,9 +481,9 @@ public class TileEntityExtraDissolutionChamber extends TileEntityMachine impleme
     }
 
     private long getGasUsage(long usedSoFar, int operatingTicks) {
-        return mekanism.common.recipe.cache.SecondaryFuelUsage.isRandomized(this)
+        return com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.isRandomized(this)
               ? injectUsageSampler.sample(injectUsage)
-              : mekanism.common.recipe.cache.SecondaryFuelUsage.constantUse(
+              : com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.constantUse(
                     baseTotalUsage, usedSoFar, ticksRequired, operatingTicks);
     }
 
@@ -683,7 +683,7 @@ public class TileEntityExtraDissolutionChamber extends TileEntityMachine impleme
 
     public int getGasUsagePerOperation() {
         return mekanism.common.recipe.cache.ItemStackConstantGasCachedRecipe.getGasUsagePerOperation(
-              mekanism.common.recipe.cache.SecondaryFuelUsage.isRandomized(this), baseTotalUsage, injectUsage, ticksRequired);
+              com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.isRandomized(this), baseTotalUsage, injectUsage, ticksRequired);
     }
 
     @Override
@@ -769,12 +769,12 @@ public class TileEntityExtraDissolutionChamber extends TileEntityMachine impleme
             energyPerTick = ExtraUpgrades.isCreativeInstalled(this) ? 0 : MekanismUtils.getEnergyPerTick(this, BASE_ENERGY_PER_TICK); // incorporate speed upgrades
         } else if (upgrade == Upgrade.GAS) {
             injectUsage = MekanismUtils.getSecondaryEnergyPerTickMean(this, BASE_INJECT_USAGE);
-            baseTotalUsage = mekanism.common.recipe.cache.SecondaryFuelUsage.fixedTotal(this, BASE_TICKS_REQUIRED);
+            baseTotalUsage = com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.fixedTotal(this, BASE_TICKS_REQUIRED);
         } else if (upgrade == Upgrade.SPEED) {
             ticksRequired = ExtraUpgrades.isCreativeInstalled(this) ? 1 : MekanismUtils.getTicks(this, BASE_TICKS_REQUIRED);
             energyPerTick = MekanismUtils.getEnergyPerTick(this, BASE_ENERGY_USAGE);
             injectUsage = MekanismUtils.getSecondaryEnergyPerTickMean(this, BASE_INJECT_USAGE);
-            baseTotalUsage = mekanism.common.recipe.cache.SecondaryFuelUsage.fixedTotal(this, BASE_TICKS_REQUIRED);
+            baseTotalUsage = com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage.fixedTotal(this, BASE_TICKS_REQUIRED);
         }
         if (world != null && !world.isRemote) {
             unpauseRecipeCaches();

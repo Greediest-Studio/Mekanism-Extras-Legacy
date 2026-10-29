@@ -1,0 +1,23 @@
+{
+    "type":  "mekanism:ore_shaped",
+    "pattern":  [
+                    "CPC",
+                    "P#P",
+                    "CPC"
+                ],
+    "key":  {
+                "C":  {
+                          "item":  "mekanism_extras:arcane_control_circuit"
+                      },
+                "P":  {
+                          "item":  "mekanism_extras:final_induction_provider"
+                      },
+                "#":  {
+                          "item":  "mekanism_extras:arcane_energy_cube"
+                      }
+            },
+    "result":  {
+                   "item":  "mekanism_extras:arcane_induction_provider",
+                   "count":  1
+               }
+}

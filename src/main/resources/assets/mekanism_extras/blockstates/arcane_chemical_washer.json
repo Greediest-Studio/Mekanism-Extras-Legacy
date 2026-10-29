@@ -1,0 +1,38 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "mekanism_extras:chemical_washer_led_overlay",
+    "textures": {
+      "all1": "mekanism:blocks/models/chemical_washer",
+      "particle": "mekanism:blocks/models/chemical_washer",
+      "led": "mekanism_extras:blocks/factory/led_arcane"
+    }
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {},
+      "false": {}
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

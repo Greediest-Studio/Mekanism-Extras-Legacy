@@ -1,0 +1,32 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "_C_",
+    "APA",
+    "___"
+  ],
+  "key": {
+    "_": {
+      "item": "minecraft:stone",
+      "data": 0
+    },
+    "C": {
+      "item": "mekanism_extras:final_control_circuit"
+    },
+    "A": {
+      "item": "mekanism_extras:alloy_fantasy"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:basicblock",
+      "data": 6,
+      "nbt": {
+        "tier": 3
+      }
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:final_bin",
+    "count": 1
+  }
+}

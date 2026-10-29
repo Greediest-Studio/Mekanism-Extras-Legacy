@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "AOA",
@@ -14,12 +14,7 @@
       "type": "forge:ore_dict"
     },
     "P": {
-      "type": "mekanism:item_nbt",
-      "item": "mekanism:gastank",
-      "data": 0,
-      "nbt": {
-        "tier": 3
-      }
+      "item": "mekanism_extras:arcane_chemical_tank"
     }
   },
   "result": {

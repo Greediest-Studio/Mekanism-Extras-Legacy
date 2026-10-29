@@ -9,7 +9,7 @@
     "extra": {
       "connect_to": [
         {
-          "block": "mekanism_extras:absolute_induction_cell"
+          "block": "mekanism_extras:supreme_induction_cell"
         },
         {
           "block": "mekanism_extras:supreme_induction_cell"
@@ -21,7 +21,7 @@
           "block": "mekanism_extras:infinite_induction_cell"
         },
         {
-          "block": "mekanism_extras:absolute_induction_provider"
+          "block": "mekanism_extras:supreme_induction_provider"
         },
         {
           "block": "mekanism_extras:supreme_induction_provider"

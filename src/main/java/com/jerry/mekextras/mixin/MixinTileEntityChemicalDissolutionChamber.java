@@ -3,7 +3,7 @@ package com.jerry.mekextras.mixin;
 import com.jerry.mekextras.common.recipe.IExtraDissolutionGasRecipe;
 import mekanism.common.base.IUpgradeTile;
 import mekanism.common.recipe.cache.CachedRecipe;
-import mekanism.common.recipe.cache.SecondaryFuelUsage;
+import com.jerry.mekextras.common.util.ExtraSecondaryFuelUsage;
 import mekanism.common.recipe.machines.DissolutionRecipe;
 import mekanism.common.tile.machine.TileEntityChemicalDissolutionChamber;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,7 +47,7 @@ public abstract class MixinTileEntityChemicalDissolutionChamber {
     private void extras$applyRecipeGasUsage(DissolutionRecipe recipe) {
         if (recipe instanceof IExtraDissolutionGasRecipe extra) {
             int ticks = Math.max(1, ((TileEntityChemicalDissolutionChamber) (Object) this).getTicksRequired());
-            baseTotalUsage = SecondaryFuelUsage.fixedTotal((IUpgradeTile) (Object) this, extra.getGasUsagePerOperation());
+            baseTotalUsage = ExtraSecondaryFuelUsage.fixedTotal((IUpgradeTile) (Object) this, extra.getGasUsagePerOperation());
             gasPerTickMeanMultiplier = extra.getGasUsagePerOperation() / (double) ticks;
         }
     }

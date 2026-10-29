@@ -37,11 +37,6 @@ public class ExtraTags {
         public static final TagKey<Item> ENRICHED = tag("enriched");
         public static final TagKey<Item> ENRICHED_OSMIUM = tag("enriched/osmium");
         public static final TagKey<Item> ENRICHED_LEAD = tag("enriched/lead");
-        public static final TagKey<Item> ENRICHED_RADIANCE = tag("enriched/radiance");
-        public static final TagKey<Item> ENRICHED_THERMONUCLEAR = tag("enriched/thermonuclear");
-        public static final TagKey<Item> ENRICHED_SHINING = tag("enriched/shining");
-        public static final TagKey<Item> ENRICHED_SPECTRUM = tag("enriched/spectrum");
-
         private static TagKey<Item> commonTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", name));
         }

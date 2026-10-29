@@ -1,0 +1,46 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "glass": "mekanism:blocks/models/fluid_tank_side_off",
+      "frame": "mekanism:blocks/models/fluid_tank",
+      "particle": "mekanism:blocks/models/fluid_tank"
+    },
+    "model": "mekanism:fluid_tank"
+  },
+  "variants": {
+    "facing": {
+      "north": {},
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": -90
+      },
+      "up": {
+        "x": -90
+      },
+      "down": {
+        "x": 90
+      }
+    },
+    "active": {
+      "true": {
+        "textures": {
+          "glass": "mekanism:blocks/models/fluid_tank_side_on"
+        }
+      },
+      "false": {
+        "textures": {
+          "glass": "mekanism:blocks/models/fluid_tank_side_off"
+        }
+      }
+    },
+    "inventory": [
+      {}
+    ]
+  }
+}

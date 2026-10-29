@@ -9,6 +9,8 @@ import java.util.Locale;
 
 public enum ICTier implements IAdvancedTier, IStringSerializable {
 
+    FINAL(AdvancedTier.FINAL, 512_000_000_000L),
+    ARCANE(AdvancedTier.ARCANE, 4_096_000_000_000L),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 32_768_000_000_000L),
     SUPREME(AdvancedTier.SUPREME, 262_144_000_000_000L),
     COSMIC(AdvancedTier.COSMIC, 2_097_152_000_000_000L),
@@ -43,6 +45,6 @@ public enum ICTier implements IAdvancedTier, IStringSerializable {
 
     public static ICTier byIndex(int index) {
         ICTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

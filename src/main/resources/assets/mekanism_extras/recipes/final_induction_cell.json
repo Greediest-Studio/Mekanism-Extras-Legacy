@@ -1,0 +1,28 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "EPE",
+    "P#P",
+    "EPE"
+  ],
+  "key": {
+    "E": {
+      "item": "mekanism:energytablet"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:basicblock2",
+      "data": 3,
+      "nbt": {
+        "tier": 3
+      }
+    },
+    "#": {
+      "item": "mekanism_extras:final_energy_cube"
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:final_induction_cell",
+    "count": 1
+  }
+}

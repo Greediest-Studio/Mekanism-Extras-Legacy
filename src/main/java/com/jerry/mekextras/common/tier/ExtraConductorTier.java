@@ -10,6 +10,8 @@ import mekanism.common.tier.BaseTier;
  */
 public enum ExtraConductorTier implements IAdvancedTier {
 
+    FINAL(AdvancedTier.FINAL, 5, 0.625, 20_000, new ColourRGBA(0.2, 0.2, 0.2, 1)),
+    ARCANE(AdvancedTier.ARCANE, 5, 2.5, 100_000, new ColourRGBA(0.2, 0.2, 0.2, 1)),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 5, 10, 500_000, new ColourRGBA(0.2, 0.2, 0.2, 1)),
     SUPREME(AdvancedTier.SUPREME, 5, 40, 2_500_000, new ColourRGBA(0.2, 0.2, 0.2, 1)),
     COSMIC(AdvancedTier.COSMIC, 5, 160, 12_500_000, new ColourRGBA(0.2, 0.2, 0.2, 1)),
@@ -62,7 +64,7 @@ public enum ExtraConductorTier implements IAdvancedTier {
 
     public static ExtraConductorTier byIndex(int index) {
         ExtraConductorTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 
     public static ExtraConductorTier get(BaseTier tier) {
@@ -71,6 +73,6 @@ public enum ExtraConductorTier implements IAdvancedTier {
         }
         ExtraConductorTier[] values = values();
         int index = tier.ordinal() - BaseTier.ULTIMATE.ordinal();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }

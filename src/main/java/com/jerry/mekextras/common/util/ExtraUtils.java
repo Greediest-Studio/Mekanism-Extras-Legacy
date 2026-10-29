@@ -30,15 +30,6 @@ import mekanism.common.util.ItemDataUtils;
 import mekanism.common.util.MekanismPlacementData;
 import mekanism.common.util.StorageUtils;
 import mekanism.common.util.SecurityUtils;
-import mekceumoremachine.common.tile.machine.TierCrystallizer.TileEntityTierChemicalCrystallizer;
-import mekceumoremachine.common.tile.machine.TierDissolution.TileEntityTierChemicalDissolutionChamber;
-import mekceumoremachine.common.tile.machine.TierNutritional.TileEntityTierNutritionalLiquifier;
-import mekceumoremachine.common.tile.machine.TierOrganicFarm.TileEntityTierOrganicFarm;
-import mekceumoremachine.common.tile.machine.TierOxidizer.TileEntityTierChemicalOxidizer;
-import mekceumoremachine.common.tile.machine.TileEntityTierChemicalInfuser;
-import mekceumoremachine.common.tile.machine.TileEntityTierChemicalWasher;
-import mekceumoremachine.common.tile.machine.TileEntityTierIsotopicCentrifuge;
-import mekceumoremachine.common.tile.machine.TileEntityTierRadioactiveWasteBarrel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -54,6 +45,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -218,7 +210,7 @@ public class ExtraUtils {
      * @return whether an upstream Mekanism or MoreMachine ultimate block has an Absolute counterpart in this mod
      */
     public static boolean canApplyUpstreamExtraTier(TileEntity tile, AdvancedTier tier) {
-        return tile != null && tier == AdvancedTier.ABSOLUTE && !(tile instanceof IExtraTierMachine)
+        return tile != null && tier == AdvancedTier.FINAL && !(tile instanceof IExtraTierMachine)
               && getUpstreamAbsoluteBlock(tile) != null;
     }
 
@@ -226,12 +218,12 @@ public class ExtraUtils {
      * Replaces an upstream ultimate block with its Absolute counterpart while carrying the complete tile snapshot.
      */
     public static boolean applyUpstreamExtraTier(World world, BlockPos pos, AdvancedTier tier) {
-        if (world.isRemote || tier != AdvancedTier.ABSOLUTE) {
+        if (world.isRemote || tier != AdvancedTier.FINAL) {
             return false;
         }
         TileEntity oldTile = world.getTileEntity(pos);
         Block targetBlock = getUpstreamAbsoluteBlock(oldTile);
-        return targetBlock != null && replaceWithExtraTier(world, pos, oldTile, targetBlock, AdvancedTier.ABSOLUTE);
+        return targetBlock != null && replaceWithExtraTier(world, pos, oldTile, targetBlock, AdvancedTier.FINAL);
     }
 
     private static boolean replaceWithExtraTier(World world, BlockPos pos, TileEntity oldTile,
@@ -284,53 +276,61 @@ public class ExtraUtils {
             return null;
         }
         if (tile instanceof TileEntityEnergyCube && isUltimate(tile)) {
-            return ExtraBlocks.getEnergyCubeBlock(AdvancedTier.ABSOLUTE);
+            return ExtraBlocks.getEnergyCubeBlock(AdvancedTier.FINAL);
         }
         if (tile instanceof TileEntityFluidTank && isUltimate(tile)) {
-            return ExtraBlocks.getFluidTankBlock(AdvancedTier.ABSOLUTE);
+            return ExtraBlocks.getFluidTankBlock(AdvancedTier.FINAL);
         }
         if (tile instanceof TileEntityGasTank && isUltimate(tile)) {
-            return ExtraBlocks.getChemicalTankBlock(AdvancedTier.ABSOLUTE);
+            return ExtraBlocks.getChemicalTankBlock(AdvancedTier.FINAL);
         }
         if (tile instanceof TileEntityBin && isUltimate(tile)) {
-            return ExtraBlocks.getBinBlock(AdvancedTier.ABSOLUTE);
+            return ExtraBlocks.getBinBlock(AdvancedTier.FINAL);
         }
         if (tile instanceof TileEntityInductionCell && ((TileEntityInductionCell) tile).tier.getBaseTier() == BaseTier.ULTIMATE) {
-            return ExtraBlocks.getInductionCellBlock(AdvancedTier.ABSOLUTE);
+            return ExtraBlocks.getInductionCellBlock(AdvancedTier.FINAL);
         }
         if (tile instanceof TileEntityInductionProvider && ((TileEntityInductionProvider) tile).tier.getBaseTier() == BaseTier.ULTIMATE) {
-            return ExtraBlocks.getInductionProviderBlock(AdvancedTier.ABSOLUTE);
+            return ExtraBlocks.getInductionProviderBlock(AdvancedTier.FINAL);
         }
         if (tile instanceof TileEntityFactory && isUltimate(tile)) {
-            return ExtraBlocks.getFactoryBlock(((TileEntityFactory) tile).getRecipeType(), ExtraFactoryTier.ABSOLUTE);
+            return ExtraBlocks.getFactoryBlock(((TileEntityFactory) tile).getRecipeType(), ExtraFactoryTier.FINAL);
         }
-        if (tile instanceof TileEntityTierChemicalDissolutionChamber && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("dissolution_chamber", AdvancedTier.ABSOLUTE);
+        // MoreMachine is optional. Do not reference its tile classes here: the JVM resolves
+        // instanceof operands while loading this class, which crashes when MoreMachine is absent.
+        if (isUltimate(tile)) {
+            String moreMachineType = getOptionalMoreMachineType(tile);
+            if (moreMachineType != null) {
+                if ("radioactive_waste_barrel".equals(moreMachineType)) {
+                    return ExtraBlocks.getWasteBarrelBlock(AdvancedTier.FINAL);
+                }
+                return ExtraBlocks.getMoreMachineBlock(moreMachineType, AdvancedTier.FINAL);
+            }
         }
-        if (tile instanceof TileEntityTierNutritionalLiquifier && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("nutritional_liquifier", AdvancedTier.ABSOLUTE);
+        return null;
+    }
+
+    /**
+     * Identifies a MoreMachine ultimate tile without linking against its optional classes.
+     * Both the tile class name and registry path are used because releases have used
+     * different registry naming conventions.
+     */
+    @Nullable
+    private static String getOptionalMoreMachineType(TileEntity tile) {
+        String value = tile.getClass().getName().toLowerCase(java.util.Locale.ROOT);
+        ResourceLocation registryName = tile.getBlockType() == null ? null : tile.getBlockType().getRegistryName();
+        if (registryName != null) {
+            value += " " + registryName.toString().toLowerCase(java.util.Locale.ROOT);
         }
-        if (tile instanceof TileEntityTierChemicalOxidizer && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("chemical_oxidizer", AdvancedTier.ABSOLUTE);
-        }
-        if (tile instanceof TileEntityTierChemicalCrystallizer && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("crystallizer", AdvancedTier.ABSOLUTE);
-        }
-        if (tile instanceof TileEntityTierOrganicFarm && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("organic_farm", AdvancedTier.ABSOLUTE);
-        }
-        if (tile instanceof TileEntityTierIsotopicCentrifuge && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("isotopic_centrifuge", AdvancedTier.ABSOLUTE);
-        }
-        if (tile instanceof TileEntityTierChemicalInfuser && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("chemical_infuser", AdvancedTier.ABSOLUTE);
-        }
-        if (tile instanceof TileEntityTierChemicalWasher && isUltimate(tile)) {
-            return ExtraBlocks.getMoreMachineBlock("chemical_washer", AdvancedTier.ABSOLUTE);
-        }
-        if (tile instanceof TileEntityTierRadioactiveWasteBarrel && isUltimate(tile)) {
-            return ExtraBlocks.getWasteBarrelBlock(AdvancedTier.ABSOLUTE);
-        }
+        if (value.contains("dissolution")) return "dissolution_chamber";
+        if (value.contains("nutritional") || value.contains("liquifier")) return "nutritional_liquifier";
+        if (value.contains("oxidizer")) return "chemical_oxidizer";
+        if (value.contains("crystallizer")) return "crystallizer";
+        if (value.contains("organicfarm") || value.contains("organic_farm")) return "organic_farm";
+        if (value.contains("isotopiccentrifuge") || value.contains("isotopic_centrifuge")) return "isotopic_centrifuge";
+        if (value.contains("chemicalinfuser") || value.contains("chemical_infuser")) return "chemical_infuser";
+        if (value.contains("chemicalwasher") || value.contains("chemical_washer")) return "chemical_washer";
+        if (value.contains("radioactivewastebarrel") || value.contains("radioactive_waste_barrel")) return "radioactive_waste_barrel";
         return null;
     }
 

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public enum ExtraResource implements IResource {
-    NAQUADAH("naquadah", 0x051602, () -> ExtraTags.Items.NAQUADAH, BlockExtraResourceInfo.NAQUADAH, BlockExtraResourceInfo.RAW_NAQUADAH);
+    NAQUADAH("naquadah", 0x051602, () -> ExtraTags.Items.NAQUADAH, BlockExtraResourceInfo.NAQUADAH);
 
     private final String name;
     private final int tint;
@@ -18,23 +18,21 @@ public enum ExtraResource implements IResource {
     private final Supplier<TagKey<Item>> oreTag;
     private final boolean isVanilla;
     private final BlockExtraResourceInfo resourceBlockInfo;
-    private final BlockExtraResourceInfo rawResourceBlockInfo;
 
     ExtraResource(String name, int tint, TagKey<Item> oreTag) {
         this(name, tint, () -> oreTag, true, null, null);
     }
 
-    ExtraResource(String name, int tint, Supplier<TagKey<Item>> oreTag, BlockExtraResourceInfo resourceBlockInfo, BlockExtraResourceInfo rawResourceBlockInfo) {
-        this(name, tint, oreTag, false, resourceBlockInfo, rawResourceBlockInfo);
+    ExtraResource(String name, int tint, Supplier<TagKey<Item>> oreTag, BlockExtraResourceInfo resourceBlockInfo) {
+        this(name, tint, oreTag, false, resourceBlockInfo);
     }
 
-    ExtraResource(String name, int tint, Supplier<TagKey<Item>> oreTag, boolean isVanilla, BlockExtraResourceInfo resourceBlockInfo, BlockExtraResourceInfo rawResourceBlockInfo) {
+    ExtraResource(String name, int tint, Supplier<TagKey<Item>> oreTag, boolean isVanilla, BlockExtraResourceInfo resourceBlockInfo) {
         this.name = name;
         this.tint = tint;
         this.oreTag = oreTag;
         this.isVanilla = isVanilla;
         this.resourceBlockInfo = resourceBlockInfo;
-        this.rawResourceBlockInfo = rawResourceBlockInfo;
     }
 
     @Override
@@ -64,8 +62,4 @@ public enum ExtraResource implements IResource {
         return resourceBlockInfo;
     }
 
-    @Nullable
-    public BlockExtraResourceInfo getRawResourceBlockInfo() {
-        return rawResourceBlockInfo;
-    }
 }

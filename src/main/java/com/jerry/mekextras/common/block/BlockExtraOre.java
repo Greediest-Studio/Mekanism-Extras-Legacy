@@ -1,6 +1,5 @@
 package com.jerry.mekextras.common.block;
 
-import com.jerry.mekextras.common.registries.ExtraItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
@@ -20,7 +19,10 @@ public class BlockExtraOre extends BlockExtraResource {
 
     @Override
     public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-        return drop;
+        // Legacy Mekanism ores are processed from the ore block itself. When no
+        // alternate drop is supplied, preserve the block item instead of
+        // producing a separate raw-material item.
+        return drop == null ? Item.getItemFromBlock(this) : drop;
     }
 
     @Override

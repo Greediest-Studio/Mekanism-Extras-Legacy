@@ -124,7 +124,9 @@ public class ClientProxy extends CommonProxy {
                 return ((BlockExtraFluidTank) state.getBlock()).getTier().getAdvanceTier().getDisplayColor(ticks);
             }
             return -1;
-        }, com.jerry.mekextras.common.registries.ExtraBlocks.ABSOLUTE_FLUID_TANK,
+        }, com.jerry.mekextras.common.registries.ExtraBlocks.FINAL_FLUID_TANK,
+                com.jerry.mekextras.common.registries.ExtraBlocks.ARCANE_FLUID_TANK,
+                com.jerry.mekextras.common.registries.ExtraBlocks.ABSOLUTE_FLUID_TANK,
                 com.jerry.mekextras.common.registries.ExtraBlocks.SUPREME_FLUID_TANK,
                 com.jerry.mekextras.common.registries.ExtraBlocks.COSMIC_FLUID_TANK,
                 com.jerry.mekextras.common.registries.ExtraBlocks.INFINITE_FLUID_TANK);
@@ -134,7 +136,9 @@ public class ClientProxy extends CommonProxy {
                       .getDisplayColor(getItemAnimationTicks());
             }
             return -1;
-        }, com.jerry.mekextras.common.registries.ExtraBlocks.ABSOLUTE_FLUID_TANK,
+        }, com.jerry.mekextras.common.registries.ExtraBlocks.FINAL_FLUID_TANK,
+                com.jerry.mekextras.common.registries.ExtraBlocks.ARCANE_FLUID_TANK,
+                com.jerry.mekextras.common.registries.ExtraBlocks.ABSOLUTE_FLUID_TANK,
                 com.jerry.mekextras.common.registries.ExtraBlocks.SUPREME_FLUID_TANK,
                 com.jerry.mekextras.common.registries.ExtraBlocks.COSMIC_FLUID_TANK,
                 com.jerry.mekextras.common.registries.ExtraBlocks.INFINITE_FLUID_TANK);

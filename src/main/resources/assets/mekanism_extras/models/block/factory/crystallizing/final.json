@@ -1,0 +1,13 @@
+{
+  "parent": "mekanism_extras:block/factory_final_led_overlay",
+  "textures": {
+    "east": "mekanism:blocks/factory/advanced/advancedsmeltingfactoryleft",
+    "south": "mekanism:blocks/factory/advanced/advancedsmeltingfactoryback",
+    "west": "mekanism:blocks/factory/advanced/advancedsmeltingfactoryright",
+    "sides": "mekanism:blocks/factory/advanced/advancedsmeltingfactoryright",
+    "front": "mekanism:blocks/factory/advanced/advancedsmeltingfactoryfront",
+    "up": "mekanism:blocks/factory/advanced/advancedsmeltingfactorytop",
+    "down": "mekanism:blocks/factory/factory_bottom",
+    "particle": "mekanism:blocks/SteelCasing"
+  }
+}

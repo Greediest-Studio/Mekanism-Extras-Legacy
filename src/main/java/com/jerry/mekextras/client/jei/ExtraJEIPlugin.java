@@ -5,6 +5,7 @@ import com.jerry.mekextras.common.item.ItemNaquadahHohlraum;
 import com.jerry.mekextras.common.registries.ExtraBlocks;
 import com.jerry.mekextras.common.registries.ExtraItems;
 import com.jerry.mekextras.common.tier.ExtraFactoryTier;
+import com.jerry.mekextras.common.util.MekanismMachineConfig;
 import mekanism.api.gas.GasStack;
 import mekanism.common.base.IFactory.RecipeType;
 import mekanism.common.block.states.BlockStateMachine.MachineType;
@@ -19,6 +20,7 @@ import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.ingredients.VanillaTypes;
 import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import java.util.EnumMap;
@@ -77,8 +79,11 @@ public class ExtraJEIPlugin implements IModPlugin {
         registerMoreMachine(registry, Recipe.CHEMICAL_WASHER, ExtraBlocks.CHEMICAL_WASHERS);
         registerMoreMachine(registry, Recipe.CHEMICAL_INFUSER, ExtraBlocks.CHEMICAL_INFUSERS);
         registerMoreMachine(registry, Recipe.ISOTOPIC_CENTRIFUGE, ExtraBlocks.ISOTOPIC_CENTRIFUGES);
-        registry.addIngredientInfo(new ItemStack(ExtraBlocks.ADVANCED_ELECTRIC_PUMP), VanillaTypes.ITEM,
-              "description.mekanism_extras.ionic_membrane_processing");
+        Item pumpItem = Item.getItemFromBlock(ExtraBlocks.ADVANCED_ELECTRIC_PUMP);
+        if (MekanismMachineConfig.isEnabled(MachineType.ELECTRIC_PUMP) && pumpItem != null) {
+            registry.addIngredientInfo(new ItemStack(pumpItem), VanillaTypes.ITEM,
+                  "description.mekanism_extras.ionic_membrane_processing");
+        }
         registry.addIngredientInfo(new ItemStack(ExtraItems.IONIC_MEMBRANE_UPGRADE), VanillaTypes.ITEM,
               "description.mekanism_extras.ionic_membrane_processing");
         registry.addRecipes(NaquadahReactorRecipeWrapper.createRecipes(), NaquadahReactorRecipeCategory.UID);
@@ -118,7 +123,10 @@ public class ExtraJEIPlugin implements IModPlugin {
         String category = recipe.getJEICategory();
         for (Block block : blocks) {
             if (block instanceof BlockExtraMoreMachine) {
-                registry.addRecipeCatalyst(new ItemStack(block), category);
+                Item item = Item.getItemFromBlock(block);
+                if (item != null) {
+                    registry.addRecipeCatalyst(new ItemStack(item), category);
+                }
             }
         }
     }

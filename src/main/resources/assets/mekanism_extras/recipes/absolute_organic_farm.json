@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "mekanism:ore_shaped",
   "pattern": [
     "ACA",
@@ -13,11 +13,10 @@
       "item": "mekanism_extras:absolute_control_circuit"
     },
     "I": {
-      "item": "minecraft:emerald"
+      "item": "minecraft:redstone_block"
     },
     "P": {
-      "item": "mekceumoremachine:TierOrganicFarm",
-      "data": 3
+      "item": "mekanism_extras:arcane_organic_farm"
     }
   },
   "result": {

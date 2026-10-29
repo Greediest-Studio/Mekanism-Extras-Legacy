@@ -1,0 +1,29 @@
+{
+  "type": "mekanism:ore_shaped",
+  "pattern": [
+    "AIA",
+    "IPI",
+    "AIA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism_extras:alloy_fantasy"
+    },
+    "I": {
+      "ore": "ingotIron",
+      "type": "forge:ore_dict"
+    },
+    "P": {
+      "type": "mekanism:item_nbt",
+      "item": "mekanism:machineblock2",
+      "data": 11,
+      "nbt": {
+        "tier": 3
+      }
+    }
+  },
+  "result": {
+    "item": "mekanism_extras:final_fluid_tank",
+    "count": 1
+  }
+}

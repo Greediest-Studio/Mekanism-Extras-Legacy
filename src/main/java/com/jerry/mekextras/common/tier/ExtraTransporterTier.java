@@ -9,6 +9,8 @@ import mekanism.common.tier.BaseTier;
  */
 public enum ExtraTransporterTier implements IAdvancedTier {
 
+    FINAL(AdvancedTier.FINAL, 10, 1),
+    ARCANE(AdvancedTier.ARCANE, 20, 2),
     ABSOLUTE(AdvancedTier.ABSOLUTE, 30, 4),
     SUPREME(AdvancedTier.SUPREME, 40, 8),
     COSMIC(AdvancedTier.COSMIC, 50, 16),
@@ -44,6 +46,6 @@ public enum ExtraTransporterTier implements IAdvancedTier {
 
     public static ExtraTransporterTier byIndex(int index) {
         ExtraTransporterTier[] values = values();
-        return index >= 0 && index < values.length ? values[index] : ABSOLUTE;
+        return index >= 0 && index < values.length ? values[index] : FINAL;
     }
 }
