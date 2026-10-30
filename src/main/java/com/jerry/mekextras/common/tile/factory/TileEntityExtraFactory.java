@@ -86,6 +86,8 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BooleanSupplier;
@@ -3463,6 +3465,8 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
         }
 
         private static class FactoryInputMatcherCache {
+            private static final Method HAS_CUSTOM_ITEM_MATCHER = findHasCustomItemMatcher();
+            private static final Field ITEM_MATCHER_OVERRIDES = findItemMatcherOverrides();
             private final RecipeHandler.Recipe<?, ?, ?> recipeRegistry;
             private Map<Item, List<Object>> inputMatchers;
             private Map<Item, Boolean> inputMatcherCacheable;
@@ -3717,7 +3721,7 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
                     boolean cacheable = true;
                     for (Object matcher : entry.getValue()) {
                         ItemStack definition = inputDefinition(matcher);
-                        if (definition == null || MachineInput.hasCustomItemMatcher(definition)) {
+                        if (definition == null || hasCustomItemMatcher(definition)) {
                             cacheable = false;
                             break;
                         }
@@ -3730,6 +3734,51 @@ public class TileEntityExtraFactory extends TileEntityMachine implements IComput
                 doubleExtraMatchers = rebuiltDoubleExtraMatchers;
                 recipeSize = currentRecipeSize;
                 recipeVersion = currentRecipeVersion;
+            }
+
+            /**
+             * Mekanism added hasCustomItemMatcher after the legacy versions this mod supports.
+             * Resolve it reflectively so linking against an older MachineInput does not crash
+             * when the factory receives an item from an external inventory.
+             */
+            private static boolean hasCustomItemMatcher(ItemStack definition) {
+                if (HAS_CUSTOM_ITEM_MATCHER != null) {
+                    try {
+                        return (Boolean) HAS_CUSTOM_ITEM_MATCHER.invoke(null, definition);
+                    } catch (ReflectiveOperationException | RuntimeException ignored) {
+                        // Fall through and conservatively disable memoization below.
+                    }
+                }
+                if (ITEM_MATCHER_OVERRIDES != null) {
+                    try {
+                        Map<?, ?> overrides = (Map<?, ?>) ITEM_MATCHER_OVERRIDES.get(null);
+                        Object matcher = overrides.get(definition.getItem().getClass());
+                        return matcher != null && matcher != MachineInput.DEFAULT_MATCHER;
+                    } catch (IllegalAccessException | RuntimeException ignored) {
+                        // An unknown matcher must not be memoized.
+                    }
+                }
+                return true;
+            }
+
+            @Nullable
+            private static Method findHasCustomItemMatcher() {
+                try {
+                    return MachineInput.class.getMethod("hasCustomItemMatcher", ItemStack.class);
+                } catch (NoSuchMethodException ignored) {
+                    return null;
+                }
+            }
+
+            @Nullable
+            private static Field findItemMatcherOverrides() {
+                try {
+                    Field field = MachineInput.class.getDeclaredField("ITEM_MATCHER_OVERRIDES");
+                    field.setAccessible(true);
+                    return field;
+                } catch (NoSuchFieldException | RuntimeException ignored) {
+                    return null;
+                }
             }
 
             private static void addInputMatcher(Map<Item, List<Object>> matcherMap, ItemStack ingredient, Object matcher) {
